@@ -17,7 +17,7 @@ function renderNode(nodes: any[], depth = 0) {
   return nodes.map((node, index) => {
     const isLastChild = index === nodes.length - 1;
     const collidLink = node.collid
-      ? `../checklists/checklist.php?clid=${node.collid}`
+      ? `../neon/checklists/checklist.php?clid=${node.collid}`
       : null;
 
     const nodeContent = collidLink ? (
