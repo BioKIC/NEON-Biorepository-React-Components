@@ -118,7 +118,7 @@ export default function BiorepoChecklistsContent() {
             />
             <CardContent>
               <Typography variant="h5" style={{ marginBottom: 20 }}>
-                Plants
+                Plants & Algae
               </Typography>
               <div>
                 {renderNode(plantNodesData)}
