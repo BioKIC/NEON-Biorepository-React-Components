@@ -422,9 +422,6 @@ const NeonPage = (props) => {
     if (sidebarLinks.length === 5) {
       return sidebarLinks[3].hash;
     }
-    if (sidebarLinks.length === 7) {
-      return sidebarLinks[1].hash;
-    }
     return '#';
   })();
   const currentSidebarHash = initialCurrentSidebarHash;
@@ -438,7 +435,19 @@ const NeonPage = (props) => {
     const headerOffset = (headerRef.current || {}).offsetHeight || 0;
     const stickyOffset = belowMd ? (sidebarRef.current || {}).offsetHeight || 0 : 0;
     if (hash === '#') { return 0; }
-    const anchor = contentRef.current.querySelector(hash);
+    let selector = null;
+    try {
+      const url = new URL(hash, window.location.origin);
+      selector = url.hash;
+    } catch {
+      if (hash.startsWith('#')) {
+        selector = hash;
+      }
+    }
+    if (!selector) {
+      return -1;
+    }
+    const anchor = contentRef.current.querySelector(selector);
     return !anchor ? -1 : anchor.offsetTop + headerOffset - stickyOffset - Theme.spacing(5);
   }, [hasSidebarLinks, sidebarLinksAsStandaloneChildren, belowMd]);
 
