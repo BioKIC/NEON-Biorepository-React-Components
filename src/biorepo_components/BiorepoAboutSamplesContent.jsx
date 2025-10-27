@@ -18,22 +18,22 @@ export default function BiorepoAboutSamplesContent() {
           <Card variant="outlined">
             <CardMedia
               component="img"
-              image="../images/card-images/1D8A2197.jpg"
-              title="Repositories"
+              image="../images/card-images/1D8A2241.jpg"
+              title="Collections"
               height="auto"
               loading="lazy"
             />
             <CardContent>
               <Typography variant="h5">
-                Sample Repositories
+                Sample Types
               </Typography>
               <Typography variant="body2" color="textSecondary" component="p" style={{ fontSize: '1rem' }}>
-                Although the NEON Biorepository is the primary facility housing NEON samples, select specimens are held by other institutions. Requests for these samples should be made directly to the hosting organization.
+                Explore the range of sample types archived at the Biorepository, including soils, organisms (whole and subsampled), and genomic extracts.
               </Typography>
             </CardContent>
             <CardActions>
-              <Button variant="outlined" size="large" endIcon={<RightIcon />} href="https://www.neonscience.org/samples/sample-repositories">
-                List Repositories
+              <Button variant="outlined" size="large" endIcon={<RightIcon />} href="../collections/misc/browsecollprofiles.php">
+                View Samples Types
               </Button>
             </CardActions>
           </Card>
@@ -42,22 +42,22 @@ export default function BiorepoAboutSamplesContent() {
           <Card variant="outlined">
             <CardMedia
               component="img"
-              image="../images/card-images/1D8A2241.jpg"
-              title="Collections"
+              image="../images/card-images/1D8A2197.jpg"
+              title="Repositories"
               height="auto"
               loading="lazy"
             />
             <CardContent>
               <Typography variant="h5">
-                Browse Sample Collections
+                Other Sample Repositories
               </Typography>
               <Typography variant="body2" color="textSecondary" component="p" style={{ fontSize: '1rem' }}>
-                NEON samples in the sample portal are organized into collections. These generally correspond to the types of samples collected. Data and statistics about these collections can be found here.
+                Although the NEON Biorepository is the primary facility housing NEON samples, select specimens are held by other institutions. Requests for these samples should be made directly to the hosting organization.
               </Typography>
             </CardContent>
             <CardActions>
-              <Button variant="outlined" size="large" endIcon={<RightIcon />} href="../collections/misc/browsecollprofiles.php">
-                Explore Samples Types
+              <Button variant="outlined" size="large" endIcon={<RightIcon />} href="https://www.neonscience.org/samples/sample-repositories">
+                List of Repositories
               </Button>
             </CardActions>
           </Card>

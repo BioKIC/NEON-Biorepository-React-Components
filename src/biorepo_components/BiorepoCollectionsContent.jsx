@@ -128,11 +128,11 @@ export default function BiorepoCollectionsContent() {
     <div>
       <Box sx={{ width: '100%' }}>
         <Typography variant="h3">
-          Browse Collection Profiles
+          Browse Sample Types
         </Typography>
         <Box sx={{ paddingTop: '30px', paddingBottom: '30px' }}>
           <Typography variant="body1">
-            NEON samples are organized into collections, which generally correspond to the types of samples collected based on NEON protocols and sample classes. It is strongly recommended to read the corresponding protocol to understand how and why the collections are organized as they are. Collections are displayed in various groupings via the tabs below. Click on any collection to view detailed data, records, and statistics.
+            Use the tabs and dropdowns to explore the types of samples NEON offers, and view their data, records, and statistics.
           </Typography>
         </Box>
       </Box>
@@ -146,9 +146,9 @@ export default function BiorepoCollectionsContent() {
             aria-label="collections-tabs"
             variant="fullWidth"
           >
-            <Tab label="Browse by Taxonomic Group" {...a11yProps(0)} />
-            <Tab label="Browse by Sample Type" {...a11yProps(1)} />
-            <Tab label="Browse by Protocol" {...a11yProps(2)} />
+            <Tab label="Organized by Taxonomic Group" {...a11yProps(0)} />
+            <Tab label="Organized by Protocol" {...a11yProps(2)} />
+            <Tab label="Organized by Preservation Method" {...a11yProps(1)} />
           </Tabs>
         </Box>
         <CustomTabPanel value={value} index={0}>
@@ -156,14 +156,14 @@ export default function BiorepoCollectionsContent() {
             {renderNode(taxonomicNodesData)}
           </div>
         </CustomTabPanel>
-        <CustomTabPanel value={value} index={1}>
-          <div>
-            {renderNode(sampletypeNodesData)}
-          </div>
-        </CustomTabPanel>
         <CustomTabPanel value={value} index={2}>
           <div>
             {renderNode(protocolNodesData)}
+          </div>
+        </CustomTabPanel>
+        <CustomTabPanel value={value} index={1}>
+          <div>
+            {renderNode(sampletypeNodesData)}
           </div>
         </CustomTabPanel>
       </Box>
