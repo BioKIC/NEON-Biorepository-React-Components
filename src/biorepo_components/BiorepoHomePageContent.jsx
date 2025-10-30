@@ -270,7 +270,7 @@ export default function BiorepoHomePageContent() {
               />
               <CardContent>
                 <Typography component="h1">
-                  Sample Services
+                  Loans & Archival Requests
                 </Typography>
                 <Typography variant="body2" color="textSecondary" component="p">
                   Interested in requesting samples or storing your samples with the Biorepository? Request forms are available here.
