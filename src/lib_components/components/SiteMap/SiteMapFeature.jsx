@@ -27,11 +27,6 @@ import UnselectableIcon from '@material-ui/icons/NotInterested';
 import SelectedIcon from '@material-ui/icons/DoneOutline';
 import UnselectedIcon from '@material-ui/icons/Remove';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faBug,
-} from '@fortawesome/free-solid-svg-icons';
-
 import 'leaflet/dist/leaflet.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -1065,11 +1060,11 @@ const SiteMapFeature = (props) => {
             Site Details
           </Button>
           <Button
-            endIcon={<FontAwesomeIcon icon={faBug} className={classes.faIcon} />}
-            href={getHref('EXPLORE_SAMPLE_PRODUCTS_BY_SITE', site.siteCode)}
+            endIcon={<ExploreDataProductsIcon />}
+            href={getHref('EXPLORE_DATA_PRODUCTS_BY_SITE', site.siteCode)}
             {...actionButtonProps}
           >
-            Explore Samples
+            Explore Data
           </Button>
           <Button
             endIcon={<FontAwesomeIcon icon={faBug} className={classes.faIcon} />}
