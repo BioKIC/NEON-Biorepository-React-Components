@@ -590,9 +590,9 @@ const SiteMapTable = () => {
               <span className={classes.siteLinksDivider}>|</span>
               <Link
                 className={classes.siteDetailsLink}
-                href={`${getHref('EXPLORE_SAMPLE_PRODUCTS_BY_SITE', siteCode)}`}
+                href={`${getHref('EXPLORE_DATA_PRODUCTS_BY_SITE', siteCode)}`}
               >
-                Explore Samples
+                Explore Data
               </Link>
               <span className={classes.siteLinksDivider}>|</span>
               <Link
