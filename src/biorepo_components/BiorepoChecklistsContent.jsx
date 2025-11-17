@@ -86,66 +86,76 @@ export default function BiorepoChecklistsContent() {
   }, []);
 
   return (
-    <div id="callout-cards">
-      <Grid container spacing={7}>
-        <Grid item xs={4}>
-          <Card variant="outlined">
-            <CardMedia
-              component="img"
-              image="../images/card-images/IMG_9506.jpg"
-              title="Repositories"
-              height="auto"
-              loading="lazy"
-            />
-            <CardContent>
-              <Typography variant="h5" style={{ marginBottom: 20 }}>
-                Invertebrates
-              </Typography>
-              <div>
-                {renderNode(invertebrateNodesData)}
-              </div>
-            </CardContent>
-          </Card>
+    <>
+      <style>
+        {`
+          html, body {
+            font-family: "Inter", Helvetica, Arial, sans-serif !important;
+          }
+        `}
+      </style>
+
+      <div id="callout-cards">
+        <Grid container spacing={7}>
+          <Grid item xs={4}>
+            <Card variant="outlined">
+              <CardMedia
+                component="img"
+                image="../images/card-images/IMG_9506.jpg"
+                title="Repositories"
+                height="auto"
+                loading="lazy"
+              />
+              <CardContent>
+                <Typography variant="h5" style={{ marginBottom: 20 }}>
+                  Invertebrates
+                </Typography>
+                <div>
+                  {renderNode(invertebrateNodesData)}
+                </div>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={4}>
+            <Card variant="outlined">
+              <CardMedia
+                component="img"
+                image="../images/card-images/20210913NEONBioRepository_088.jpg"
+                title="Repositories"
+                height="auto"
+                loading="lazy"
+              />
+              <CardContent>
+                <Typography variant="h5" style={{ marginBottom: 20 }}>
+                  Plants & Algae
+                </Typography>
+                <div>
+                  {renderNode(plantNodesData)}
+                </div>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={4}>
+            <Card variant="outlined">
+              <CardMedia
+                component="img"
+                image="../images/card-images/IMG_9530.jpg"
+                title="Collections"
+                height="auto"
+                loading="lazy"
+              />
+              <CardContent>
+                <Typography variant="h5" style={{ marginBottom: 20 }}>
+                  Vertebrates
+                </Typography>
+                <div>
+                  {renderNode(vertebrateNodesData)}
+                </div>
+              </CardContent>
+            </Card>
+          </Grid>
         </Grid>
-        <Grid item xs={4}>
-          <Card variant="outlined">
-            <CardMedia
-              component="img"
-              image="../images/card-images/20210913NEONBioRepository_088.jpg"
-              title="Repositories"
-              height="auto"
-              loading="lazy"
-            />
-            <CardContent>
-              <Typography variant="h5" style={{ marginBottom: 20 }}>
-                Plants & Algae
-              </Typography>
-              <div>
-                {renderNode(plantNodesData)}
-              </div>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={4}>
-          <Card variant="outlined">
-            <CardMedia
-              component="img"
-              image="../images/card-images/IMG_9530.jpg"
-              title="Collections"
-              height="auto"
-              loading="lazy"
-            />
-            <CardContent>
-              <Typography variant="h5" style={{ marginBottom: 20 }}>
-                Vertebrates
-              </Typography>
-              <div>
-                {renderNode(vertebrateNodesData)}
-              </div>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
-    </div>
+      </div>
+    </>
   );
 }

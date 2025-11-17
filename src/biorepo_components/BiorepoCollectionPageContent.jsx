@@ -37,24 +37,33 @@ export default function BiorepoCollectionPageContent() {
   }, []);
 
   return (
-    <div>
-      {filteredSpecs.length > 0 ? (
-        filteredSpecs.map((spec, index) => (
-          <DocumentListItem
-            key={spec.specId || index}
-            document={{
-              name: spec.specNumber, // Document name
-              type: spec.specType || 'application/pdf', // Default to PDF
-              size: spec.specSize || 0, // Default size
-              description: spec.specDescription, // Description
-            }}
-            containerComponent="div"
-            enableDownloadButton
-          />
-        ))
-      ) : (
-        <p></p>
-      )}
-    </div>
+    <>
+      <style>
+        {`
+          html, body {
+            font-family: "Inter", Helvetica, Arial, sans-serif !important;
+          }
+        `}
+      </style>
+      <div>
+        {filteredSpecs.length > 0 ? (
+          filteredSpecs.map((spec, index) => (
+            <DocumentListItem
+              key={spec.specId || index}
+              document={{
+                name: spec.specNumber, // Document name
+                type: spec.specType || 'application/pdf', // Default to PDF
+                size: spec.specSize || 0, // Default size
+                description: spec.specDescription, // Description
+              }}
+              containerComponent="div"
+              enableDownloadButton
+            />
+          ))
+        ) : (
+          <p></p>
+        )}
+      </div>
+    </>
   );
 }

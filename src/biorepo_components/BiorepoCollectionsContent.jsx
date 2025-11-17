@@ -107,7 +107,7 @@ export default function BiorepoCollectionsContent() {
   }, []);
 
   useEffect(() => {
-    fetch('../../neon-react/biorepo_lib/collections-sampletype.json')
+    fetch('../../neon-react/biorepo_lib/collections-protocol.json')
       .then((response) => response.json())
       .then((data) => {
         setSampletypeNodes(data);
@@ -116,7 +116,7 @@ export default function BiorepoCollectionsContent() {
   }, []);
 
   useEffect(() => {
-    fetch('../../neon-react/biorepo_lib/collections-protocol.json')
+    fetch('../../neon-react/biorepo_lib/collections-sampletype.json')
       .then((response) => response.json())
       .then((data) => {
         setProtocolNodes(data);
@@ -125,48 +125,58 @@ export default function BiorepoCollectionsContent() {
   }, []);
 
   return (
-    <div>
-      <Box sx={{ width: '100%' }}>
-        <Typography variant="h3">
-          Browse Sample Types
-        </Typography>
-        <Box sx={{ paddingTop: '30px', paddingBottom: '30px' }}>
-          <Typography variant="body1">
-            Use the tabs and dropdowns to explore the types of samples NEON offers, and view their data, records, and statistics.
+    <>
+      <style>
+        {`
+          html, body {
+            font-family: "Inter", Helvetica, Arial, sans-serif !important;
+          }
+        `}
+      </style>
+
+      <div>
+        <Box sx={{ width: '100%' }}>
+          <Typography variant="h3">
+            Browse Sample Types
           </Typography>
+          <Box sx={{ paddingTop: '30px', paddingBottom: '30px' }}>
+            <Typography variant="body1">
+              Use the tabs and dropdowns to explore the types of samples NEON offers, and view their data, records, and statistics.
+            </Typography>
+          </Box>
         </Box>
-      </Box>
-      <Box sx={{ width: '100%' }}>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-          <Tabs
-            value={value}
-            onChange={handleChange}
-            textColor="primary"
-            indicatorColor="primary"
-            aria-label="collections-tabs"
-            variant="fullWidth"
-          >
-            <Tab label="Organized by Taxonomic Group" {...a11yProps(0)} />
-            <Tab label="Organized by Protocol" {...a11yProps(2)} />
-            <Tab label="Organized by Preservation Method" {...a11yProps(1)} />
-          </Tabs>
+        <Box sx={{ width: '100%' }}>
+          <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+            <Tabs
+              value={value}
+              onChange={handleChange}
+              textColor="primary"
+              indicatorColor="primary"
+              aria-label="collections-tabs"
+              variant="fullWidth"
+            >
+              <Tab label="Organized by Taxonomic Group" {...a11yProps(0)} />
+              <Tab label="Organized by Protocol" {...a11yProps(2)} />
+              <Tab label="Organized by Preservation Method" {...a11yProps(1)} />
+            </Tabs>
+          </Box>
+          <CustomTabPanel value={value} index={0}>
+            <div>
+              {renderNode(taxonomicNodesData)}
+            </div>
+          </CustomTabPanel>
+          <CustomTabPanel value={value} index={2}>
+            <div>
+              {renderNode(protocolNodesData)}
+            </div>
+          </CustomTabPanel>
+          <CustomTabPanel value={value} index={1}>
+            <div>
+              {renderNode(sampletypeNodesData)}
+            </div>
+          </CustomTabPanel>
         </Box>
-        <CustomTabPanel value={value} index={0}>
-          <div>
-            {renderNode(taxonomicNodesData)}
-          </div>
-        </CustomTabPanel>
-        <CustomTabPanel value={value} index={2}>
-          <div>
-            {renderNode(protocolNodesData)}
-          </div>
-        </CustomTabPanel>
-        <CustomTabPanel value={value} index={1}>
-          <div>
-            {renderNode(sampletypeNodesData)}
-          </div>
-        </CustomTabPanel>
-      </Box>
-    </div>
+      </div>
+    </>
   );
 }
