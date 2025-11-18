@@ -21,7 +21,7 @@ function renderNode(nodes: any[], depth = 0) {
       : null;
 
     const nodeContent = collidLink ? (
-      <Link href={collidLink} color="primary" underline="always">
+      <Link href={collidLink} color="primary" underline="always" target="_self">
         <Typography color="inherit">{node.name}</Typography>
       </Link>
     ) : (
