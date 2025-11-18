@@ -3,7 +3,7 @@ import { AuthSilentType, Undef } from '../../types/core';
 
 // Default hosts
 export const DEFAULT_API_HOST = 'https://data.neonscience.org';
-export const DEFAULT_WEB_HOST = 'https://www.neonscience.org';
+export const DEFAULT_WEB_HOST = 'https://www.testing-z6am3cq-di4alr4iwbwyg.us-2.platformsh.site';
 export const DEFAULT_BIOREPO_HOST = 'https://biorepo.neonscience.org';
 
 interface IHostRegexService {
