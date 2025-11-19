@@ -53,7 +53,7 @@ export default function BiorepoPage() {
     if (!config) return;
     const fetchBreadcrumbs = async () => {
       try {
-        const response = await fetch(`${config.CLIENT_ROOT}/neon-react/biorepo_lib/breadcrumbs.json`);
+        const response = await fetch(`${config.CLIENT_ROOT}/neon-react/biorepo_lib/breadcrumbs.json?ts=${Date.now()}`);
         if (!response.ok) {
           throw new Error('Failed to fetch breadcrumbs');
         }
@@ -73,7 +73,7 @@ export default function BiorepoPage() {
 
     const fetchSidebarLinks = async () => {
       try {
-        const response = await fetch(`${config.CLIENT_ROOT}/neon-react/biorepo_lib/sidebar.json`);
+        const response = await fetch(`${config.CLIENT_ROOT}/neon-react/biorepo_lib/sidebar.json?ts=${Date.now()}`);
         if (!response.ok) {
           throw new Error('Failed to fetch sidebar links');
         }
