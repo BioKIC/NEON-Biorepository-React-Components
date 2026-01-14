@@ -97,8 +97,10 @@ export default function BiorepoCollectionsContent() {
     setValue(newValue);
   };
 
+  const cacheBust = `v=${Date.now()}`;
+
   useEffect(() => {
-    fetch('../../neon-react/biorepo_lib/collections-taxonomic.json')
+    fetch('../../neon-react/biorepo_lib/collections-taxonomic.json?${cacheBust}')
       .then((response) => response.json())
       .then((data) => {
         setTaxonomicNodes(data);
@@ -107,7 +109,7 @@ export default function BiorepoCollectionsContent() {
   }, []);
 
   useEffect(() => {
-    fetch('../../neon-react/biorepo_lib/collections-protocol.json')
+    fetch('../../neon-react/biorepo_lib/collections-protocol.json?${cacheBust}')
       .then((response) => response.json())
       .then((data) => {
         setSampletypeNodes(data);
@@ -116,7 +118,7 @@ export default function BiorepoCollectionsContent() {
   }, []);
 
   useEffect(() => {
-    fetch('../../neon-react/biorepo_lib/collections-sampletype.json')
+    fetch('../../neon-react/biorepo_lib/collections-sampletype.json?${cacheBust}')
       .then((response) => response.json())
       .then((data) => {
         setProtocolNodes(data);
