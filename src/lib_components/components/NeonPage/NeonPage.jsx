@@ -418,7 +418,22 @@ const NeonPage = (props) => {
   const sidebarHashMap = !hasSidebarLinks ? {} : Object.fromEntries(
     sidebarLinks.map((link, idx) => [link.hash || '#', idx]),
   );
-  const initialCurrentSidebarHash = hasSidebarLinks ? sidebarLinks[0].hash || '#' : '#';
+  const initialCurrentSidebarHash = (() => {
+    if (!hasSidebarLinks || !sidebarLinks.length) {
+      return '#';
+    }
+    // Length === 5: fixed behavior
+    if (sidebarLinks.length === 5) {
+      return sidebarLinks[3].hash;
+    }
+    // Length === 4: page-aware via `match`
+    if (sidebarLinks.length === 4) {
+      const { pathname } = window.location;
+      const matchedLink = sidebarLinks.find((link) => link.match && pathname.includes(link.match));
+      return matchedLink?.hash || sidebarLinks[1].hash;
+    }
+    return '#';
+  })();
   const currentSidebarHash = initialCurrentSidebarHash;
   // const [currentSidebarHash, setCurrentSidebarHash] = useState(initialCurrentSidebarHash);
   const [hashInitialized, setHashInitialized] = useState(false);
