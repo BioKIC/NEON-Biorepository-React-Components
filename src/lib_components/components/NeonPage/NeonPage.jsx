@@ -430,7 +430,7 @@ const NeonPage = (props) => {
     if (sidebarLinks.length === 4) {
       const { pathname } = window.location;
       const matchedLink = sidebarLinks.find((link) => link.match && pathname.includes(link.match));
-      return matchedLink?.hash || sidebarLinks[1].hash;
+      return matchedLink?.hash || '#';
     }
     return '#';
   })();
