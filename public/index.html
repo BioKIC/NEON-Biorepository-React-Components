@@ -50,14 +50,29 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-6M1F2QCBWJ"></script>
     
     <script>
-      window.dataLayer = window.dataLayer || [];
+      let gaInitialized = false;
     
-      function gtag() {
-        dataLayer.push(arguments);
+      function initGA() {
+        if (gaInitialized) return;
+        gaInitialized = true;
+    
+        window.dataLayer = window.dataLayer || [];
+    
+        function gtag() {
+          dataLayer.push(arguments);
+        }
+    
+        window.gtag = gtag;
+    
+        gtag("js", new Date());
+        gtag("config", "G-6M1F2QCBWJ");
       }
     
-      gtag("js", new Date());
-      gtag("config", "G-6M1F2QCBWJ");
+      window.addEventListener("scroll", initGA, { once: true });
+      window.addEventListener("click", initGA, { once: true });
+      window.addEventListener("mousemove", initGA, { once: true });
+      window.addEventListener("keydown", initGA, { once: true });
+      window.addEventListener("touchstart", initGA, { once: true });
     </script>
     <!-- End Google Analytics -->
     <script>
