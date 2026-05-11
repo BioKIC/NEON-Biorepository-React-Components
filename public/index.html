@@ -50,29 +50,63 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-6M1F2QCBWJ"></script>
     
     <script>
-      let gaInitialized = false;
+    let gaInitialized = false;
     
-      function initGA() {
+    function initGA() {
+    
         if (gaInitialized) return;
+    
         gaInitialized = true;
     
         window.dataLayer = window.dataLayer || [];
     
         function gtag() {
-          dataLayer.push(arguments);
+            dataLayer.push(arguments);
         }
     
         window.gtag = gtag;
     
         gtag("js", new Date());
-        gtag("config", "G-6M1F2QCBWJ");
-      }
+        gtag('config', 'G-6M1F2QCBWJ', {
+          send_page_view: false
+        });
     
-      window.addEventListener("scroll", initGA, { once: true });
-      window.addEventListener("click", initGA, { once: true });
-      window.addEventListener("mousemove", initGA, { once: true });
-      window.addEventListener("keydown", initGA, { once: true });
-      window.addEventListener("touchstart", initGA, { once: true });
+        document.addEventListener('click', function(e) {
+        
+            const el = e.target;
+        
+            gtag('event', 'ui_click', {
+                tag: el.tagName || '',
+                text: (el.innerText || '').trim().substring(0, 100),
+                id: el.id || '',
+                page_path: window.location.pathname
+            });
+        
+        });
+    
+    }
+    
+    let interactionTracked = false;
+    
+    function trackInteraction(type) {
+    
+        if (interactionTracked) return;
+    
+        interactionTracked = true;
+    
+        gtag('event', 'interaction', {
+            interaction_type: type
+        });
+    
+        gtag('event', 'page_view');
+    
+    }
+    
+    window.addEventListener('mousemove', () => trackInteraction('mousemove'), { once: true });
+    window.addEventListener('scroll', () => trackInteraction('scroll'), { once: true });
+    window.addEventListener('click', () => trackInteraction('click'), { once: true });
+    window.addEventListener('keydown', () => trackInteraction('keydown'), { once: true });
+    window.addEventListener('touchstart', () => trackInteraction('touchstart'), { once: true });
     </script>
     <!-- End Google Analytics -->
     <script>
