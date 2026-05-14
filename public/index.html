@@ -46,28 +46,53 @@
       })(window, document, "script", "gtmDataLayer", "GTM-K4S83R2");
     </script>-->
     <!-- End Google Tag Manager -->
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6M1F2QCBWJ"></script>
-    
+    <!-- Google Analytics -->    
     <script>
     let gaInitialized = false;
+    let interactionTracked = false;
+    window.pendingGAEvents = [];
     
-    function initGA() {
+    function loadGAScript() {
+        return new Promise(resolve => {
+            if (document.querySelector('script[data-ga-loader]')) {
+                resolve();
+                return;
+            }
+            const s = document.createElement('script');
+            s.async = true;
+            s.src = 'https://www.googletagmanager.com/gtag/js?id=G-6M1F2QCBWJ';
+            s.setAttribute('data-ga-loader', 'true');
+            s.onload = resolve;
+    
+            document.head.appendChild(s);
+        });
+    }
+    
+    async function initGA() {
         if (gaInitialized) return;
         gaInitialized = true;
+        await loadGAScript();
         window.dataLayer = window.dataLayer || [];
-        function gtag() {
+        window.gtag = function () {
             window.dataLayer.push(arguments);
-        }
-        window.gtag = gtag;
-        
+        };
         gtag('js', new Date());
         gtag('config', 'G-6M1F2QCBWJ', {
             send_page_view: false
         });
+        gtag('event', 'page_view', {
+            page_path: window.location.pathname,
+            page_location: window.location.href,
+            page_title: document.title
+        });
     
-        document.addEventListener('click', function(e) {
+        window.pendingGAEvents.forEach(args => {
+            gtag(...args);
+        });
+        window.pendingGAEvents = [];
+        document.addEventListener('click', e => {
             const el = e.target;
+    
             gtag('event', 'ui_click', {
                 tag: el.tagName || '',
                 text: (el.innerText || '').trim().substring(0, 100),
@@ -77,26 +102,30 @@
         });
     }
     
-    initGA();
-    
-    let interactionTracked = false;
-    function trackInteraction(type) {
+    async function trackInteraction(type) {
         if (interactionTracked) return;
-        if (!window.gtag) return;
         interactionTracked = true;
+        await initGA();
         gtag('event', 'interaction', {
             interaction_type: type
         });
-        gtag('event', 'page_view', {
-            page_path: window.location.pathname
-        });
     }
     
-    window.addEventListener('mousemove', () => trackInteraction('mousemove'), { once: true });
-    //window.addEventListener('scroll', () => trackInteraction('scroll'), { once: true });
-    window.addEventListener('click', () => trackInteraction('click'), { once: true });
-    window.addEventListener('keydown', () => trackInteraction('keydown'), { once: true });
-    window.addEventListener('touchstart', () => trackInteraction('touchstart'), { once: true });
+    window.addEventListener('click', () => {
+        trackInteraction('click');
+    }, { once: true });
+    
+    window.addEventListener('keydown', () => {
+        trackInteraction('keydown');
+    }, { once: true });
+    
+    window.addEventListener('touchstart', () => {
+        trackInteraction('touchstart');
+    }, { once: true });
+    
+    window.addEventListener('mousemove', () => {
+        trackInteraction('mousemove');
+    }, { once: true });
     </script>
     <!-- End Google Analytics -->
     <script>
