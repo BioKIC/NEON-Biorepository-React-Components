@@ -61,30 +61,32 @@
         window.dataLayer = window.dataLayer || [];
     
         function gtag() {
-            dataLayer.push(arguments);
+            window.dataLayer.push(arguments);
         }
     
         window.gtag = gtag;
     
-        gtag("js", new Date());
+        gtag('js', new Date());
+    
         gtag('config', 'G-6M1F2QCBWJ', {
-          send_page_view: false
+            send_page_view: false
         });
     
         document.addEventListener('click', function(e) {
-        
+    
             const el = e.target;
-        
+    
             gtag('event', 'ui_click', {
                 tag: el.tagName || '',
                 text: (el.innerText || '').trim().substring(0, 100),
                 id: el.id || '',
                 page_path: window.location.pathname
             });
-        
-        });
     
+        });
     }
+    
+    initGA();
     
     let interactionTracked = false;
     
@@ -92,14 +94,17 @@
     
         if (interactionTracked) return;
     
+        if (!window.gtag) return;
+    
         interactionTracked = true;
     
         gtag('event', 'interaction', {
             interaction_type: type
         });
     
-        gtag('event', 'page_view');
-    
+        gtag('event', 'page_view', {
+            page_path: window.location.pathname
+        });
     }
     
     window.addEventListener('mousemove', () => trackInteraction('mousemove'), { once: true });
