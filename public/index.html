@@ -53,62 +53,47 @@
     let gaInitialized = false;
     
     function initGA() {
-    
         if (gaInitialized) return;
-    
         gaInitialized = true;
-    
         window.dataLayer = window.dataLayer || [];
-    
         function gtag() {
             window.dataLayer.push(arguments);
         }
-    
         window.gtag = gtag;
-    
+        
         gtag('js', new Date());
-    
         gtag('config', 'G-6M1F2QCBWJ', {
             send_page_view: false
         });
     
         document.addEventListener('click', function(e) {
-    
             const el = e.target;
-    
             gtag('event', 'ui_click', {
                 tag: el.tagName || '',
                 text: (el.innerText || '').trim().substring(0, 100),
                 id: el.id || '',
                 page_path: window.location.pathname
             });
-    
         });
     }
     
     initGA();
     
     let interactionTracked = false;
-    
     function trackInteraction(type) {
-    
         if (interactionTracked) return;
-    
         if (!window.gtag) return;
-    
         interactionTracked = true;
-    
         gtag('event', 'interaction', {
             interaction_type: type
         });
-    
         gtag('event', 'page_view', {
             page_path: window.location.pathname
         });
     }
     
     window.addEventListener('mousemove', () => trackInteraction('mousemove'), { once: true });
-    window.addEventListener('scroll', () => trackInteraction('scroll'), { once: true });
+    //window.addEventListener('scroll', () => trackInteraction('scroll'), { once: true });
     window.addEventListener('click', () => trackInteraction('click'), { once: true });
     window.addEventListener('keydown', () => trackInteraction('keydown'), { once: true });
     window.addEventListener('touchstart', () => trackInteraction('touchstart'), { once: true });
