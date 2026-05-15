@@ -19,8 +19,8 @@ export const VALID_ENHANCED_STATUSES = {
     description: 'Data have been collected and will be published after processing has completed',
   },
   available: {
-    title: 'Release Available',
-    description: 'Data have been published and released. Data are available for download',
+    title: 'Samples Available',
+    description: 'Sample or specimen records exist for this search and are potentially available for loan',
   },
   'available-provisional': {
     title: 'Provisional',
@@ -48,7 +48,7 @@ export const VALID_ENHANCED_STATUSES = {
   },
   'not available': {
     title: 'Not Available',
-    description: 'Data was neither expected nor collected',
+    description: 'Samples and specimens were not collected',
   },
   tombstoned: {
     title: 'No Longer Available',

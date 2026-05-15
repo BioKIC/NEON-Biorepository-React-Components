@@ -198,7 +198,7 @@ const LegendDialog = (props) => {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <DialogTitle id="availability-key-dialog-title">
           <span style={{ fontSize: '1.4rem', fontWeight: '600' }}>
-            Data Availability Chart Key
+            Sample Record Availability Chart Key
           </span>
         </DialogTitle>
         <IconButton
@@ -384,8 +384,8 @@ const BasicAvailabilityKey = (props) => {
           <IconButton
             size="small"
             color="primary"
-            title="Help - Data Availability Chart Key"
-            aria-label="Help - Data Availability Chart Key"
+            title="Help - Sample Record Availability Chart Key"
+            aria-label="Help - Sample Record Availability Chart Key"
             onClick={() => setDialogOpen(true)}
             className={classes.legendTitleIcon}
           >
