@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import DocumentListItem from '../lib_components/components/Documents/DocumentListItem';
+import DataProductAvailability from '../lib_components/components/DataProductAvailability/DataProductAvailability';
 
 export default function BiorepoCollectionPageContent() {
   const [filteredSpecs, setFilteredSpecs] = useState([]);
+  const siteCodes = window.biorepoAvailabilitySiteCodes || [];
 
   useEffect(() => {
     // Get the list of product IDs from the global JavaScript variable
@@ -63,6 +65,12 @@ export default function BiorepoCollectionPageContent() {
         ) : (
           <p></p>
         )}
+      </div>
+      <div style={{ marginTop: '32px' }} class="border-t-2 border-gray-200 mt-6 pt-4">
+        <DataProductAvailability
+          siteCodes={siteCodes}
+          view="sites"
+        />
       </div>
     </>
   );
