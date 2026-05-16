@@ -4,9 +4,9 @@ const require = createRequire(import.meta.url);
 const fs = require('fs-extra');
 const path = require('path');
 
-const sourceDir = '/mnt/c/xampp/htdocs/NEON-Biorepository-React-Components/build';
+const sourceDir = '/usr/src/NEON-Biorepository-React-Components/build';
 const targetDir = '/mnt/c/xampp/htdocs/neon/neon-react';
-const indexFilePath = '/mnt/c/xampp/htdocs/NEON-Biorepository-React-Components/build/index.html';
+const indexFilePath = '/usr/src/NEON-Biorepository-React-Components/build/index.html';
 const targetHtmlFilePath = '/mnt/c/xampp/htdocs/neon/includes/head.php';
 
 // Function to delete all files and folders in the target directory except for biorepo_lib
