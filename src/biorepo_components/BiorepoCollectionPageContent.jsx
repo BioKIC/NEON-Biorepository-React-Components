@@ -66,7 +66,7 @@ export default function BiorepoCollectionPageContent() {
           <p></p>
         )}
       </div>
-      <div style={{ marginTop: '32px' }} class="border-t-2 border-gray-200 mt-6 pt-4">
+      <div className="border-t-2 border-gray-200 mt-6 pt-4">
         <DataProductAvailability
           siteCodes={siteCodes}
           view="sites"
