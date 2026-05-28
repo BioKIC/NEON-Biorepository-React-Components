@@ -42,7 +42,7 @@ export default function BiorepoSearchMap() {
   }, []);
 
   return (
-    <div style={{ width: '100%', minHeight: '700px' }}>
+    <div style={{ width: '100%'}}>
       <style>
         {`
           .ui-widget button {
