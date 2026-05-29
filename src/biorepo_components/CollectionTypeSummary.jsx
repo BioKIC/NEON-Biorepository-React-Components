@@ -481,7 +481,7 @@ export default function CollectionTypeSummary() {
                           target="_blank"
                           rel="noopener noreferrer"
                         >
-                          Download
+                          Download Protocol
                         </Button>
                       </div>
                       {protocolMap[
@@ -518,7 +518,7 @@ export default function CollectionTypeSummary() {
                             target="_blank"
                             rel="noopener noreferrer"
                           >
-                            Download
+                            Download Protocol
                           </Button>
                         </div>
                       )}
@@ -556,7 +556,7 @@ export default function CollectionTypeSummary() {
                             target="_blank"
                             rel="noopener noreferrer"
                           >
-                            Download
+                            Download Protocol
                           </Button>
                         </div>
                       )}
@@ -600,7 +600,7 @@ export default function CollectionTypeSummary() {
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        Download
+                        Download Protocol
                       </Button>
                     </div>
                   )}
@@ -642,7 +642,7 @@ export default function CollectionTypeSummary() {
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        Download
+                        Download Protocol
                       </Button>
                     </div>
                   )}
