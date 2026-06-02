@@ -283,6 +283,8 @@ const useStyles = makeStyles((theme) => ({
 const SiteMapTable = () => {
   const classes = useStyles(Theme);
   const tableRef = useRef(null);
+  const materialTableRef = useRef(null);
+  const tableFilterValuesRef = useRef([]);
 
   // Neon Context State
   const [{ isFinal, hasError }] = NeonContext.useNeonContextState();
@@ -982,6 +984,13 @@ const SiteMapTable = () => {
     ];
   }
 
+  const savedFilterValues = tableFilterValuesRef.current;
+
+  const columnsWithFilters = columns.map((column, index) => ({
+    ...column,
+    defaultFilter: savedFilterValues[index],
+  }));
+
   const toolbarClassName = view === VIEWS.SPLIT
     ? classes.toolbarContainer
     : `${classes.toolbarContainer} ${classes.toolbarContainerNoSplit}`;
@@ -1065,13 +1074,19 @@ const SiteMapTable = () => {
       data-selenium="sitemap-content-table"
     >
       <MaterialTable
+        tableRef={materialTableRef}
         title={`${ucWord(focus)} in view`}
         icons={MaterialTableIcons}
         components={components}
-        columns={columns}
+        columns={columnsWithFilters}
         data={rows}
         localization={localization}
         options={tableOptions}
+        onFilterChange={() => {
+          tableFilterValuesRef.current = materialTableRef.current
+            ? materialTableRef.current.state.columns.map((column) => column.tableData.filterValue)
+            : [];
+        }}
         onSelectionChange={!selectionActive ? null : (newRows) => {
           const action = { type: 'updateSelectionSet', selection: new Set() };
           newRows.filter((row) => row.tableData.checked).forEach((row) => {
