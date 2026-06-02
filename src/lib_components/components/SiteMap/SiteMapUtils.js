@@ -2014,9 +2014,10 @@ export const getDynamicAspectRatio = (unusableVerticalSpace = 0) => {
   const usableVericalSpace = window.innerHeight + buffer - unusableVerticalSpace;
   const windowAspectRatio = Math.max(usableVericalSpace, 0) / (window.innerWidth || 1);
   const arIdx = dynamicAspectRatios.findIndex((ar) => ar < windowAspectRatio);
-  return arIdx === -1
+  const aspectRatio = arIdx === -1
     ? dynamicAspectRatios[dynamicAspectRatios.length - 1]
     : dynamicAspectRatios[arIdx];
+  return aspectRatio * 0.8; // Biorepository edit
 };
 
 export const boundsAreValid = (bounds) => (
