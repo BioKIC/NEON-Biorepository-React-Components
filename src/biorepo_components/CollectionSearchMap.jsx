@@ -18,12 +18,14 @@ export default function BiorepoSearchMap() {
   );
 
   useEffect(() => {
-    const localityToggle = document.getElementById('locality');
+    const modal = document.getElementById('domains-sites-modal');
 
-    if (!localityToggle) return undefined;
+    if (!modal) return undefined;
 
-    const handleChange = () => {
-      if (localityToggle.checked) {
+    const isVisible = () => window.getComputedStyle(modal).display !== 'none';
+
+    const handleModalVisibility = () => {
+      if (isVisible()) {
         setTimeout(() => {
           setIsMapVisible(true);
         }, 300);
@@ -32,12 +34,17 @@ export default function BiorepoSearchMap() {
       }
     };
 
-    localityToggle.addEventListener('change', handleChange);
+    const observer = new MutationObserver(handleModalVisibility);
 
-    handleChange();
+    observer.observe(modal, {
+      attributes: true,
+      attributeFilter: ['style', 'class'],
+    });
+
+    handleModalVisibility();
 
     return () => {
-      localityToggle.removeEventListener('change', handleChange);
+      observer.disconnect();
     };
   }, []);
 
@@ -61,10 +68,6 @@ export default function BiorepoSearchMap() {
             setTimeout(() => {
               updateChip();
             }, 0);
-          }}
-          style={{
-            width: '100%',
-            height: '700px',
           }}
         />
       )}
