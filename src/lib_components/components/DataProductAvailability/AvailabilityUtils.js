@@ -20,7 +20,7 @@ export const VALID_ENHANCED_STATUSES = {
   },
   available: {
     title: 'Samples Available',
-    description: 'Sample or specimen records exist for this search and are potentially available for loan',
+    description: 'Sample or specimen records are available',
   },
   'available-provisional': {
     title: 'Provisional',
