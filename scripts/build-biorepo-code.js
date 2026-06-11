@@ -58,7 +58,7 @@ async function modifyHtml() {
             let extractedContent = match[1];
 
             // Replace content if needed (example: replace 'old-text' with 'new-text')
-            let modifiedContent = extractedContent.replace(/\.\/neon-react\//g, '<?php echo $CLIENT_ROOT; ?>/neon-react/');
+            let modifiedContent = extractedContent.replace(/\.\.\/\.\.\/neon-react\//g, '<?php echo $CLIENT_ROOT; ?>/neon-react/');
 
             // Extract the main JS file name from the extracted content
             const scriptRegex = /<script defer="defer" src="([^"]+)"><\/script>/;
