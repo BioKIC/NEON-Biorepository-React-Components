@@ -391,6 +391,11 @@ export default function CollectionTypeSummary() {
 
   return (
     <ThemeProvider theme={Theme}>
+      <div style={{ display: 'none' }}>
+        <Button variant="outlined" color="primary">
+          Style Seed
+        </Button>
+      </div>
       <Card className={classes.card}>
         <div className={classes.header}>
           <div>
@@ -659,7 +664,7 @@ export default function CollectionTypeSummary() {
 
               <AccordionDetails className={classes.accordionDetails}>
                 {family.subtypes?.map((subtype) => {
-                  const isIdentification = subtype.name.startsWith('Identified ');
+                  const isIdentification = subtype.name.includes('Identifications');
                   const currentUrl = new URL(window.location.href);
 
                   currentUrl.searchParams.set('db', subtype.collid);
