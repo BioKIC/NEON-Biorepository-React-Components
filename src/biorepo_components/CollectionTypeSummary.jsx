@@ -484,7 +484,6 @@ export default function CollectionTypeSummary() {
                           startIcon={<GetAppIcon />}
                           href={protocolMap[family.family].url}
                           target="_blank"
-                          rel="noopener noreferrer"
                         >
                           Download Protocol
                         </Button>
@@ -521,7 +520,6 @@ export default function CollectionTypeSummary() {
                               ].url
                             }
                             target="_blank"
-                            rel="noopener noreferrer"
                           >
                             Download Protocol
                           </Button>
@@ -559,7 +557,6 @@ export default function CollectionTypeSummary() {
                               ].url
                             }
                             target="_blank"
-                            rel="noopener noreferrer"
                           >
                             Download Protocol
                           </Button>
@@ -603,7 +600,6 @@ export default function CollectionTypeSummary() {
                           ].url
                         }
                         target="_blank"
-                        rel="noopener noreferrer"
                       >
                         Download Protocol
                       </Button>
@@ -645,7 +641,6 @@ export default function CollectionTypeSummary() {
                           ].url
                         }
                         target="_blank"
-                        rel="noopener noreferrer"
                       >
                         Download Protocol
                       </Button>
@@ -694,7 +689,6 @@ export default function CollectionTypeSummary() {
                         <Link
                           href={`https://biorepo.neonscience.org/portal/collections/misc/neoncollprofiles.php?collid=${subtype.collid}`}
                           target="_blank"
-                          rel="noopener noreferrer"
                         >
                           <LinkIcon
                             className={classes.subtypeLinkIcon}
