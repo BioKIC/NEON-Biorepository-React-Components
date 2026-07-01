@@ -1,0 +1,26 @@
+[
+    {
+        "name": "SUPRAGENERIC_NAME",
+        "label": "Suprafamily"
+    },
+    {
+        "name": "FAMILY",
+        "label": "Family group"
+    },
+    {
+        "name": "GENUS",
+        "label": "Genus group"
+    },
+    {
+        "name": "SPECIES",
+        "label": "Species"
+    },
+    {
+        "name": "SUBSPECIES",
+        "label": "Infraspecific"
+    },
+    {
+        "name": "UNRANKED",
+        "label": "Unranked"
+    }
+]

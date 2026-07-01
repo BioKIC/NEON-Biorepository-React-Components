@@ -1,0 +1,22 @@
+
+import React, { useEffect } from "react"
+import withContext from "../../components/hoc/withContext";
+import Auth from "../../components/Auth";
+import { NavLink } from "react-router-dom";
+
+const DatasetNavLink = ({ user, text, record }) => {
+
+    useEffect(() => { }, [user])
+    return <NavLink
+        to={{ pathname: (record.origin === 'project' && Auth.canViewDataset(record, user)) ? `/project/${record.key}/metadata` : `/dataset/${record.key}/metadata` }}
+        end
+    >
+        {text}
+    </NavLink>
+}
+
+const mapContextToProps = ({
+    user
+}) => ({ user });
+
+export default withContext(mapContextToProps)(DatasetNavLink);

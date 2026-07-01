@@ -1,0 +1,26 @@
+[
+  {
+    "name": "nomenclatural"
+  },
+  {
+    "name": "taxonomic"
+  },
+  {
+    "name": "phylogenetic"
+  },
+  {
+    "name": "article"
+  },
+  {
+    "name": "legal"
+  },
+  {
+    "name": "thematic"
+  },
+  {
+    "name": "identification"
+  },
+  {
+    "name": "other"
+  }
+]

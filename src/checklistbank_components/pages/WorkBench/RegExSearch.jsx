@@ -1,0 +1,187 @@
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import config from "../../config";
+import { useLocation } from "react-router-dom";
+
+import withContext from "../../components/hoc/withContext";
+import _ from "lodash";
+import qs from "query-string";
+import { Select, Input, Pagination, Row, Col, Form, Typography, Popover, App, Button } from "antd";
+import { InfoCircleOutlined } from "@ant-design/icons";
+import { getRegEx } from "../../api/regex";
+import MultiValueFilter from "../NameSearch/MultiValueFilter";
+
+const { Search } = Input;
+
+
+const RegExSearch = ({ onSearch, onReset, updateSearch, datasetKey, style = {}, rankEnum, taxonomicstatus, limit = 50 }) => {
+  const { notification } = App.useApp();
+  const [regEx, setRegEx] = useState(null);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(limit);
+  const [error, setError] = useState(null);
+  const [options, setOptions] = useState([]);
+  //const [rank, setRank] = useState(null)
+  //const [status, setStatus] = useState(null)
+  const [params, setParams] = useState({})
+  const location = useLocation();
+  
+  useEffect(()=> {
+
+    if(location?.search){
+      setParams(qs.parse(location?.search))
+    }
+  }, [location?.search])
+ 
+ 
+  useEffect(() => {
+
+    getRegEx().then(setOptions);
+  }, []);
+  const getData = async (regEx_, page_ = 1) => {
+    setError(null);
+    setPage(page_);
+    setRegEx(regEx_);
+
+    const offset = (page_ - 1) * limit;
+    if (regEx_) {
+        let params_ = {}
+        if(params.status){
+            params_.status = status
+        }
+        if(params.rank){
+            params_.rank=rank
+        }
+        if(params.decisionMode){
+          params_.decisionMode=decisionMode
+        }
+
+        let query = rank || status || decisionMode ? `&${qs.stringify(params_)}` : "";
+        
+
+      try {
+        //pagination?.pageSize || 50;
+        const res = await axios(
+          `${config.dataApi}dataset/${datasetKey}/nameusage/pattern?regex=${encodeURIComponent(regEx_)}&limit=${limit}&offset=${offset}${query}`
+        );
+        setTotal(offset + 1 + res?.data?.length);
+        /* console.log(
+          `Data length ${res?.data?.length} total ${
+            offset + 1 + res?.data?.length
+          }`
+        ); */
+        if (res?.data) {
+          onSearch(res?.data.map((v) => v.id));
+        }
+        if(res?.data?.length === 0){
+            notification.warn({
+                message: "No results from RegEx search"
+            })
+        }
+      } catch (err) {
+        console.log(err);
+        setError(err);
+      }
+    } else {
+      onReset();
+    }
+  };
+
+  return (
+    <div style={style}>
+      <Row justify="space-between">
+        <Col span={8}>
+          <Form layout="vertical">
+            <Form.Item label="Select pre-defined regular expression">
+              <Select
+                style={{ width: "100%" }}
+                onChange={(val) => getData(val)}
+                placeholder="Select regex"
+                allowClear
+                options={options.map((o) => ({
+                  value: o.value,
+                  label: (
+                    <>
+                      <div style={{ fontWeight: "bold" }}>{o.value}</div>
+                      <Typography.Text disabled>{o.description}</Typography.Text>
+                    </>
+                  ),
+                }))}
+              />
+            </Form.Item>
+            
+
+          </Form>
+        </Col>
+        <Col style={{ marginLeft: "10px" }} span={8}>
+          <Form layout="vertical">
+            <Form.Item
+              label={<><span style={{marginRight: "10px"}}>or type regular expression </span><Popover placement="bottomLeft" title="Resources" content={<>
+              <a target="_blank" href="https://www.postgresql.org/docs/current/functions-matching.html#FUNCTIONS-POSIX-REGEXP"> PostgreSQL RegEx details</a>
+              <br/>
+              <a target="_blank" href="https://regex101.com/">Online RegEx tester</a>
+              </>} trigger="click">
+              <Typography.Link> <InfoCircleOutlined /></Typography.Link> 
+            </Popover></>}
+              hasFeedback
+              validateStatus={error ? "error" : null}
+              help={_.get(error, "response.data.message")}
+            >
+              <Search
+                placeholder="Regular expression"
+                onSearch={(val) => getData(val)}
+                allowClear
+              ></Search>
+            </Form.Item>
+            
+           
+          </Form>
+        </Col>
+        <Col flex="auto">
+      <MultiValueFilter
+              defaultValue={_.get(params, "rank")}
+              //onChange={setRank}
+              onChange={(value) => updateSearch({ rank: value })}
+              vocab={rankEnum}
+              label="Ranks"
+            />
+            <MultiValueFilter
+              defaultValue={_.get(params, "status")}
+              onChange={(value) => updateSearch({ status: value })}
+              vocab={taxonomicstatus}
+              label="Status"
+            />
+      </Col>
+       
+      </Row>
+      <Row>
+    <Col><Button onClick={() => getData(regEx)} type="primary">Run RegEx search</Button></Col>
+      <Col flex="auto"></Col>
+        <Col>
+          {regEx && (
+            <>
+              <div style={{ marginBottom: "8px" }}>
+                Regular expression results
+              </div>
+              <Pagination
+                showSizeChanger={false}
+                current={page}
+                onChange={(cur) => getData(regEx, cur)}
+                total={total}
+                pageSize={limit}
+              />
+            </>
+          )}
+        </Col>
+      </Row>
+    </div>
+  );
+};
+
+const mapContextToProps = ({ addError , rank: rankEnum, taxonomicstatus}) => ({
+  addError,
+  rankEnum ,
+  taxonomicstatus,
+});
+
+export default withContext(mapContextToProps)(RegExSearch);

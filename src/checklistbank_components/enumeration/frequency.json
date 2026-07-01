@@ -1,0 +1,30 @@
+[
+  {
+    "days": -1,
+    "name": "never"
+  },
+  {
+    "days": 0,
+    "name": "once"
+  },
+  {
+    "days": 1,
+    "name": "daily"
+  },
+  {
+    "days": 7,
+    "name": "weekly"
+  },
+  {
+    "days": 30,
+    "name": "monthly"
+  },
+  {
+    "days": 91,
+    "name": "quarterly"
+  },
+  {
+    "days": 365,
+    "name": "yearly"
+  }
+]

@@ -1,0 +1,51 @@
+[
+  {
+    "abbrev": "P",
+    "acronym": "ICNP",
+    "link": "https://doi.org/10.1099/ijsem.0.005585",
+    "name": "bacterial",
+    "title": "International Code of Nomenclature of Prokaryotes"
+  },
+  {
+    "abbrev": "B",
+    "acronym": "ICN",
+    "link": "https://www.iapt-taxon.org/nomen/main.php",
+    "name": "botanical",
+    "title": "International Code of Nomenclature for algae, fungi, and plants"
+  },
+  {
+    "abbrev": "C",
+    "acronym": "ICNCP",
+    "link": "https://www.ishs.org/scripta-horticulturae/international-code-nomenclature-cultivated-plants-ninth-edition",
+    "name": "cultivars",
+    "title": "International Code of Nomenclature for Cultivated Plants"
+  },
+  {
+    "abbrev": "S",
+    "acronym": "ICPN",
+    "link": "https://doi.org/10.1111/avsc.12491",
+    "name": "phyto",
+    "title": "International Code of Phytosociological Nomenclature"
+  },
+  {
+    "abbrev": "V",
+    "acronym": "ICVCN",
+    "link": "https://ictv.global/about/code",
+    "name": "virus",
+    "title": "International Code of Virus Classifications and Nomenclature"
+  },
+  {
+    "abbrev": "Z",
+    "acronym": "ICZN",
+    "link": "https://www.iczn.org/the-code/the-code-online/",
+    "name": "zoological",
+    "title": "International Code of Zoological Nomenclature"
+  },
+  {
+    "abbrev": "Y",
+    "acronym": "ICPN",
+    "link": "http://phylonames.org/code/",
+    "name": "phylo",
+    "title": "International Code of Phylogenetic Nomenclature (PhyloCode)"
+  }
+]

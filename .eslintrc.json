@@ -13,6 +13,7 @@
     }
   },
   "ignorePatterns": [
+    "src/checklistbank_components/**",
     "src/registerServiceWorker.js",
     "src/lib_components/components/**/*.d.ts",
     "src/lib_components/remoteAssets",

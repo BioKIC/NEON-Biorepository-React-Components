@@ -1,0 +1,15 @@
+.mainMenu__drawer .ant-drawer-body {
+  padding: 0;
+}
+
+.mainMenu__drawer .ant-drawer-content {
+  background: #001529;
+}
+
+.header__secondary {
+  float: right;
+}
+
+.ant-layout-header {
+  padding-right: 16px !important;
+}

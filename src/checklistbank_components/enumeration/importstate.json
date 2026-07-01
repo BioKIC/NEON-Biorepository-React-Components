@@ -1,0 +1,86 @@
+[
+  {
+    "finished": false,
+    "name": "waiting",
+    "queued": true,
+    "running": false
+  },
+  {
+    "finished": false,
+    "name": "preparing",
+    "queued": false,
+    "running": true
+  },
+  {
+    "finished": false,
+    "name": "downloading",
+    "queued": false,
+    "running": true
+  },
+  {
+    "finished": false,
+    "name": "processing",
+    "queued": false,
+    "running": true
+  },
+  {
+    "finished": false,
+    "name": "deleting",
+    "queued": false,
+    "running": true
+  },
+  {
+    "finished": false,
+    "name": "inserting",
+    "queued": false,
+    "running": true
+  },
+  {
+    "finished": false,
+    "name": "matching",
+    "queued": false,
+    "running": true
+  },
+  {
+    "finished": false,
+    "name": "indexing",
+    "queued": false,
+    "running": true
+  },
+  {
+    "finished": false,
+    "name": "analyzing",
+    "queued": false,
+    "running": true
+  },
+  {
+    "finished": false,
+    "name": "archiving",
+    "queued": false,
+    "running": true
+  },
+  {
+    "finished": false,
+    "name": "exporting",
+    "queued": false,
+    "running": true
+  },
+  {
+    "finished": true,
+    "name": "finished",
+    "queued": false,
+    "running": false
+  },
+  {
+    "finished": true,
+    "name": "canceled",
+    "queued": false,
+    "running": false
+  },
+  {
+    "finished": true,
+    "name": "failed",
+    "queued": false,
+    "running": false
+  }
+]

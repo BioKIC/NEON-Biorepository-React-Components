@@ -1,0 +1,272 @@
+import React, { useState, useEffect } from "react";
+import {
+  Input,
+  InputNumber,
+  Select,
+  Button,
+  Alert,
+  App,
+  Form,
+} from "antd";
+import _ from "lodash";
+import axios from "axios";
+import config from "../config";
+import ErrorMsg from "../components/ErrorMsg";
+import CsvDelimiterInput from "./CsvDelimiterInput";
+import withContext from "./hoc/withContext";
+import TagControl from "./TagControl";
+const FormItem = Form.Item;
+
+const formItemLayout = {
+  labelCol: {
+    xs: { span: 18 },
+    sm: { span: 6 },
+  },
+  wrapperCol: {
+    xs: { span: 24 },
+    sm: { span: 16 },
+  },
+};
+const tailFormItemLayout = {
+  wrapperCol: {
+    xs: {
+      span: 24,
+      offset: 0,
+    },
+    sm: {
+      span: 16,
+      offset: 6,
+    },
+  },
+};
+
+const SettingsForm = (props) => {
+  const {
+    data,
+    nomCode,
+    datasetSettings,
+    datasetoriginEnum,
+    onSaveSuccess,
+    datasetKey,
+    dataset,
+    environment,
+  } = props;
+
+  const { notification } = App.useApp();
+  const [submissionError, setSubmissionError] = useState(null);
+  const [form] = Form.useForm();
+  useEffect(() => {}, [datasetoriginEnum]);
+
+  const onFinishFailed = ({ errorFields }) => {
+    form.scrollToField(errorFields[0].name);
+  };
+  const submitData = (values) => {
+    if (values["csv delimiter"] === "\\t") {
+      values["csv delimiter"] = `\t`;
+    }
+    axios
+      .put(`${config.dataApi}dataset/${datasetKey}/settings`, values)
+      .then((res) => {
+        if (onSaveSuccess && typeof onSaveSuccess === "function") {
+          onSaveSuccess(res);
+        }
+        notification.open({ message: "Settings updated" });
+        setSubmissionError(null);
+      })
+      .catch((err) => {
+        setSubmissionError(err);
+      });
+  };
+
+  const initialValues = data;
+  return (
+    <Form
+      initialValues={initialValues}
+      onFinish={submitData}
+      onFinishFailed={onFinishFailed}
+      style={{ paddingTop: "12px" }}
+    >
+      {submissionError && (
+        <FormItem>
+          <Alert
+            closable={{ onClose: () => setSubmissionError(null) }}
+            description={<ErrorMsg error={submissionError}></ErrorMsg>}
+            type="error"
+          />
+        </FormItem>
+      )}
+
+      {datasetSettings
+        .filter(
+          (s) =>
+            _.get(s, "origin", ["project", "external"]).indexOf(
+              dataset?.origin
+            ) > -1
+        )
+        .filter((s) => s.type === "Boolean")
+        .map((s) => (
+          <FormItem
+            {...formItemLayout}
+            label={_.startCase(s.name)}
+            key={s.name}
+            name={s.name}
+            valuePropName="checked"
+          >
+            <Input type="checkbox" />
+          </FormItem>
+        ))}
+      <FormItem
+        {...formItemLayout}
+        label={_.startCase("csv delimiter")}
+        key={"csv delimiter"}
+        name={"csv delimiter"}
+      >
+        <CsvDelimiterInput />
+      </FormItem>
+      {datasetSettings
+        .filter(
+          (s) =>
+            _.get(s, "origin", ["project", "external"]).indexOf(
+              dataset?.origin
+            ) > -1
+        )
+        .filter(
+          (s) =>
+            ["String", "Integer", "URI", "UUID", "Character"].includes(
+              s.type
+            ) &&
+            /* (s.type === "String" || s.type === "Integer" || s.type === "URI") */ s.name !==
+              "csv delimiter"
+        )
+        .map((s) => (
+          <FormItem
+            {...formItemLayout}
+            label={_.startCase(s.name)}
+            key={s.name}
+            name={s.name}
+          >
+            {s.type === "Integer" ? (
+              s.multiple ? (
+                <TagControl type="number" />
+              ) : (
+                <InputNumber />
+              )
+            ) : s.multiple ? (
+              <TagControl type="text" />
+            ) : (
+              <Input type="text" />
+            )}
+          </FormItem>
+        ))}
+
+      {datasetSettings
+        .filter(
+          (s) =>
+            _.get(s, "origin", ["project", "external"]).indexOf(
+              dataset?.origin
+            ) > -1
+        )
+        .filter(
+          (s) =>
+            ![
+              "String",
+              "Integer",
+              "Boolean",
+              "URI",
+              "UUID",
+              "Character",
+            ].includes(s.type)
+        )
+        .map((s) => {
+          try {
+            return (
+              <FormItem
+                {...formItemLayout}
+                label={_.startCase(s.name)}
+                key={s.name}
+                name={s.name}
+              >
+                {s.type === "NomCode" ? (
+                  <Select
+                    style={{ width: 200 }}
+                    showSearch
+                    allowClear
+                    options={nomCode.map((c) => ({
+                      value: c.name,
+                      label: `${c.name} (${c.acronym})`,
+                    }))}
+                  />
+                ) : (
+                  <Select
+                    style={{ width: 200 }}
+                    mode={s.multiple ? "multiple" : null}
+                    showSearch
+                    allowClear
+                    options={props[_.camelCase(s.type)].map((e) =>
+                      typeof e === "string"
+                        ? { value: e, label: e }
+                        : { value: e.name, label: e.name }
+                    )}
+                  />
+                )}
+              </FormItem>
+            );
+          } catch (error) {
+            if (!props[_.camelCase(s.type)]) {
+              console.log(
+                `Error: Missing enum injection ${_.camelCase(s.type)}`
+              );
+            }
+            console.log(error);
+            return null;
+          }
+        })}
+
+      <FormItem {...tailFormItemLayout}>
+        <Button type="primary" htmlType="submit">
+          Save
+        </Button>
+      </FormItem>
+    </Form>
+  );
+};
+
+const mapContextToProps = ({
+  addError,
+  addInfo,
+  frequency,
+  datasetType,
+  datasetType: datasettypeEnum,
+  dataFormat,
+  datasetOrigin: datasetoriginEnum,
+  license: licenseEnum,
+  nomCode,
+  entitytype: entityType,
+  rank,
+  datasetSettings,
+  gazetteer,
+  doiResolution,
+  nametype: nameType,
+  nomstatus: nomStatus,
+  environment,
+}) => ({
+  addError,
+  addInfo,
+  frequency,
+  datasetType,
+  datasettypeEnum,
+  dataFormat,
+  datasetoriginEnum,
+  licenseEnum,
+  nomCode,
+  entityType,
+  rank,
+  datasetSettings,
+  gazetteer,
+  doiResolution,
+  nameType,
+  nomStatus,
+  environment,
+});
+
+export default withContext(mapContextToProps)(SettingsForm);

@@ -1,0 +1,401 @@
+import { useEffect, useState } from "react";
+import withWidth, { LARGE, MEDIUM } from "../hoc/Width";
+import withRouter from "../../withRouter";
+import { Layout, Drawer, Row, Col, Tag, Alert, Tooltip } from "antd";
+import {
+  MenuUnfoldOutlined,
+  MenuFoldOutlined,
+  LockOutlined,
+} from "@ant-design/icons";
+import BasicMenu from "./BasicMenu";
+import UserMenu from "./UserMenu";
+import { getGitVersion, getBackendGitVersion } from "../../api/gitVersion";
+import "./menu.css";
+import styles from "./LayoutNew.module.css";
+import config from "../../config";
+import moment from "dayjs";
+import ErrorMsg from "../ErrorMsg";
+import withContext from "../../components/hoc/withContext";
+import _ from "lodash";
+import DatasetLogo from "../../pages/DatasetList/DatasetLogo";
+import Sync from "./Sync";
+import Exception from "../exception/Exception";
+import PulsatingDot from "./PulsatingDot";
+import DatasetOriginPill from "./DatasetOriginPill";
+import Health from "./Health";
+import JobQueue from "./JobQueue";
+import React from "react";
+
+const compose = _.flowRight;
+const { gitBackend, gitFrontend } = config;
+
+const exceptionIsDataset404 = (error, location) => {
+  return (
+    _.get(error, "response.status") === 404 &&
+    _.get(error, "response.request.responseURL") &&
+    _.get(error, "response.request.responseURL").startsWith(
+      `${config.dataApi}dataset/`
+    ) &&
+    location?.pathname.startsWith("/dataset")
+  );
+};
+
+const { Header, Sider, Content, Footer } = Layout;
+const menuWidth = 256;
+const menuCollapsedWidth = 80;
+
+const SiteLayout = ({
+  width,
+  selectedDataset,
+  selectedTaxon,
+  selectedName,
+  selectedSector,
+  openKeys,
+  selectedKeys,
+  title,
+  taxonOrNameKey,
+  error,
+  clearError,
+  background,
+  project,
+  match: {
+    params: { projectKey },
+  },
+  location,
+  children,
+  addError,
+}) => {
+  const [collapsedState, setCollapsedState] = useState(undefined);
+  const [gitVersion, setGitVersion] = useState(null);
+  const [gitBackendVersion, setGitBackendVersion] = useState(null);
+
+  useEffect(() => {
+    getGitVersion().then((v) => setGitVersion(v));
+    getBackendGitVersion().then((v) => setGitBackendVersion(v));
+  }, []);
+
+  const toggle = () => {
+    const collapsed =
+      typeof collapsedState === "boolean" ? collapsedState : width < LARGE;
+    setCollapsedState(!collapsed);
+  };
+
+  const collapsed =
+    typeof collapsedState === "boolean" ? collapsedState : width < LARGE;
+  const isMobile = width < MEDIUM;
+  let contentMargin = collapsed ? menuCollapsedWidth : menuWidth;
+  if (isMobile) {
+    contentMargin = 0;
+  }
+
+  const sideMenu = (
+    <React.Fragment>
+      {!isMobile && (
+        <Sider
+          className={styles.sider}
+          width={menuWidth}
+          trigger={null}
+          reverseArrow={true}
+          collapsible
+          collapsedWidth={menuCollapsedWidth}
+          breakpoint="lg"
+          collapsed={collapsed}
+        >
+          <BasicMenu
+            collapsed={collapsed}
+            selectedDataset={selectedDataset}
+            selectedTaxon={selectedTaxon}
+            selectedName={selectedName}
+            taxonOrNameKey={taxonOrNameKey}
+            openKeys={openKeys}
+            selectedKeys={selectedKeys}
+            selectedSector={selectedSector}
+          />
+        </Sider>
+      )}
+
+      {isMobile && (
+        <Drawer
+          placement="left"
+          size={menuWidth}
+          closable={false}
+          onClose={() => {
+            setCollapsedState(true);
+          }}
+          open={!collapsed}
+          className="mainMenu__drawer"
+        >
+          <BasicMenu />
+        </Drawer>
+      )}
+    </React.Fragment>
+  );
+
+  return (
+    <Layout style={{ minHeight: "100vh" }}>
+      {sideMenu}
+      <Layout style={{ marginLeft: contentMargin + "px" }}>
+        <Header
+          style={
+            config.env === "dev"
+              ? {
+                  backgroundImage: `url("/images/test-env.svg")`,
+                  backgroundRepeat: "no-repeat",
+                  backgroundPosition: "center",
+                  backgroundSize: "45%",
+                  backgroundColor: "#fff",
+                  display: "flex",
+                }
+              : { background: "#fff", display: "flex" }
+          }
+        >
+          {collapsed ? (
+            <MenuUnfoldOutlined
+              style={{
+                flex: "0 0 auto",
+                marginTop: "20px",
+                marginLeft: "-58px",
+              }}
+              className="menu-trigger"
+              onClick={toggle}
+            />
+          ) : (
+            <MenuFoldOutlined
+              style={{
+                flex: "0 0 auto",
+                marginTop: "20px",
+                marginLeft: "-58px",
+              }}
+              className="menu-trigger"
+              onClick={toggle}
+            />
+          )}
+          <div style={{ flex: "1 1 auto", textAlign: "center" }}>
+            {selectedDataset && (
+              <React.Fragment>
+                <Row>
+                  <Col flex="auto">
+                    <DatasetLogo
+                      datasetKey={selectedDataset.key}
+                      style={{ marginRight: "10px" }}
+                    />
+                  </Col>
+                  <Col
+                    style={{
+                      maxWidth: "600px",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    <h1 style={{ display: "inline", whiteSpace: "nowrap" }}>
+                      <Tooltip title={selectedDataset?.title}>
+                        {selectedDataset?.title}
+                      </Tooltip>
+                      {selectedDataset.private && (
+                        <React.Fragment>
+                          {" "}
+                          <Tooltip
+                            placement="bottom"
+                            title={"This dataset is private"}
+                          >
+                            <LockOutlined style={{ color: "red" }} />
+                          </Tooltip>
+                        </React.Fragment>
+                      )}
+                    </h1>
+                    {project &&
+                      selectedDataset &&
+                      project?.key !== selectedDataset?.key && (
+                        <h5
+                          style={{ marginTop: "-48px" }}
+                        >{`in ${project.title}`}</h5>
+                      )}
+                  </Col>
+                  <Col
+                    style={{
+                      maxWidth: `${
+                        selectedDataset?.title.length > 500 ? 60 : 120
+                      }px`,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    <span
+                      style={{
+                        marginRight: "8px",
+                        marginLeft: "8px",
+                        display: "inline",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      <Tooltip
+                        placement="bottom"
+                        title={`${
+                          selectedDataset.version
+                            ? "Version: " + selectedDataset.version
+                            : "Issued: " + selectedDataset.issued
+                        }`}
+                      >
+                        {selectedDataset.version || selectedDataset.issued}
+                      </Tooltip>
+                    </span>
+                    <DatasetOriginPill dataset={selectedDataset} />
+                  </Col>
+                  <Col flex="auto"></Col>
+                </Row>
+              </React.Fragment>
+            )}
+
+            {!selectedDataset && project && title && (
+              <>
+                <h1 style={{ display: "inline" }}>{title}</h1>{" "}
+                {projectKey && (
+                  <DatasetOriginPill
+                    dataset={{ key: projectKey, origin: project?.origin }}
+                  />
+                )}
+              </>
+            )}
+          </div>
+          <div className="header__secondary" style={{ flex: "0 0 auto" }}>
+            <JobQueue />
+            <Health />
+            <UserMenu />
+            <Sync />
+          </div>
+        </Header>
+
+        <Content
+          style={{
+            overflow: "initial",
+            margin: isMobile ? "0 0px 24px 0px" : "0 16px 24px 16px",
+            minHeight: 280,
+          }}
+        >
+          {background && background.maintenance && (
+            <Alert
+              style={{ marginTop: "10px" }}
+              title={
+                <Row align="middle">
+                  <Col>
+                    <PulsatingDot />
+                  </Col>
+                  <Col style={{ paddingLeft: "10px" }}>
+                    {background.message ||
+                      "The system is under maintenance - please expect errors."}
+                  </Col>
+                </Row>
+              }
+              type="warning"
+            />
+          )}
+          {error &&
+            ![401, 403].includes(_.get(error, "response.status")) &&
+            !exceptionIsDataset404(error, location) &&
+            ([431, 413].includes(_.get(error, "response.status")) ||
+              error?.message !== "Network Error") && (
+              <Alert
+                style={{ marginTop: "10px" }}
+                description={<ErrorMsg error={error} />}
+                type="error"
+                closable={{ onClose: clearError }}
+              />
+            )}
+          {error && error?.message === "Network Error" && (
+            <Alert
+              style={{ marginTop: "10px" }}
+              description={
+                "The network connection was interupted. Check your internet connection and reload the page."
+              }
+              type="warning"
+              showIcon
+              closable={{ onClose: clearError }}
+            />
+          )}
+          {(error && [401, 403].includes(_.get(error, "response.status"))) ||
+          exceptionIsDataset404(error, location) ? (
+            <Exception
+              type={_.get(error, "response.status").toString()}
+              desc={
+                exceptionIsDataset404(error, location)
+                  ? _.get(error, "response.data.message")
+                  : null
+              }
+            />
+          ) : (
+            children
+          )}
+        </Content>
+        <Footer>
+          <Row>
+            <Col>
+              <Row style={{ textAlign: "center" }}>
+                Developed by GBIF & Catalogue of Life
+              </Row>
+              <Row style={{ textAlign: "center", marginTop: "8px" }}>
+                <Tag>
+                  <a
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    href="https://github.com/CatalogueOfLife/checklistbank/issues/new"
+                  >
+                    Leave Feedback
+                  </a>
+                </Tag>
+                {gitVersion && (
+                  <Tag>
+                    <a
+                      target="_blank"
+                      href={`${gitFrontend}${gitVersion.short}`}
+                    >
+                      Frontend version: <strong>{gitVersion.short}</strong>{" "}
+                      {moment(gitVersion.created).format("LLL")}
+                    </a>
+                  </Tag>
+                )}
+                {gitBackendVersion && (
+                  <Tag>
+                    <a
+                      target="_blank"
+                      href={`${gitBackend}${gitBackendVersion.short}`}
+                    >
+                      Backend version:{" "}
+                      <strong>{gitBackendVersion.short}</strong>{" "}
+                      {moment(gitBackendVersion.created).format("LLL")}
+                    </a>
+                  </Tag>
+                )}
+              </Row>
+            </Col>
+            <Col flex="auto"></Col>
+            <Col>
+              <Row>
+                <img src="/images/GCBR-Logo-RGB.svg" height={48} />
+              </Row>
+            </Col>
+          </Row>
+        </Footer>
+      </Layout>
+    </Layout>
+  );
+};
+
+const mapContextToProps = ({
+  addError,
+  clearError,
+  error,
+  background,
+  project,
+}) => ({
+  addError,
+  clearError,
+  error,
+  background,
+  project,
+});
+
+export default compose(
+  withWidth(),
+  withContext(mapContextToProps),
+  withRouter
+)(SiteLayout);

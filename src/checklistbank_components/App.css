@@ -1,0 +1,547 @@
+.login-form-wrapper {
+  max-width: 300px;
+}
+.login-form {
+  max-width: 300px;
+}
+.login-form-forgot {
+  float: right;
+}
+.login-form-button {
+  width: 100%;
+}
+
+.ant-upload-select-picture-card i {
+  font-size: 32px;
+  color: #999;
+}
+
+.ant-upload-select-picture-card .ant-upload-text {
+  margin-top: 8px;
+  color: #666;
+}
+.ant-upload-list-picture-card .ant-upload-list-item {
+  float: left;
+  width: 200px;
+  height: 200px;
+  margin: 0 8px 8px 0;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+.headerLogo {
+  height: 64px;
+  position: relative;
+  line-height: 64px;
+  padding-left: 24px;
+  display: inline-block;
+}
+.headerLogo svg {
+  vertical-align: middle;
+  height: 64px;
+  padding: 14px 0;
+}
+.logo {
+  height: 90px;
+  position: relative;
+  margin-left: -4px;
+  transition: all 0.3s;
+  background: #002140;
+  overflow: hidden;
+}
+.logo svg {
+  vertical-align: middle;
+  height: 64px;
+  fill: #5ba734;
+  padding: 14px 0;
+}
+.logo h1 {
+  display: inline-block;
+  vertical-align: middle;
+  font-size: 20px;
+  margin: 0 0 0 8px;
+  font-family: Myriad Pro, Helvetica Neue, Arial, Helvetica, sans-serif;
+  font-weight: 400;
+  color: white;
+}
+
+.menu-trigger {
+  font-size: 18px;
+  line-height: 64px;
+  padding: 0 24px;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.react-resizable {
+  position: relative;
+}
+
+.react-resizable-handle {
+  position: absolute;
+  width: 10px;
+  height: 100%;
+  bottom: 0;
+  right: -5px;
+  cursor: col-resize;
+}
+
+.truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+tbody td.workbench-td {
+  padding: 4px !important;
+}
+thead th.workbench-td {
+  padding: 4px !important;
+}
+thead th.workbench-td > div {
+  margin: 0 -5px 0 0 !important;
+}
+
+.decision-tag {
+  margin: 0 0 0 0 !important;
+}
+
+.duplicate-alternate-row > td {
+  background: #bfbfbf !important;
+}
+
+div.admonition {
+  border-left: 1px solid #aaaaaa;
+  border-right: 1px solid #aaaaaa;
+  border-bottom: 1px solid #aaaaaa;
+  background: #d4e3ec;
+  padding: 12px;
+  margin-bottom: 6px;
+}
+#integrator-notes li {
+  margin-bottom: 1em;
+  background: #efefef;
+  padding: 0.5em;
+  border-radius: 0.5em;
+}
+.footnote-mark::before {
+  content: "[";
+}
+.footnote-mark::after {
+  content: "]";
+}
+#cite-menu .menu {
+  line-height: 0.5em;
+}
+.footnote-header {
+  margin-bottom: 1em;
+}
+.footnote {
+  padding-left: 1.3em;
+  text-indent: -1.3em;
+  margin-bottom: 0.5em;
+}
+.footnote-number {
+  background: #dddddd;
+  margin-right: 0.2em;
+}
+.footnote-number::before {
+  content: "[";
+}
+.footnote-number::after {
+  content: "]";
+}
+.citation {
+  background: #dddddd;
+}
+#csl-outer-block {
+  position: absolute;
+  height: 0px;
+  max-width: 40em;
+}
+#csl-inner-block {
+  max-width: 40em;
+  height: 15em;
+  position: relative;
+  bottom: 17em;
+  left: 2em;
+}
+#csl-content-block {
+  background: white;
+  border: solid black 1px;
+  overflow-y: scroll;
+  padding: 0.5em;
+  box-shadow: 10px 10px 5px #888888;
+}
+.csl-hide {
+  -webkit-opacity: 0;
+  -moz-opacity: 0;
+  opacity: 0;
+  -webkit-transition: all 0.75s ease;
+  -moz-transition: all 0.75s ease;
+  -ms-transition: all 0.75s ease;
+  -o-transition: all 0.75s ease;
+  transition: all 0.75s ease;
+  -webkit-transition-delay: 0.25s;
+  -moz-transition-delay: 0.25s;
+  -ms-transition-delay: 0.25s;
+  -o-transition-delay: 0.25s;
+  transition-delay: 0.25s;
+}
+.csl-show {
+  -webkit-opacity: 100;
+  -moz-opacity: 100;
+  opacity: 100;
+  -webkit-transition: all 0.75s ease;
+  -moz-transition: all 0.75s ease;
+  -ms-transition: all 0.75s ease;
+  -o-transition: all 0.75s ease;
+  transition: all 0.75s ease;
+}
+.csl-entry {
+  margin-left: 0 !important;
+  margin-bottom: 0.5em;
+}
+
+.csl-left-margin {
+  vertical-align: top;
+  right: 0.3em;
+  top: 0px;
+  white-space: nowrap;
+}
+
+.citeme {
+  display: inline;
+  cursor: pointer;
+  background: white;
+  border: 1px solid #aaaaaa;
+  border-radius: 2px;
+  margin: 0px 5px 0px 2px;
+  padding: 0px 2px 0px 2px;
+}
+
+div.csl-left-margin {
+  width: 2em;
+  float: left;
+  text-indent: 1em;
+  padding: 0.4em 0px 0.4em 0em;
+}
+
+div.dateindent div.csl-left-margin {
+  width: 3em;
+  float: left;
+  text-indent: 1em;
+  padding: 0.4em 0px 0.4em 0em;
+}
+
+div.dateindent div.csl-block {
+  font-weight: bold;
+}
+
+div.csl-right-inline {
+  margin-left: 2em;
+  padding: 0.4em 0.4em 0.4em 1em;
+}
+
+div.dateindent div.csl-right-inline {
+  margin-left: 3em;
+  padding: 0.4em 0.4em 0.4em 1em;
+}
+
+div.csl-indent {
+  margin-top: 0.5em;
+  margin-left: 2em;
+  padding-bottom: 0.2em;
+  padding-left: 0.5em;
+  border-left: 5px solid #ccc;
+}
+
+div.heading {
+  border-top: 5px solid #ccc;
+  border-bottom: 5px solid #ccc;
+}
+
+div.csl-bib-body {
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+  margin-bottom: 1em;
+}
+
+div.csl-entry {
+  margin-left: 4em;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.code-box-title {
+  position: absolute;
+  top: -14px;
+  margin-left: 16px;
+  padding: 1px 8px;
+  color: #777;
+  background: #fff;
+  border-radius: 2px 2px 0 0;
+  -webkit-transition: background-color 0.4s;
+  transition: background-color 0.4s;
+}
+
+.code-box {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  margin: 0 0 16px;
+  border: 1px solid #ebedf0;
+  border-radius: 2px;
+  -webkit-transition: all 0.2s;
+  transition: all 0.2s;
+}
+
+.editable-row .ant-form-explain {
+  position: absolute;
+  font-size: 12px;
+  margin-top: -4px;
+}
+
+/* antd 6 reshuffled the Tooltip DOM: the inner content sits in
+   `.ant-tooltip-container` (not `.ant-tooltip-inner` like in v4). Restyle
+   the assembly drop popconfirm to look like a Popover instead of a Tooltip
+   — white background, dark text, wider so the message + buttons fit on a
+   reasonable shape. */
+.popover-multi .ant-tooltip-container {
+  background-color: #fff !important;
+  color: rgba(0, 0, 0, 0.88) !important;
+  min-width: 330px;
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08), 0 3px 6px rgba(0, 0, 0, 0.06);
+}
+.popover-multi .ant-tooltip-container,
+.popover-multi .ant-popover-message-title {
+  color: rgba(0, 0, 0, 0.88) !important;
+}
+.popover-multi .ant-tooltip-arrow::before,
+.popover-multi .ant-tooltip-arrow::after {
+  background: #fff !important;
+}
+
+.assembly-tree-box {
+  border-right: 1px solid #c4c0c0;
+  padding-right: 8px;
+}
+
+.ant-tree-treenode.filter-node {
+  color: red;
+}
+
+/* Selected tree row: antd paints the row blue, but inline-styled spans inside
+   the node title (the rank prefix, taxon name link colors from labelHtml,
+   merged-badge wrapper, etc.) keep their original dark/blue text and become
+   unreadable. Paint the text white via -webkit-text-fill-color rather than
+   `color: #fff` — `color` is left untouched so the Tag pills further down
+   the tree can keep using `currentColor` as their solid background. */
+.ant-tree-treenode-selected .ant-tree-node-content-wrapper,
+.ant-tree-treenode-selected .ant-tree-node-content-wrapper * {
+  -webkit-text-fill-color: #fff !important;
+}
+/* Tag pills inside a selected row: keep their own fill-color (#fff) so the
+   white-on-saturated look survives the row-level override above. */
+.ant-tree-treenode-selected .ant-tag,
+.ant-tree-treenode-selected .ant-tag * {
+  -webkit-text-fill-color: #fff !important;
+}
+
+/* antd 6 renders <Tag color={...}> as pastel-bg + saturated-text. Restore the
+   antd-4 look (solid color background + white text) globally for tags that
+   actually carry a color — both preset names (purple/green/…) and custom
+   hex (which arrives as an inline `background-color:` style). Default,
+   uncolored tags are left alone so neutral pills stay light grey. Tags
+   opting into `variant="outlined"` are exempted so callers can recover
+   the pastel look on a per-call basis. */
+.ant-tag.ant-tag-filled[style*="background-color"],
+.ant-tag.ant-tag-pink:not(.ant-tag-outlined),
+.ant-tag.ant-tag-magenta:not(.ant-tag-outlined),
+.ant-tag.ant-tag-red:not(.ant-tag-outlined),
+.ant-tag.ant-tag-volcano:not(.ant-tag-outlined),
+.ant-tag.ant-tag-orange:not(.ant-tag-outlined),
+.ant-tag.ant-tag-yellow:not(.ant-tag-outlined),
+.ant-tag.ant-tag-gold:not(.ant-tag-outlined),
+.ant-tag.ant-tag-cyan:not(.ant-tag-outlined),
+.ant-tag.ant-tag-lime:not(.ant-tag-outlined),
+.ant-tag.ant-tag-green:not(.ant-tag-outlined),
+.ant-tag.ant-tag-blue:not(.ant-tag-outlined),
+.ant-tag.ant-tag-geekblue:not(.ant-tag-outlined),
+.ant-tag.ant-tag-purple:not(.ant-tag-outlined),
+.ant-tag.ant-tag-success:not(.ant-tag-outlined),
+.ant-tag.ant-tag-processing:not(.ant-tag-outlined),
+.ant-tag.ant-tag-error:not(.ant-tag-outlined),
+.ant-tag.ant-tag-warning:not(.ant-tag-outlined) {
+  background-color: currentColor !important;
+  border-color: currentColor !important;
+  -webkit-text-fill-color: #fff;
+}
+.ant-tag.ant-tag-filled[style*="background-color"] .anticon,
+.ant-tag.ant-tag-filled[style*="background-color"] .anticon > svg,
+.ant-tag.ant-tag-pink .anticon, .ant-tag.ant-tag-pink .anticon > svg,
+.ant-tag.ant-tag-magenta .anticon, .ant-tag.ant-tag-magenta .anticon > svg,
+.ant-tag.ant-tag-red .anticon, .ant-tag.ant-tag-red .anticon > svg,
+.ant-tag.ant-tag-volcano .anticon, .ant-tag.ant-tag-volcano .anticon > svg,
+.ant-tag.ant-tag-orange .anticon, .ant-tag.ant-tag-orange .anticon > svg,
+.ant-tag.ant-tag-yellow .anticon, .ant-tag.ant-tag-yellow .anticon > svg,
+.ant-tag.ant-tag-gold .anticon, .ant-tag.ant-tag-gold .anticon > svg,
+.ant-tag.ant-tag-cyan .anticon, .ant-tag.ant-tag-cyan .anticon > svg,
+.ant-tag.ant-tag-lime .anticon, .ant-tag.ant-tag-lime .anticon > svg,
+.ant-tag.ant-tag-green .anticon, .ant-tag.ant-tag-green .anticon > svg,
+.ant-tag.ant-tag-blue .anticon, .ant-tag.ant-tag-blue .anticon > svg,
+.ant-tag.ant-tag-geekblue .anticon, .ant-tag.ant-tag-geekblue .anticon > svg,
+.ant-tag.ant-tag-purple .anticon, .ant-tag.ant-tag-purple .anticon > svg,
+.ant-tag.ant-tag-success .anticon, .ant-tag.ant-tag-success .anticon > svg,
+.ant-tag.ant-tag-processing .anticon, .ant-tag.ant-tag-processing .anticon > svg,
+.ant-tag.ant-tag-error .anticon, .ant-tag.ant-tag-error .anticon > svg,
+.ant-tag.ant-tag-warning .anticon, .ant-tag.ant-tag-warning .anticon > svg {
+  color: #fff !important;
+  fill: #fff !important;
+}
+
+.green {
+  background: #66ff99;
+}
+
+.wheat {
+  background: wheat;
+}
+
+.tomato {
+  background: tomato;
+}
+
+.center {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  height: 100vh;
+}
+
+.circle {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  box-shadow: 0px 0px 1px 1px #0000001a;
+}
+
+.pulse {
+  animation: pulse-animation 2s infinite;
+}
+
+@keyframes pulse-animation {
+  0% {
+    box-shadow: 0 0 0 0px rgba(0, 0, 0, 0.2);
+  }
+  100% {
+    box-shadow: 0 0 0 20px rgba(0, 0, 0, 0);
+  }
+}
+
+.master {
+  color: black;
+  float: right;
+}
+
+@media (max-width: 900px) {
+  .master {
+    display: none;
+  }
+}
+
+.code {
+  padding: 0.2em 0.4em;
+  margin: 0;
+  font-size: 85%;
+  background-color: lightgray;
+  border-radius: 6px;
+}
+
+td > .hasChanged {
+  color: tomato;
+  font-weight: 500;
+}
+td > .hasChanged.smallChange {
+  color: orange;
+  font-weight: 500;
+}
+td > .isSame {
+  color: #999;
+}
+
+span.isSame {
+  color: #999;
+}
+
+td .perfectMatchChanged {
+  color: tomato;
+}
+
+span.hasChanged {
+  color: tomato;
+}
+
+td .changedToPerfectMatch {
+  color: #75ce75;
+}
+
+span.changedToPerfectMatch {
+  color: #75ce75;
+}
+span.small-text {
+  font-size: 11px;
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+.inline-text_copy--active,
+.inline-text_input--active {
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+  padding: 0;
+  background: none;
+  border: none;
+  border-bottom: 1px dashed #999999;
+  outline: none;
+}
+
+.inline-text_copy--active {
+  cursor: pointer;
+}
+
+.inline-text_copy--hidden,
+.inline-text_input--hidden {
+  display: none;
+}
+
+.inline-text_input--active {
+  border-bottom: 1px solid #666666;
+  text-align: left;
+}
+
+
+.ant-table-wrapper.releases .ant-table-container::after {
+  
+  box-shadow: none !important;
+}
+
+.col-reference-link {
+  vertical-align: super;
+  font-size: 9px;
+  font-weight: 400;
+}
+
+
+
+

@@ -1,0 +1,22 @@
+[
+  {
+    "name": "external",
+    "projectOrRelease": false,
+    "release": false
+  },
+  {
+    "name": "project",
+    "projectOrRelease": true,
+    "release": false
+  },
+  {
+    "name": "release",
+    "projectOrRelease": true,
+    "release": true
+  },
+  {
+    "name": "xrelease",
+    "projectOrRelease": true,
+    "release": true
+  }
+]

@@ -1,0 +1,26 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+}
+
+
+.ant-collapse > .ant-collapse-item > .ant-collapse-header {
+  line-height: 14px !important;
+}
+
+.colplus-taxon-page-list {
+  margin-left: -3px;
+}
+
+.colplus-taxon-page-list tbody tr:last-child > td
+{
+   border-bottom: none !important
+}
+
+.colplus-taxon-page-list  th, .colplus-taxon-page-list  td {
+  padding: 5px 3px !important;
+  font-size: 12px;
+  border-bottom: none !important;
+}
+

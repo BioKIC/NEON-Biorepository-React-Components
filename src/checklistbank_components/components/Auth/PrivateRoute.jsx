@@ -1,0 +1,26 @@
+import React from "react";
+import Exception403 from "../../components/exception/403";
+
+import withContext from "../hoc/withContext";
+import Layout from "../LayoutNew";
+import auth from "./index.js";
+
+// Router 6 dropped the render-prop pattern that the previous version used.
+// Call sites now wrap the protected element directly:
+//   <Route path="..." element={<PrivateRoute><Page /></PrivateRoute>} />
+const PrivateRoute = ({ user, project, children }) =>
+  auth.canViewDataset(project, user) ? (
+    children
+  ) : (
+    <Layout openKeys={[]} selectedKeys={[]}>
+      <Exception403 />
+    </Layout>
+  );
+
+const mapContextToProps = ({ user, project, dataset }) => ({
+  user,
+  project,
+  dataset,
+});
+
+export default withContext(mapContextToProps)(PrivateRoute);

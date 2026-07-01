@@ -1,0 +1,301 @@
+[
+  {
+    "enum": false,
+    "multiple": false,
+    "name": "csv delimiter",
+    "origin": [
+      "external"
+    ],
+    "type": "Character"
+  },
+  {
+    "enum": false,
+    "multiple": false,
+    "name": "csv quote",
+    "origin": [
+      "external"
+    ],
+    "type": "Character"
+  },
+  {
+    "enum": false,
+    "multiple": false,
+    "name": "csv quote escape",
+    "origin": [
+      "external"
+    ],
+    "type": "Character"
+  },
+  {
+    "enum": true,
+    "multiple": false,
+    "name": "distribution gazetteer",
+    "origin": [
+      "external",
+      "project"
+    ],
+    "type": "Gazetteer"
+  },
+  {
+    "enum": true,
+    "multiple": false,
+    "name": "nomenclatural code",
+    "origin": [
+      "external",
+      "project"
+    ],
+    "type": "NomCode"
+  },
+  {
+    "enum": true,
+    "multiple": false,
+    "name": "extinct",
+    "origin": [
+      "external",
+      "project"
+    ],
+    "type": "Rank"
+  },
+  {
+    "enum": true,
+    "multiple": false,
+    "name": "environment",
+    "origin": [
+      "external",
+      "project"
+    ],
+    "type": "Environment"
+  },
+  {
+    "enum": false,
+    "multiple": false,
+    "name": "rematch decisions",
+    "origin": [
+      "external",
+      "project"
+    ],
+    "type": "Boolean"
+  },
+  {
+    "enum": false,
+    "multiple": false,
+    "name": "lock metadata",
+    "origin": [
+      "external",
+      "project"
+    ],
+    "type": "Boolean"
+  },
+  {
+    "enum": false,
+    "multiple": false,
+    "name": "merge metadata",
+    "origin": [
+      "external",
+      "project"
+    ],
+    "type": "Boolean"
+  },
+  {
+    "enum": false,
+    "multiple": false,
+    "name": "release config",
+    "origin": [
+      "project"
+    ],
+    "type": "URI"
+  },
+  {
+    "enum": false,
+    "multiple": false,
+    "name": "xrelease config",
+    "origin": [
+      "project"
+    ],
+    "type": "URI"
+  },
+  {
+    "enum": false,
+    "multiple": false,
+    "name": "source max container authors",
+    "origin": [
+      "project",
+      "release"
+    ],
+    "type": "Integer"
+  },
+  {
+    "enum": true,
+    "multiple": false,
+    "name": "import frequency",
+    "origin": [
+      "external"
+    ],
+    "type": "Frequency"
+  },
+  {
+    "enum": false,
+    "multiple": false,
+    "name": "data access",
+    "origin": [
+      "external"
+    ],
+    "type": "URI"
+  },
+  {
+    "enum": true,
+    "multiple": false,
+    "name": "data format",
+    "origin": [
+      "external",
+      "project"
+    ],
+    "type": "DataFormat"
+  },
+  {
+    "enum": true,
+    "multiple": true,
+    "name": "sector entities",
+    "origin": [
+      "project"
+    ],
+    "type": "EntityType"
+  },
+  {
+    "enum": true,
+    "multiple": true,
+    "name": "sector ranks",
+    "origin": [
+      "project"
+    ],
+    "type": "Rank"
+  },
+  {
+    "enum": true,
+    "multiple": true,
+    "name": "sector name types",
+    "origin": [
+      "project"
+    ],
+    "type": "NameType"
+  },
+  {
+    "enum": true,
+    "multiple": true,
+    "name": "sector name status exclusion",
+    "origin": [
+      "project"
+    ],
+    "type": "NomStatus"
+  },
+  {
+    "enum": false,
+    "multiple": false,
+    "name": "sector copy according to",
+    "origin": [
+      "project"
+    ],
+    "type": "Boolean"
+  },
+  {
+    "enum": false,
+    "multiple": false,
+    "name": "sync scheduler",
+    "origin": [
+      "project"
+    ],
+    "type": "Boolean"
+  },
+  {
+    "enum": false,
+    "multiple": true,
+    "name": "sync scheduler sources",
+    "origin": [
+      "project"
+    ],
+    "type": "Integer"
+  },
+  {
+    "enum": false,
+    "multiple": false,
+    "name": "sector remove ordinals",
+    "origin": [
+      "project"
+    ],
+    "type": "Boolean"
+  },
+  {
+    "enum": false,
+    "multiple": false,
+    "name": "gbif sync lock",
+    "origin": [
+      "external"
+    ],
+    "type": "Boolean"
+  },
+  {
+    "enum": true,
+    "multiple": false,
+    "name": "doi resolution",
+    "origin": [
+      "external",
+      "project"
+    ],
+    "type": "DoiResolution"
+  },
+  {
+    "enum": false,
+    "multiple": false,
+    "name": "epithet add hyphen",
+    "origin": [
+      "external"
+    ],
+    "type": "Boolean"
+  },
+  {
+    "enum": false,
+    "multiple": false,
+    "name": "prefer name atoms",
+    "origin": [
+      "external"
+    ],
+    "type": "Boolean"
+  },
+  {
+    "enum": false,
+    "multiple": false,
+    "name": "dont infer ranks",
+    "origin": [
+      "external"
+    ],
+    "type": "Boolean"
+  },
+  {
+    "enum": false,
+    "multiple": false,
+    "name": "block merge syncs",
+    "origin": [
+      "project"
+    ],
+    "type": "Boolean"
+  },
+  {
+    "enum": false,
+    "multiple": false,
+    "name": "sector create implicit names",
+    "origin": [
+      "project"
+    ],
+    "type": "Boolean"
+  },
+  {
+    "enum": false,
+    "multiple": false,
+    "name": "add identifiers from",
+    "origin": [
+      "external",
+      "project"
+    ],
+    "type": "String"
+  }
+]

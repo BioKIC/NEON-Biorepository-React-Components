@@ -1,0 +1,44 @@
+[
+  {
+    "extendedContent": true,
+    "filename": "dwca",
+    "name": "DwCA",
+    "title": "Darwin Core Archive"
+  },
+  {
+    "extendedContent": false,
+    "filename": "acef",
+    "name": "ACEF",
+    "title": "Annual Checklist Exchange Format"
+  },
+  {
+    "extendedContent": true,
+    "filename": "txtree",
+    "name": "TextTree",
+    "title": "TextTree"
+  },
+  {
+    "extendedContent": true,
+    "filename": "coldp",
+    "name": "ColDP",
+    "title": "Catalogue of Life Data Package"
+  },
+  {
+    "extendedContent": false,
+    "filename": "proxy",
+    "name": "proxy",
+    "title": "Proxy"
+  },
+  {
+    "extendedContent": true,
+    "filename": "newick",
+    "name": "Newick",
+    "title": "New Hampshire X"
+  },
+  {
+    "extendedContent": false,
+    "filename": "dot",
+    "name": "DOT",
+    "title": "Graphviz DOT"
+  }
+]

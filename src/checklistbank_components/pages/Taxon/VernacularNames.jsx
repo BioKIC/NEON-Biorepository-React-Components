@@ -1,0 +1,143 @@
+import { useEffect, useState } from "react";
+import { Table } from "antd";
+import _ from "lodash";
+import withContext from "../../components/hoc/withContext";
+import ReferencePopover from "../project/ProjectReferences/ReferencePopover";
+import MergedDataBadge from "../../components/MergedDataBadge";
+import ShowMoreToggle from "./ShowMoreToggle";
+
+const TOP_N = 10;
+
+const VernacularNamesTable = ({ data: dataProp, datasetKey, style, countryAlpha3, countryAlpha2, language }) => {
+  const [showAll, setShowAll] = useState(false);
+  const [data, setData] = useState(dataProp ? [...dataProp] : []);
+
+  const decorateWithCountryByCode = (name) => {
+    var countryName = name.country;
+    var languageName = name.language;
+
+    if (name.country) {
+      if (countryAlpha2 && name.country.length === 2) {
+        countryName =
+          _.get(countryAlpha2, `[${name.country}].title`) || name.country;
+      } else if (countryAlpha3 && name.country.length === 3) {
+        countryName =
+          _.get(countryAlpha3, `[${name.country}].title`) || name.country;
+      }
+    }
+    if (language && name.language) {
+      languageName = _.get(language, `[${name.language}]`) || name.language;
+    }
+
+    return {
+      ...name,
+      countryTitle: countryName,
+      languageTitle: languageName,
+    };
+  };
+
+  useEffect(() => {
+    const newData = dataProp.map(decorateWithCountryByCode);
+    setData(newData);
+    console.log(newData);
+  }, []);
+
+  const columns = [
+    {
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+      width: 200,
+    },
+    {
+      title: "Transliteration",
+      dataIndex: "latin",
+      key: "latin",
+      width: 200,
+    },
+    {
+      title: "Language",
+      dataIndex: "language",
+      key: "language",
+      width: 100,
+      render: (text, record) =>
+        record.languageTitle ? record.languageTitle : text,
+    },
+    {
+      title: "Country",
+      dataIndex: "country",
+      key: "country",
+      width: 70,
+      render: (text, record) =>
+        record.countryTitle ? record.countryTitle : text,
+    },
+    {
+      title: "",
+      dataIndex: "merged",
+      key: "merged",
+      width: 12,
+      render: (text, record) =>
+        record?.merged ? (
+          <MergedDataBadge
+            createdBy={record?.createdBy}
+            datasetKey={record?.datasetKey}
+            verbatimSourceKey={record?.verbatimSourceKey}
+            sourceDatasetKey={record?.sourceDatasetKey}
+          />
+        ) : (
+          ""
+        ),
+    },
+    {
+      title: "Ref",
+      dataIndex: "referenceId",
+      key: "referenceId",
+      width: 30,
+      render: (text, record) => {
+        return text ? (
+          <ReferencePopover
+            referenceId={text}
+            datasetKey={datasetKey}
+            placement="left"
+          ></ReferencePopover>
+        ) : (
+          ""
+        );
+      },
+    },
+    {
+      title: "Remarks",
+      dataIndex: "remarks",
+      key: "remarks",
+    },
+  ];
+
+  const visible = showAll ? data : data.slice(0, TOP_N);
+
+  return (
+    <div style={style}>
+      <Table
+        className="colplus-taxon-page-list"
+        columns={columns}
+        dataSource={visible}
+        rowKey="verbatimKey"
+        pagination={false}
+        size="middle"
+      />
+      <ShowMoreToggle
+        total={data.length}
+        visible={TOP_N}
+        showAll={showAll}
+        onChange={(v) => setShowAll(v)}
+      />
+    </div>
+  );
+};
+
+const mapContextToProps = ({ countryAlpha3, countryAlpha2, language }) => ({
+  countryAlpha3,
+  countryAlpha2,
+  language,
+});
+
+export default withContext(mapContextToProps)(VernacularNamesTable);
