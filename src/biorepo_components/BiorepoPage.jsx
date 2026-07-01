@@ -82,17 +82,6 @@ export default function BiorepoPage() {
         const filename = pathname.split('/').pop();
 
         const sidebarData = data[filename] || data.default;
-        if (data[pathname] === undefined) {
-          sidebarData.links = sidebarData.links.map((link) => {
-            if (link.name === 'Sample Portal') {
-              return {
-                ...link,
-                hash: `${config.CLIENT_ROOT}/${link.hash}`,
-              };
-            }
-            return link;
-          });
-        }
         setSidebarLinks(sidebarData.links);
         setSidebarTitle(sidebarData.sidebarTitle);
       } catch (error) {

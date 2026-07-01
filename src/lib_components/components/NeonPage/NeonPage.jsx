@@ -465,14 +465,21 @@ const NeonPage = (props) => {
       // If standard sidebar mode (scroll to content) also perform the scroll offset here
       if (!sidebarLinksAsStandaloneChildren) {
         window.setTimeout(() => {
-          window.scrollTo(0, getSidebarLinkScrollPosition(hash));
+          const anchor = document.querySelector(hash);
+          anchor?.scrollIntoView();
         }, 0);
       }
     };
     // Handle URL-defined hash on initial load
     if (document.location.hash && !hashInitialized) {
       // Ensure the document hash maps to a defined hash or '#' at all times
-      if (!Object.keys(sidebarHashMap).includes(document.location.hash)) {
+      const sidebarHashes = Object.keys(sidebarHashMap).filter((h) => h.startsWith('#'));
+
+      if (
+        sidebarHashes.length
+        && document.location.hash
+        && !sidebarHashes.includes(document.location.hash)
+      ) {
         document.location.hash = '#';
       }
       handleHashChange();
