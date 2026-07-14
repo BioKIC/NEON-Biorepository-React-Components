@@ -136,9 +136,14 @@
         trackInteraction('touchstart');
     }, { once: true });
     
+    let mouseMoves = 0;
+    
     window.addEventListener('mousemove', () => {
-        trackInteraction('mousemove');
-    }, { once: true });
+        mouseMoves++;
+        if (mouseMoves === 2) {
+            trackInteraction('mousemove');
+        }
+    });
     </script>
     <!-- End Google Analytics -->
     <script>
