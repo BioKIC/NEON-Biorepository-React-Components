@@ -26,6 +26,8 @@ import BiorepoCollectionPageContent from './biorepo_components/BiorepoCollection
 import BiorepoSearchMetrics from './biorepo_components/BiorepoSearchMetrics';
 import CollectionTypeSummary from './biorepo_components/CollectionTypeSummary';
 import CollectionSearchMap from './biorepo_components/CollectionSearchMap';
+import SampleSiteMap from './biorepo_components/SampleSiteMap';
+import NeonTable from './biorepo_components/NeonTable';
 
 const biorepoPageElement = document.getElementById('biorepo-page');
 if (biorepoPageElement) {
@@ -70,4 +72,14 @@ if (collectionTypeSummaryElement) {
 const collectionSearchMapElement = document.getElementById('collection-search-map');
 if (collectionSearchMapElement) {
   ReactDOM.render(<CollectionSearchMap />, collectionSearchMapElement);
+}
+
+const SampleSiteMapElement = document.getElementById('sample-site-map');
+if (SampleSiteMapElement) {
+  ReactDOM.render(<SampleSiteMap />, SampleSiteMapElement);
+}
+
+const NeonTableElement = document.getElementById('neon-table');
+if (NeonTableElement) {
+  ReactDOM.render(<NeonTable />, NeonTableElement);
 }
