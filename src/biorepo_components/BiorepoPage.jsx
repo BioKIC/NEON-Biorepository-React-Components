@@ -4,6 +4,7 @@ import React, {
 } from 'react';
 
 import NeonPage from '../lib_components/components/NeonPage/NeonPage';
+import StyleSeeds from './StyleSeeds';
 
 export default function BiorepoPage() {
   const [config, setConfig] = useState(null);
@@ -100,6 +101,7 @@ export default function BiorepoPage() {
       sidebarLinks={sidebarLinks}
       sidebarTitle={sidebarTitle}
     >
+      <StyleSeeds />
     </NeonPage>
   );
 }
