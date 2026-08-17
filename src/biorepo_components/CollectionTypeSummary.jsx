@@ -288,29 +288,6 @@ export default function CollectionTypeSummary() {
             size: match.size,
             url: `https://data.neonscience.org/api/v0/documents/${match.name}`,
           };
-
-          if (family.family.includes('CFC')) {
-            const hbpMatch = json.data.find((doc) => {
-              if (!doc.description) {
-                return false;
-              }
-
-              return (
-                doc.description.includes(
-                  'Protocol and Procedure',
-                )
-                && doc.description.includes('HBP')
-              );
-            });
-
-            if (hbpMatch) {
-              protocols[`${family.family}_HBP`] = {
-                name: hbpMatch.name,
-                size: hbpMatch.size,
-                url: `https://data.neonscience.org/api/v0/documents/${hbpMatch.name}`,
-              };
-            }
-          }
         }
 
         if (family.family.includes('FSL')) {
