@@ -15,7 +15,6 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import IconButton from '@material-ui/core/IconButton';
 import Link from '@material-ui/core/Link';
 import Radio from '@material-ui/core/Radio';
-import Slider from '@material-ui/core/Slider';
 import Switch from '@material-ui/core/Switch';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
@@ -319,26 +318,6 @@ export default function StyleSeeds() {
         <DownloadIcon />
       </IconButton>
 
-      {/* Slider */}
-      <Slider
-        defaultValue={30}
-        min={0}
-        max={100}
-      />
-
-      <Slider
-        defaultValue={[30, 70]}
-        min={0}
-        max={100}
-      />
-
-      <Slider
-        defaultValue={30}
-        min={0}
-        max={100}
-        disabled
-      />
-
       {/* Toggle Buttons */}
       <ToggleButtonGroup
         size="small"
@@ -452,27 +431,6 @@ export default function StyleSeeds() {
       <Link href="#">
         Standard Link
       </Link>
-
-      <Link href="#" color="primary">
-        Primary Link
-      </Link>
-
-      <Link href="#" underline="always">
-        Underlined Link
-      </Link>
-
-      {/* Breadcrumbs */}
-      <Breadcrumbs>
-        <Link href="#">
-          Home
-        </Link>
-        <Link href="#">
-          Samples
-        </Link>
-        <Typography color="textPrimary">
-          Current Page
-        </Typography>
-      </Breadcrumbs>
 
       {/* Lists */}
       <List>
