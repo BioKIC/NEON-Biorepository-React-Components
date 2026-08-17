@@ -459,11 +459,13 @@ export default function StyleSeeds() {
         variant="outlined"
       />
 
+      {/*
       <TextField
         label="Required Field"
         variant="outlined"
         required
       />
+      */}
 
       <TextField
         label="Disabled Field"
