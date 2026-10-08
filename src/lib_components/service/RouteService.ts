@@ -185,10 +185,10 @@ export interface IRouteService {
    * @returns The path
    */
   getSaeViewerUrlPath: (
-    product:string,
-    site?:string,
-    startDate?:string,
-    endDate?:string,
+    product: string,
+    site?: string,
+    startDate?: string,
+    endDate?: string,
   ) => string;
 }
 
@@ -198,10 +198,10 @@ const RouteService: IRouteService = {
     `${NeonEnvironment.getWebHost()}/about/user-accounts`
   ),
   getDataPoliciesPath: (): string => (
-    `${NeonEnvironment.getWebHost()}/data-samples/guidelines-policies`
+    `${NeonEnvironment.getWebHost()}/usage-policies`
   ),
   getDataPoliciesCitationPath: (): string => (
-    `${NeonEnvironment.getWebHost()}/data-samples/guidelines-policies/citing`
+    `${NeonEnvironment.getWebHost()}/data/guidelines-policies/citing`
   ),
   getDataQualityPath: (): string => (
     `${NeonEnvironment.getWebHost()}/data-samples/data-management/data-quality-program`
@@ -258,6 +258,7 @@ const RouteService: IRouteService = {
     `${NeonEnvironment.getWebHost()}/domains/${domainCode}`
   ),
   getReleaseDetailPath: (release: string): string => (
+    // eslint-disable-next-line max-len, @stylistic/max-len
     `${NeonEnvironment.getWebHost()}/data-samples/data-management/data-revisions-releases/${release}`
   ),
 
@@ -288,14 +289,13 @@ const RouteService: IRouteService = {
     `${NeonEnvironment.getApiHost()}/prototype-datasets/${uuid}`
   ),
   getSaeViewerUrl: (): string => (
-    // TODO: replace with web host once switch over happens
     `${NeonEnvironment.getApiHost()}/visualizations/sae-visualization`
   ),
   getSaeViewerUrlPath: (
-    product:string,
-    site?:string,
-    startDate?:string,
-    endDate?:string,
+    product: string,
+    site?: string,
+    startDate?: string,
+    endDate?: string,
   ): string => {
     const url = new URL(`${NeonEnvironment.getApiHost()}/visualizations/sae-visualization`);
     if (product) {

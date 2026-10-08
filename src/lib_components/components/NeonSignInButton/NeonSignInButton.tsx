@@ -1,12 +1,14 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import Button from '@material-ui/core/Button';
+import Button from '@mui/material/Button';
 
 import AuthService from '../NeonAuth/AuthService';
 import NeonEnvironment from '../NeonEnvironment/NeonEnvironment';
 import NeonSignInButtonState from './NeonSignInButtonState';
+import { makeStyles } from '../Theme/makeStyles';
+import { NeonTheme } from '../Theme/types';
+import { resolveProps } from '../../util/defaultProps';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme: NeonTheme) => ({
   signInButton: {
     margin: theme.spacing(2),
   },
@@ -21,11 +23,31 @@ const handleButtonClick = () => {
   );
 };
 
-export default function NeonSignInButton() {
-  const classes = useStyles();
+export interface NeonSignInButtonProps {
+  disableMargin?: boolean;
+}
+
+const defaultProps = {
+  disableMargin: undefined,
+};
+
+const NeonSignInButton = (inProps: NeonSignInButtonProps) => {
+  const { disableMargin } = resolveProps(defaultProps, inProps) as NeonSignInButtonProps;
+  const { classes } = useStyles();
+  let appliedClass: string|undefined = classes.signInButton;
+  if (disableMargin === true) {
+    appliedClass = undefined;
+  }
   return (
-    <Button variant="contained" className={classes.signInButton} color="primary" onClick={handleButtonClick}>
+    <Button
+      variant="contained"
+      className={appliedClass}
+      color="primary"
+      onClick={handleButtonClick}
+    >
       Sign In
     </Button>
   );
-}
+};
+
+export default NeonSignInButton;

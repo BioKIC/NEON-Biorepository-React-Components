@@ -1,36 +1,37 @@
 import React from 'react';
 
-import Divider from '@material-ui/core/Divider';
-import Link from '@material-ui/core/Link';
-import Paper from '@material-ui/core/Paper';
-import Typography from '@material-ui/core/Typography';
-import { makeStyles } from '@material-ui/core/styles';
+import Divider from '@mui/material/Divider';
+import Link from '@mui/material/Link';
+import Paper from '@mui/material/Paper';
+import Typography from '@mui/material/Typography';
 
-import ReleaseIconOutlined from '@material-ui/icons/LocalOfferOutlined';
+import ReleaseIconOutlined from '@mui/icons-material/LocalOfferOutlined';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBox, faBoxesStacked, faTag } from '@fortawesome/free-solid-svg-icons';
+
+import NeonAuthContext from '@/components/NeonContext/NeonAuthContext';
+import InfoCard from '@/components/Card/InfoCard';
+import WarningCard from '@/components/Card/WarningCard';
+import ErrorCard from '@/components/Card/ErrorCard';
+import InfoMessageCard from '@/components/Card/InfoMessageCard';
+import LoginRequiredCard from '@/components/Card/LoginRequiredCard';
+import { makeStyles } from '@/components/Theme/makeStyles';
+import { NeonTheme } from '@/components/Theme/types';
+import { exists } from '@/util/typeUtil';
 
 import CodeBlock from '../../../components/CodeBlock';
 import DocBlock from '../../../components/DocBlock';
 import ExampleBlock from '../../../components/ExampleBlock';
 import PropsTable from '../../../components/PropsTable';
 
-import InfoCard from './InfoCard';
-import WarningCard from './WarningCard';
-import ErrorCard from './ErrorCard';
-import InfoMessageCard from './InfoMessageCard';
-import Theme from '../Theme/Theme';
-
-import { NeonTheme } from '../Theme/types';
-
-const useStyles = makeStyles((theme: NeonTheme) => ({
+const useStyles = makeStyles()((theme: NeonTheme) => ({
   divider: {
     margin: theme.spacing(3, 0),
   },
   paper: {
     width: '100%',
-    padding: Theme.spacing(3),
+    padding: theme.spacing(3),
   },
   customReleaseIcon: {
     color: 'rgba(0, 0, 0, 0.9)',
@@ -104,9 +105,21 @@ const propRows = [
 ];
 
 export default function StyleGuide() {
-  const classes = useStyles(Theme);
-  /* eslint-disable jsx-a11y/anchor-is-valid, react/jsx-one-expression-per-line */
+  const { classes } = useStyles();
+  const neonAuthContextSessionState = NeonAuthContext.useNeonAuthContextSessionState();
+  const [
+    {
+      auth: {
+        userData,
+      },
+    },
+  ] = NeonAuthContext.useNeonAuthContextState();
+  const hasUserData = (exists(userData) && exists(userData.data) && exists(userData.data.user));
+  const appliedEmailVerified = hasUserData
+    ? userData.data.user.emailVerified === true
+    : false;
   const link = (
+    // eslint-disable-next-line jsx-a11y/anchor-is-valid
     <Link href="#">
       Insert Link Here
     </Link>
@@ -123,7 +136,6 @@ Lorem in proin in nunc in cras et gravida. Urna congue neque risus risus a
 lectus veneatis sed gravida volutpat viverra. Aenean sem tellus at proin dictum
 scelerisque metus. Sit sit tellus risus diam ultrices amet tortor molestie scelerisque.
   `;
-  /* eslint-enable jsx-a11y/anchor-is-valid, react/jsx-one-expression-per-line */
   return (
     <>
       <DocBlock>
@@ -262,6 +274,111 @@ scelerisque metus. Sit sit tellus risus diam ultrices amet tortor molestie scele
           <ErrorCard
             title="Custom Heading Content"
             message={messageText}
+          />
+        </Paper>
+      </ExampleBlock>
+
+      <Divider className={classes.divider} />
+
+      <Typography variant="h4" component="h2" gutterBottom>
+        Example Login Required Cards
+      </Typography>
+      <DocBlock>
+        Displays login required cards.
+      </DocBlock>
+      <CodeBlock>
+        {`
+import LoginRequiredCard from 'portal-core-components/lib/components/Card/LoginRequiredCard';
+
+<LoginRequiredCard />
+        `}
+      </CodeBlock>
+      <DocBlock>
+        Live demo.
+      </DocBlock>
+      <ExampleBlock>
+        <Paper className={classes.paper}>
+          <LoginRequiredCard
+            showValidation
+            isAuthenticated={neonAuthContextSessionState.authenticated}
+            accountValidated={neonAuthContextSessionState.accountValidated}
+            accountValidationSteps={neonAuthContextSessionState.accountValidationSteps}
+          />
+        </Paper>
+      </ExampleBlock>
+      <DocBlock>
+        Various test cases.
+      </DocBlock>
+      <ExampleBlock>
+        <Paper className={classes.paper}>
+          <LoginRequiredCard />
+          <LoginRequiredCard
+            customContent={(
+              <Typography variant="body2">
+                Custom contents
+              </Typography>
+            )}
+          />
+          <LoginRequiredCard
+            showValidation
+            isAuthenticated={neonAuthContextSessionState.authenticated}
+            accountValidated={neonAuthContextSessionState.accountValidated}
+            accountValidationSteps={[
+              { step: 'verify-email', completed: appliedEmailVerified },
+              { step: 'another-step', completed: false },
+            ]}
+          />
+          <LoginRequiredCard
+            customTitle="Custom Title for Card"
+            showValidation
+            isAuthenticated={neonAuthContextSessionState.authenticated}
+            accountValidated={neonAuthContextSessionState.accountValidated}
+            accountValidationSteps={[
+              { step: 'verify-email', completed: appliedEmailVerified },
+              { step: 'another-step', completed: false },
+            ]}
+            accountValidationStepDisplay={{
+              'verify-email': {
+                displayLabel: 'Custom verify email display label',
+                // eslint-disable-next-line react/no-unstable-nested-components
+                getContents: (theme: NeonTheme, completed: boolean): React.JSX.Element => {
+                  if (!completed) {
+                    return (
+                      <div>
+                        <Typography variant="body2">
+                          Custom verify email incomplete contents
+                        </Typography>
+                      </div>
+                    );
+                  }
+                  return (
+                    <Typography variant="body2">
+                      Custom verify email completed contents
+                    </Typography>
+                  );
+                },
+              },
+              'another-step': {
+                displayLabel: 'Custom another-step display label',
+                // eslint-disable-next-line react/no-unstable-nested-components
+                getContents: (theme: NeonTheme, completed: boolean): React.JSX.Element => {
+                  if (!completed) {
+                    return (
+                      <div>
+                        <Typography variant="body2">
+                          Custom another-step incomplete contents
+                        </Typography>
+                      </div>
+                    );
+                  }
+                  return (
+                    <Typography variant="body2">
+                      Custom another-step completed contents
+                    </Typography>
+                  );
+                },
+              },
+            }}
           />
         </Paper>
       </ExampleBlock>

@@ -3,10 +3,11 @@ import { ajax } from 'rxjs/ajax';
 
 import NeonEnvironment from '../NeonEnvironment/NeonEnvironment';
 import NeonApi from '../NeonApi/NeonApi';
-import { exists, isStringNonEmpty } from '../../util/typeUtil';
+import { isStringNonEmpty } from '../../util/typeUtil';
 
 export const TYPES = {
   DATA_PRODUCTS: 'DATA_PRODUCTS',
+  DEMO_DATA_PRODUCTS: 'DEMO_DATA_PRODUCTS',
   SITES: 'SITES',
   LOCATIONS: 'LOCATIONS',
 };
@@ -36,7 +37,6 @@ const getQueryBody = (type = '', dimensionality = '', args = {}) => {
   switch (type) {
     case TYPES.DATA_PRODUCTS:
       if (dimensionality === DIMENSIONALITIES.ONE) {
-        // TODO: Add support for deeper product data when querying for one
         const releaseArgument = !args.release ? '' : `, release: "${args.release}"`;
         const availableReleases = getAvailableReleaseClause(args);
         query = `query Products {
@@ -93,9 +93,38 @@ const getQueryBody = (type = '', dimensionality = '', args = {}) => {
       }
       break;
 
+    case TYPES.DEMO_DATA_PRODUCTS:
+      if (dimensionality === DIMENSIONALITIES.ONE) {
+        const availableReleases = getAvailableReleaseClause(args);
+        query = `query Products {
+          product: demoProduct (productCode: "${args.productCode}") {
+            productCode
+            productName
+            productDescription
+            productScienceTeam
+            productHasExpanded
+            productBasicDescription
+            productExpandedDescription
+            productPublicationFormatType
+            keywords
+            themes
+            siteCodes {
+              siteCode
+              availableMonths
+              ${availableReleases}
+            }
+            releases {
+              release
+              generationDate
+              url
+            }
+          }
+        }`;
+      }
+      break;
+
     case TYPES.SITES:
       if (dimensionality === DIMENSIONALITIES.ONE) {
-        // TODO: Add support for deeper site data when querying for one
         query = `query Sites {
           site (siteCode: "${args.siteCode}") {
             siteCode
@@ -185,17 +214,9 @@ const getQueryBody = (type = '', dimensionality = '', args = {}) => {
   return transformQuery(query);
 };
 
-const getAjaxRequest = (body, includeToken = true, withCredentials = undefined) => {
-  let appliedWithCredentials = false;
-  if (!exists(withCredentials) || (typeof withCredentials !== 'boolean')) {
-    appliedWithCredentials = NeonEnvironment.requireCors();
-  } else {
-    appliedWithCredentials = withCredentials;
-  }
+const getAjaxRequest = (body, includeToken = true) => {
   const request = {
     method: 'POST',
-    crossDomain: true,
-    withCredentials: appliedWithCredentials,
     url: NeonEnvironment.getFullGraphqlPath(),
     headers: { 'Content-Type': 'application/json' },
     responseType: 'json',
@@ -237,6 +258,14 @@ const NeonGraphQL = {
     TYPES.DATA_PRODUCTS,
     DIMENSIONALITIES.ONE,
     { productCode, release, includeAvailableReleases },
+  ),
+  getDemoDataProductByCode: (
+    productCode,
+    includeAvailableReleases = false,
+  ) => getObservableWith(
+    TYPES.DEMO_DATA_PRODUCTS,
+    DIMENSIONALITIES.ONE,
+    { productCode, includeAvailableReleases },
   ),
   getAllDataProducts: (release, includeAvailableReleases = false) => getObservableWith(
     TYPES.DATA_PRODUCTS,

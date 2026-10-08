@@ -6,6 +6,7 @@ import {
   ManifestRequest,
   ManifestSelection,
 } from '../types/manifest';
+import { exists } from './typeUtil';
 
 // Build an object from state suitable for manifestUtil.buildManifestRequestUrl()
 export const buildManifestConfig = (
@@ -48,7 +49,6 @@ export const buildManifestConfig = (
   return config;
 };
 
-// eslint-disable-next-line no-array-constructor
 export const buildSiteCodesParams = (sites = new Array<string>(), camelCase = false): string => {
   const param = camelCase ? 'siteCode' : 'sitecode';
   return sites.reduce((sitesString, siteCode, index) => (
@@ -127,27 +127,39 @@ export const buildS3FilesRequestUrl = (
   return `${root}?presign=false${releaseParam}`;
 };
 
-export const downloadManifest = (manifest: ManifestRequest) => {
-  const form = document.createElement('form');
+export const downloadManifest = (manifest: ManifestRequest, params?: Record<string, string>) => {
+  const form: HTMLFormElement = document.createElement('form');
   form.style.display = 'none';
   form.action = NeonEnvironment.getFullDownloadApiPath('downloadStream');
   form.method = 'POST';
-
-  const input = document.createElement('input');
+  // Build form parameters
+  if (exists(params)) {
+    const paramNames: string[] = Object.keys(params as Record<string, string>);
+    paramNames.forEach((paramName: string): void => {
+      const paramInput: HTMLInputElement = document.createElement('input');
+      paramInput.type = 'hidden';
+      paramInput.name = paramName;
+      paramInput.value = (params as Record<string, string>)[paramName];
+      form.appendChild(paramInput);
+    });
+  }
+  // Build manifest body as form parameter
+  const input: HTMLInputElement = document.createElement('input');
+  input.type = 'hidden';
   input.name = 'manifest';
   input.value = JSON.stringify(manifest);
   form.appendChild(input);
-
+  // Add the form to the document and submit
   document.body.appendChild(form);
   const submit = form.submit();
   document.body.removeChild(form);
-
   return submit;
 };
 
 export const downloadAopManifest = (
   config: ManifestConfig,
   s3Files: Record<string, unknown>,
+  params?: Record<string, string>,
   documentation = 'include',
 ) => {
   const siteCodes: string[] = [];
@@ -191,14 +203,14 @@ export const downloadAopManifest = (
     includeProvisional: null,
   };
 
-  return downloadManifest(manifestRequest);
+  return downloadManifest(manifestRequest, params);
 };
 
 export const MAX_POST_BODY_SIZE = 20 * (1024 * 1024); // 20MiB
 export const DOWNLOAD_SIZE_WARN = 42949672960; // 40GB
 
 export const formatBytes = (bytes: number) => {
-  if (!Number.isInteger(bytes) || bytes < 0) {
+  if (!Number.isInteger(bytes) || bytes <= 0) {
     return '0.000 B';
   }
   const scales = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];

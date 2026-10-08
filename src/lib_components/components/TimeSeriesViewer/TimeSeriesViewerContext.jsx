@@ -7,7 +7,7 @@ import React, {
 import PropTypes, { number } from 'prop-types';
 
 import moment from 'moment';
-import get from 'lodash/get';
+import lodashGet from 'lodash/get';
 import uniqueId from 'lodash/uniqueId';
 import cloneDeep from 'lodash/cloneDeep';
 
@@ -26,23 +26,18 @@ import {
 import { ajax } from 'rxjs/ajax';
 
 import NeonApi from '../NeonApi/NeonApi';
+import NeonAuthContext from '../NeonContext/NeonAuthContext';
 import NeonGraphQL from '../NeonGraphQL/NeonGraphQL';
 import NeonEnvironment from '../NeonEnvironment/NeonEnvironment';
 import { forkJoinWithProgress } from '../../util/rxUtil';
-import { exists, existsNonEmpty } from '../../util/typeUtil';
+import { exists, existsNonEmpty, isStringNonEmpty } from '../../util/typeUtil';
+import { resolveProps } from '../../util/defaultProps';
 
 import parseTimeSeriesData from '../../workers/parseTimeSeriesData';
 
 import DataPackageParser from '../../parser/DataPackageParser';
-import NeonSignInButtonState from '../NeonSignInButton/NeonSignInButtonState';
-import makeStateStorage from '../../service/StateStorageService';
-import { convertStateForStorage, convertStateFromStorage } from './StateStorageConverter';
 import { getUserAgentHeader } from '../../util/requestUtil';
 import { TIME_SERIES_VIEWER_STATUS } from './constants';
-
-// 'get' is a reserved word so can't be imported with import
-// eslint-disable-next-line import/extensions
-const lodashGet = require('lodash/get.js');
 
 const VIEWER_MODE = {
   DEFAULT: 'DEFAULT',
@@ -58,6 +53,7 @@ const FETCH_STATUS = {
 };
 
 export const TIME_SERIES_VIEWER_STATUS_TITLES = {
+  AWAITING_PRECONDITIONS: 'Initializing…',
   INIT_PRODUCT: 'Loading data product…',
   LOADING_META: 'Loading site positions, variables, and data paths…',
   READY_FOR_DATA: 'Loading series data…',
@@ -67,7 +63,11 @@ export const TIME_SERIES_VIEWER_STATUS_TITLES = {
   READY: null,
 };
 
+// Maximum number of allowable data points
 export const POINTS_PERFORMANCE_LIMIT = 250000;
+
+// Maximum number of allowable selected sites
+export const MAX_NUM_SITES_SELECTABLE = 5;
 
 // List of common date-time variable names to verify against
 // The variables file ultimately controls the datetime variable that will
@@ -153,7 +153,8 @@ const DEFAULT_AXIS_STATE = {
 };
 export const DEFAULT_STATE = {
   mode: VIEWER_MODE.DEFAULT,
-  status: TIME_SERIES_VIEWER_STATUS.INIT_PRODUCT,
+  isViewerLimitedMode: true,
+  status: TIME_SERIES_VIEWER_STATUS.AWAITING_PRECONDITIONS,
   displayError: null,
   fetchProduct: { status: FETCH_STATUS.AWAITING_CALL, error: null },
   metaFetches: {},
@@ -313,8 +314,12 @@ const getPositionCount = (sitesArray, siteCodeToExclude) => {
   return total;
 };
 
-// yearMonth param is in the format of 'yyyy-mm' which is
-// a typical dateRange item
+/**
+ * The yearMonth param is in the format of 'yyyy-mm' which is
+ * a typical dateRange item
+ * @param {*} yearMonth
+ * @returns
+ */
 const getLastDayInMonth = (yearMonth) => {
   const date = new Date(`${yearMonth}-01T00:00:00Z`);
   date.setUTCMonth(date.getUTCMonth() + 1);
@@ -322,27 +327,26 @@ const getLastDayInMonth = (yearMonth) => {
   return date.getUTCDate();
 };
 
-const getTotalHoursCustom = (startDate, endDate) => {
-  const date1 = new Date(`${startDate}-01T00:00:00Z`);
+const getTotalHours = (startDate, endDate) => {
+  const startDateTime = new Date(`${startDate}-01T00:00:00Z`);
   const lastDay = getLastDayInMonth(endDate);
-  const date2 = new Date(`${endDate}-${lastDay}T23:59:59Z`);
-  return Math.round((date2.getTime() - date1.getTime()) / 1000 / 60 / 60);
+  const endDateTime = new Date(`${endDate}-${lastDay}T23:59:59Z`);
+  return Math.round((endDateTime.getTime() - startDateTime.getTime()) / 1000 / 60 / 60);
 };
 
-const getTotalHours = (state) => {
-  const date1 = new Date(`${state.selection.dateRange[0]}-01T00:00:00Z`);
-  let date2;
+const getTotalHoursFromState = (state) => {
+  const selectionDate = state.selection.dateRange[0];
+  let rangeDate;
   if (state.selection.continuousDateRange.length === 1) {
-    const lastDay = getLastDayInMonth(state.selection.continuousDateRange[0]);
-    date2 = new Date(`${state.selection.continuousDateRange[0]}-${lastDay}T23:59:59Z`);
+    rangeDate = `${state.selection.continuousDateRange[0]}`;
   } else if (state.selection.dateRange.length === 2) {
-    const lastDay = getLastDayInMonth(state.selection.dateRange[1]);
-    date2 = new Date(`${state.selection.dateRange[1]}-${lastDay}T23:59:59Z`);
+    rangeDate = `${state.selection.dateRange[1]}`;
   } else {
     // eslint-disable-next-line no-console
     console.error('Unknown date range');
+    return 0;
   }
-  return Math.round((date2.getTime() - date1.getTime()) / 1000 / 60 / 60);
+  return getTotalHours(selectionDate, rangeDate);
 };
 
 const getPointsPerHour = (state, currentTimeStep) => {
@@ -356,65 +360,54 @@ const calcPointTotal = (data) => {
   if (!data) {
     return 0;
   }
-
   let varsAndPositions = 0;
-
   if (data.length > 0 && data[0].length > 1) {
-    // first array position is dateTime.  Count items after it
+    // First array position is dateTime.  Count items after it
     varsAndPositions = data[0].length - 1;
   }
-
   return data.length * varsAndPositions;
 };
 
 const calcPredictedPointsByTimeStep = (state, timeStep) => {
   if (!state.selection.autoTimeStep) return 0;
-
-  // formula: points per hour (seconds in hour / Time Step seconds)
+  // Formula: points per hour (seconds in hour / Time Step seconds)
   // x hours (months selected converted to hours) x positions * variables
   // using seconds for points per hour since that is what TIME_STEPS has.
   const positions = getPositionCount(state.selection.sites);
   const pointPerHour = getPointsPerHour(state, timeStep);
   const variables = state.selection.variables.length === 0 ? 1 : state.selection.variables.length;
-  const totalHours = getTotalHours(state);
-
+  const totalHours = getTotalHoursFromState(state);
   return pointPerHour * totalHours * positions * variables;
 };
 
 const calcPredictedPointsForNewPosition = (state, numPositionsOverride) => {
   if (!state.selection.autoTimeStep) return 0;
-
   const positions = numPositionsOverride ?? getPositionCount(state.selection.sites) + 1;
   const pointPerHour = getPointsPerHour(state, state.selection.timeStep);
   const variables = state.selection.variables.length === 0 ? 1 : state.selection.variables.length;
-  const totalHours = getTotalHours(state);
-
+  const totalHours = getTotalHoursFromState(state);
   return pointPerHour * totalHours * positions * variables;
 };
 
 const calcPredictedPointsForNewVariable = (state) => {
   if (!state.selection.autoTimeStep) return 0;
-
   const positions = getPositionCount(state.selection.sites);
   const pointPerHour = getPointsPerHour(state, state.selection.timeStep);
-  const totalHours = getTotalHours(state);
+  const totalHours = getTotalHoursFromState(state);
   const variables = state.selection.variables.length === 0
     ? 1
     : state.selection.variables.length + 1;
-
   return pointPerHour * totalHours * positions * variables;
 };
 
-// note that the dates are not JS dates but from dateRange and should be
+// Note that the dates are not JS dates but from dateRange and should be
 // in the format of 'yyyy-mm'.
 const calcPredictedPointsByDateRange = (state, startDate, endDate) => {
   if (!state.selection.autoTimeStep) return 0;
-
   const positions = getPositionCount(state.selection.sites);
   const pointPerHour = getPointsPerHour(state, state.selection.timeStep);
   const variables = state.selection.variables.length === 0 ? 1 : state.selection.variables.length;
-  const totalHours = getTotalHoursCustom(startDate, endDate);
-
+  const totalHours = getTotalHours(startDate, endDate);
   return pointPerHour * totalHours * positions * variables;
 };
 
@@ -533,7 +526,9 @@ const getContinuousDatesArray = (dateRange, roundToYears = false) => {
 const checkDateTimeVariable = (dateTimeVariable) => {
   if (!PREFERRED_DATETIME_VARIABLES.includes(dateTimeVariable)) {
     // eslint-disable-next-line no-console
-    console.debug(`Determined datetime variable does not match known preferred: ${dateTimeVariable}`);
+    console.debug(
+      `Determined datetime variable does not match known preferred: ${dateTimeVariable}`,
+    );
   }
 };
 
@@ -571,7 +566,7 @@ const determineDateTimeVariable = (variables, timeStep) => {
   }
   if (dateTimeVars.length > 0) {
     dateTimeVars.sort((a, b) => sortDateTimeVariables(variables, a, b));
-    const determinedDateTimeVar = dateTimeVars[0]; // eslint-disable-line prefer-destructuring
+    const determinedDateTimeVar = dateTimeVars[0];
     checkDateTimeVariable(determinedDateTimeVar);
     return determinedDateTimeVar;
   }
@@ -709,7 +704,8 @@ const parseSiteMonthData = (site, files) => {
       return !isValid(parts[offset]);
     })) { return; }
     // Extract parts
-    const position = `${parts[DATA_FILE_PARTS.POSITION_H.offset]}.${parts[DATA_FILE_PARTS.POSITION_V.offset]}`;
+    const position = `${parts[DATA_FILE_PARTS.POSITION_H.offset]}`
+      + `.${parts[DATA_FILE_PARTS.POSITION_V.offset]}`;
     const month = parts[DATA_FILE_PARTS.MONTH.offset];
     const packageType = parts[DATA_FILE_PARTS.PACKAGE_TYPE.offset];
     const timeStep = getTimeStep(parts[DATA_FILE_PARTS.TIME_STEP.offset]);
@@ -1077,7 +1073,7 @@ const setDataFileFetchStatuses = (state, fetches) => {
         || !newState.product.sites[siteCode].positions[position].data[month]
         || !newState.product.sites[siteCode].positions[position].data[month][downloadPkg]
         || !newState.product.sites[siteCode].positions[position].data[month][downloadPkg][timeStep]
-        // eslint-disable-next-line max-len
+        // eslint-disable-next-line max-len, @stylistic/max-len
         || !newState.product.sites[siteCode].positions[position].data[month][downloadPkg][timeStep][table]
     ) { return; }
     newState.product
@@ -1120,11 +1116,60 @@ const reducer = (state, action) => {
   let parsedContent = null;
   let selectedSiteIdx = null;
   switch (action.type) {
+    case 'initialize':
+      newState.isViewerLimitedMode = action.isViewerLimited;
+      if ((newState.mode !== VIEWER_MODE.STATIC) && action.isViewerLimited) {
+        newState.status = TIME_SERIES_VIEWER_STATUS.INIT_PRODUCT;
+        newState.product.productCode = action.productDataProp
+          ? action.productDataProp.productCode
+          : action.productCodeProp;
+      } else {
+        // eslint-disable-next-line no-lonely-if
+        if (action.productDataProp) {
+          newState.status = TIME_SERIES_VIEWER_STATUS.LOADING_META;
+          newState.fetchProduct.status = FETCH_STATUS.SUCCESS;
+          newState.product = parseProductData(action.productDataProp);
+        } else {
+          newState.status = TIME_SERIES_VIEWER_STATUS.INIT_PRODUCT;
+          newState.product.productCode = action.productCodeProp;
+        }
+      }
+      newState.release = action.releaseProp;
+      calcSelection();
+      return newState;
     // Reinitialize
     case 'reinitialize':
       newState = cloneDeep(DEFAULT_STATE);
+      newState.status = TIME_SERIES_VIEWER_STATUS.INIT_PRODUCT;
       newState.product.productCode = action.productCode;
       newState.release = action.release;
+      newState.isViewerLimitedMode = action.isViewerLimited;
+      return newState;
+    case 'reinitializeFromLimited':
+      newState = cloneDeep(DEFAULT_STATE);
+      newState.mode = action.mode;
+      newState.isViewerLimitedMode = action.isViewerLimited;
+      if (action.mode === VIEWER_MODE.STATIC) {
+        if (action.productDataProp) {
+          newState.status = TIME_SERIES_VIEWER_STATUS.LOADING_META;
+          newState.fetchProduct.status = FETCH_STATUS.SUCCESS;
+          newState.product = parseProductData(action.productDataProp);
+        } else {
+          newState.status = TIME_SERIES_VIEWER_STATUS.INIT_PRODUCT;
+          newState.product.productCode = action.productCode;
+        }
+        calcSelection();
+      } else {
+        newState.status = TIME_SERIES_VIEWER_STATUS.INIT_PRODUCT;
+        newState.product.productCode = action.productCode;
+        newState.release = action.release;
+      }
+      return newState;
+    case 'setInvalidState':
+      return softFail(action.message);
+    case 'setLimitedReleaseState':
+      newState.status = TIME_SERIES_VIEWER_STATUS.LOGIN_REQUIRED;
+      newState.displayError = action.message;
       return newState;
     // Fetch Product Actions
     case 'initFetchProductCalled':
@@ -1197,15 +1242,20 @@ const reducer = (state, action) => {
         ...parsedContent.availableTimeSteps,
       ]);
       if (newState.timeStep.availableTimeSteps.size === 1) { // Need more than just 'auto'
-        return fail('This data product is not compatible with the Time Series Viewer (no valid time step found)');
+        return fail(
+          'This data product is not compatible with the Time Series Viewer '
+            + '(no valid time step found)',
+        );
       }
       calcSelection();
       if (
         newState.product.sites[action.siteCode].fetches.variables.status !== FETCH_STATUS.SUCCESS
-          || newState.product.sites[action.siteCode].fetches.positions.status !== FETCH_STATUS.SUCCESS // eslint-disable-line max-len
+        || newState.product.sites[action.siteCode].fetches.positions.status !== FETCH_STATUS.SUCCESS
       ) {
         newState.status = TIME_SERIES_VIEWER_STATUS.LOADING_META;
-      } else { calcStatus(); }
+      } else {
+        calcStatus();
+      }
       return newState;
 
     // Fetch Site Variables Actions
@@ -1248,7 +1298,10 @@ const reducer = (state, action) => {
       ]);
       // A valid dateTime variable must be present otherwise we have no x-axis
       if (Object.keys(newState.variables).every((v) => !newState.variables[v].isDateTime)) {
-        return fail('This data product is not compatible with the Time Series Viewer (no dateTime data found)');
+        return fail(
+          'This data product is not compatible with the Time Series Viewer '
+            + '(no dateTime data found)',
+        );
       }
       calcSelection();
       calcStatus();
@@ -1262,7 +1315,10 @@ const reducer = (state, action) => {
             state.selection.yAxes[y].dataRange.every((x) => x === null)
           ))
       ) {
-        return softFail('Current selection of dates/sites/positions/variables does not have any valid numeric data.');
+        return softFail(
+          'Current selection of dates/sites/positions/variables does not have '
+            + 'any valid numeric data.',
+        );
       }
       newState.graphData = action.graphData;
       newState.pointTotal = calcPointTotal(action.graphData.data);
@@ -1311,7 +1367,10 @@ const reducer = (state, action) => {
       newState.status = TIME_SERIES_VIEWER_STATUS.READY_FOR_SERIES;
       calcSelection();
       if (!newState.selection.variables.length) {
-        return softFail('None of the variables for this product\'s default site/month/position have data. Please select a different site, month, or position.');
+        return softFail(
+          'None of the variables for this product\'s default site/month/position have data. '
+            + 'Please select a different site, month, or position.',
+        );
       }
       return newState;
     case 'noDataFilesFetchNecessary':
@@ -1323,7 +1382,10 @@ const reducer = (state, action) => {
       newState.status = TIME_SERIES_VIEWER_STATUS.READY_FOR_SERIES;
       calcSelection();
       if (!newState.selection.variables.length) {
-        return softFail('None of the variables for this product\'s default site/month/position have data. Please select a different site, month, or position.');
+        return softFail(
+          'None of the variables for this product\'s default site/month/position have data. '
+            + 'Please select a different site, month, or position.',
+        );
       }
       return newState;
 
@@ -1351,23 +1413,6 @@ const reducer = (state, action) => {
         .positions[action.position]
         .data[action.month][action.downloadPkg][action.timeStep][action.table]
         .series = action.series;
-      /*  uncomment for troubleshooting to get number of points downloaded
-      try {
-        if (!newState.product.pointTotal || isNaN(newState.product.pointTotal)) {
-          newState.product.pointTotal = 0;
-        }
-
-        newState.product.pointTotal += action.series.endDateTime.data.length;
-        console.log("newState", newState);
-        // console.log("action", action);
-        console.log("fetchDataFileSucceeded - pointTotal", newState.product.pointTotal);
-        // console.log("newState.selection.continuousDateRange.length",
-        // newState.selection.continuousDateRange.length);
-      } catch (error) {
-        console.log("my derpy code crashed", action);
-      }
- */
-
       return newState;
 
     // Core Selection Actions
@@ -1541,21 +1586,20 @@ const reducer = (state, action) => {
   }
 };
 
-/**
- * Defines a lookup of state key to a boolean
- * designating whether or not that instance of the context
- * should pull the state from the session storage and restore.
- * Keeping this lookup outside of the context provider function
- * as to not incur lifecycle interference by storing with useState.
- */
-const restoreStateLookup = {};
+export const defaultProps = {
+  timeSeriesUniqueId: 0,
+  mode: VIEWER_MODE.DEFAULT,
+  productCode: null,
+  productData: null,
+  release: null,
+};
 
 /**
    Context Provider
 */
-const Provider = (props) => {
+const Provider = (inProps) => {
+  const props = resolveProps(defaultProps, inProps);
   const {
-    timeSeriesUniqueId,
     mode: modeProp,
     productCode: productCodeProp,
     productData: productDataProp,
@@ -1566,72 +1610,107 @@ const Provider = (props) => {
   /**
      Initial State and Reducer Setup
   */
-  let initialState = cloneDeep(DEFAULT_STATE);
+  const neonAuthContextSessionState = NeonAuthContext.useNeonAuthContextSessionState();
+  const initialState = cloneDeep(DEFAULT_STATE);
   if ((typeof modeProp === 'string') && (modeProp !== VIEWER_MODE.DEFAULT)) {
     initialState.mode = modeProp;
   }
-  initialState.status = productDataProp
-    ? TIME_SERIES_VIEWER_STATUS.LOADING_META
-    : TIME_SERIES_VIEWER_STATUS.INIT_PRODUCT;
-  if (productDataProp) {
-    initialState.fetchProduct.status = FETCH_STATUS.SUCCESS;
-    initialState.product = parseProductData(productDataProp);
-  } else {
-    initialState.product.productCode = productCodeProp;
-  }
-  initialState.release = releaseProp;
-  initialState.selection = applyDefaultsToSelection(initialState);
-
-  // get the state from storage if present
-  const { productCode } = initialState.product;
-  const stateKey = `timeSeriesContextState-${productCode}-${timeSeriesUniqueId}`;
-  if (typeof restoreStateLookup[stateKey] === 'undefined') {
-    restoreStateLookup[stateKey] = true;
-  }
-  const shouldRestoreState = restoreStateLookup[stateKey];
-  const stateStorage = makeStateStorage(stateKey);
-  const savedState = stateStorage.readState();
-  if (savedState && shouldRestoreState) {
-    restoreStateLookup[stateKey] = false;
-    const convertedState = convertStateFromStorage(savedState);
-    stateStorage.removeState();
-    initialState = convertedState;
-  }
+  // Check preconditions for initial status
+  const preconditionsSatisfied = neonAuthContextSessionState.ready;
+  const isViewerLimited = !neonAuthContextSessionState.canAccessData;
 
   const [state, dispatch] = useReducer(reducer, initialState);
+  const {
+    status: viewerStatus,
+    isViewerLimitedMode: stateIsViewerLimitedMode,
+  } = state;
 
-  const { viewerStatus } = state;
-
-  // The current sign in process uses a separate domain. This function
-  // persists the current state in storage when the button is clicked
-  // so the state may be reloaded when the page is reloaded after sign
-  // in.
+  // Initialize the viewer once when the preconditions are satisfied
   useEffect(() => {
-    const subscription = NeonSignInButtonState.getObservable().subscribe({
-      next: () => {
-        if (!NeonEnvironment.enableGlobalSignInState) return;
-        if (viewerStatus !== TIME_SERIES_VIEWER_STATUS.READY) return;
-        restoreStateLookup[stateKey] = false;
-        const convertedState = convertStateForStorage(state);
-        stateStorage.saveState(convertedState);
-      },
+    if (!preconditionsSatisfied) { return; }
+    if (viewerStatus !== TIME_SERIES_VIEWER_STATUS.AWAITING_PRECONDITIONS) { return; }
+    dispatch({
+      type: 'initialize',
+      isViewerLimited,
+      productCodeProp,
+      productDataProp,
+      releaseProp,
     });
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [viewerStatus, state, stateStorage, stateKey]);
-
-  /**
-     Effect - Reinitialize state if the product code prop changed
-  */
+  }, [
+    dispatch,
+    preconditionsSatisfied,
+    viewerStatus,
+    isViewerLimited,
+    productCodeProp,
+    productDataProp,
+    releaseProp,
+  ]);
+  // Reinitialize the viewer when the limited mode changes after initialization
   useEffect(() => {
+    if (!preconditionsSatisfied) { return; }
+    if (viewerStatus === TIME_SERIES_VIEWER_STATUS.AWAITING_PRECONDITIONS) { return; }
+    if (isViewerLimited === stateIsViewerLimitedMode) { return; }
+    let reinitProductCode = null;
+    if (isStringNonEmpty(state.product?.productCode)) {
+      reinitProductCode = state.product.productCode;
+    } else if (isStringNonEmpty(productCodeProp)) {
+      reinitProductCode = productCodeProp;
+    }
+    let reinitRelease = null;
+    if (isStringNonEmpty(state.release)) {
+      reinitRelease = state.release;
+    } else if (isStringNonEmpty(releaseProp)) {
+      reinitRelease = releaseProp;
+    }
+    if (modeProp === VIEWER_MODE.STATIC) {
+      dispatch({
+        type: 'reinitializeFromLimited',
+        productCode: reinitProductCode,
+        productDataProp,
+        release: reinitRelease,
+        mode: modeProp,
+        isViewerLimited,
+      });
+      return;
+    }
+    if (isStringNonEmpty(reinitProductCode)) {
+      dispatch({
+        type: 'reinitializeFromLimited',
+        productCode: reinitProductCode,
+        productDataProp: null,
+        release: reinitRelease,
+        mode: modeProp,
+        isViewerLimited,
+      });
+    }
+  }, [
+    dispatch,
+    preconditionsSatisfied,
+    viewerStatus,
+    isViewerLimited,
+    stateIsViewerLimitedMode,
+    modeProp,
+    productCodeProp,
+    productDataProp,
+    releaseProp,
+    state.product.productCode,
+    state.release,
+  ]);
+  // Reinitialize state if the product code prop, release prop changed
+  // and ignore any changes to limited mode. Ignored when in static mode.
+  // Limited mode will be handled by another effect specifically for that change.
+  useEffect(() => {
+    if (!preconditionsSatisfied) { return; }
+    if (viewerStatus === TIME_SERIES_VIEWER_STATUS.AWAITING_PRECONDITIONS) { return; }
     // Ignore initialization when in static mode
     if (state.mode === VIEWER_MODE.STATIC) { return; }
+    if (isViewerLimited !== stateIsViewerLimitedMode) { return; }
     if (productCodeProp !== state.product.productCode) {
       dispatch({
         type: 'reinitialize',
         productCode: productCodeProp,
         release: state.release,
+        isViewerLimited,
       });
     }
     if (releaseProp !== state.release) {
@@ -1639,6 +1718,7 @@ const Provider = (props) => {
         type: 'reinitialize',
         productCode: state.product.productCode,
         release: releaseProp,
+        isViewerLimited,
       });
     }
   }, [
@@ -1647,6 +1727,10 @@ const Provider = (props) => {
     releaseProp,
     state.product.productCode,
     state.release,
+    viewerStatus,
+    preconditionsSatisfied,
+    isViewerLimited,
+    stateIsViewerLimitedMode,
     dispatch,
   ]);
 
@@ -1658,8 +1742,26 @@ const Provider = (props) => {
     if (state.mode === VIEWER_MODE.STATIC) { return; }
     if (state.status !== TIME_SERIES_VIEWER_STATUS.INIT_PRODUCT) { return; }
     if (state.fetchProduct.status !== FETCH_STATUS.AWAITING_CALL) { return; }
+    if (isViewerLimited && isStringNonEmpty(state.release)) {
+      // Viewing release data requires authentication
+      dispatch({ type: 'setLimitedReleaseState', message: 'Login required to view release data' });
+      return;
+    }
+    let graphQLObservable;
+    if (isViewerLimited) {
+      graphQLObservable = NeonGraphQL.getDemoDataProductByCode(
+        state.product.productCode,
+        true,
+      );
+    } else {
+      graphQLObservable = NeonGraphQL.getDataProductByCode(
+        state.product.productCode,
+        state.release,
+        true,
+      );
+    }
     dispatch({ type: 'initFetchProductCalled' });
-    NeonGraphQL.getDataProductByCode(state.product.productCode, state.release, true).pipe(
+    graphQLObservable.pipe(
       map((response) => {
         if (response?.response?.data?.product) {
           dispatch({
@@ -1682,6 +1784,7 @@ const Provider = (props) => {
     state.fetchProduct.status,
     state.product.productCode,
     state.release,
+    isViewerLimited,
   ]);
 
   /**
@@ -1721,12 +1824,24 @@ const Provider = (props) => {
      Triggers all necessary fetches for meta data and series data
   */
   useEffect(() => {
+    if (!preconditionsSatisfied) {
+      return;
+    }
+    if (isViewerLimited && (state.mode === VIEWER_MODE.STATIC)) {
+      return;
+    }
+    if (isViewerLimited && isStringNonEmpty(state.release)) {
+      // Viewing release data requires authentication
+      return;
+    }
     const getSiteMonthDataURL = (siteCode, month) => {
-      const root = NeonEnvironment.getFullApiPath('data');
+      const root = isViewerLimited
+        ? NeonEnvironment.getFullApiPath('demoData')
+        : NeonEnvironment.getFullApiPath('data');
       const hasRelease = state.release
         && (typeof state.release === 'string')
         && (state.release.length > 0);
-      const releaseParam = hasRelease
+      const releaseParam = (!isViewerLimited && hasRelease)
         ? `?release=${state.release}`
         : '';
       return `${root}/${state.product.productCode}/${siteCode}/${month}${releaseParam}`;
@@ -1785,7 +1900,10 @@ const Provider = (props) => {
         if (!state.product.sites[siteCode].availableMonths.includes(month)) { return; }
         metaFetchTriggered = true;
         dispatch({ type: 'fetchSiteMonth', siteCode, month });
-        NeonApi.getJsonObservable(getSiteMonthDataURL(siteCode, month), NeonApi.getApiTokenHeader())
+        const headers = {
+          ...neonAuthContextSessionState.sessionHeaders,
+        };
+        NeonApi.getJsonObservable(getSiteMonthDataURL(siteCode, month), headers)
           .pipe(
             map((response) => {
               if (response && response.data && response.data.files) {
@@ -1825,9 +1943,10 @@ const Provider = (props) => {
         const { downloadPkg } = state.variables[variable];
         positions.forEach((position) => {
           continuousDateRange.forEach((month) => {
-            // eslint-disable-next-line max-len
-            const path = `sites['${siteCode}'].positions['${position}'].data['${month}']['${downloadPkg}']['${timeStep}']`;
-            const timeStepTables = get(state.product, path, {});
+            const path = `sites['${siteCode}']`
+              + `.positions['${position}']`
+              + `.data['${month}']['${downloadPkg}']['${timeStep}']`;
+            const timeStepTables = lodashGet(state.product, path, {});
             Object.keys(timeStepTables).forEach((tableName) => {
               const timeStepTable = timeStepTables[tableName];
               const { url, status } = timeStepTable;
@@ -1835,7 +1954,12 @@ const Provider = (props) => {
               if (!url || status !== FETCH_STATUS.AWAITING_CALL) { return; }
               // Use the dataFetchTokens set to make sure we don't somehow add the same fetch twice
               const previousSize = dataFetchTokens.size;
-              const token = `${siteCode};${position};${month};${downloadPkg};${timeStep};${tableName}`;
+              const token = `${siteCode};`
+                + `${position};`
+                + `${month};`
+                + `${downloadPkg};`
+                + `${timeStep};`
+                + `${tableName}`;
               dataFetchTokens.add(token);
               if (dataFetchTokens.size === previousSize) { return; }
               // Save the action props to pass to the fetchDataFiles
@@ -1920,9 +2044,6 @@ const Provider = (props) => {
       } else {
         const masterFetchToken = `fetchDataFiles.${uniqueId()}`;
         dispatch({ type: 'fetchDataFiles', token: masterFetchToken, fetches: dataActions });
-        // this is the point where we can capture the user fetch criteria
-        // eslint-disable-next-line no-console
-        // console.log('Fetching data', state, dataFetches);
         forkJoinWithProgress(dataFetches).pipe(
           mergeMap(([finalResult, progress]) => merge(
             progress.pipe(
@@ -1950,6 +2071,9 @@ const Provider = (props) => {
     state.variables,
     state.product,
     state.release,
+    preconditionsSatisfied,
+    isViewerLimited,
+    neonAuthContextSessionState,
   ]);
 
   /**
@@ -1970,7 +2094,9 @@ const TimeSeriesViewerPropTypes = {
   productCode: (props, propName, componentName) => {
     const { productCode, productData } = props;
     if (!productCode && !productData) {
-      return new Error(`One of props 'productCode' or 'productData' was not specified in '${componentName}'.`);
+      return new Error(
+        `One of props 'productCode' or 'productData' was not specified in '${componentName}'.`,
+      );
     }
     if (productData && !productCode) { return null; }
     if (productCode && typeof productCode === 'string' && productCode.length > 0) {
@@ -1981,7 +2107,9 @@ const TimeSeriesViewerPropTypes = {
   productData: (props, propName, componentName) => {
     const { productCode, productData } = props;
     if (!productCode && !productData) {
-      return new Error(`One of props 'productCode' or 'productData' was not specified in '${componentName}'.`);
+      return new Error(
+        `One of props 'productCode' or 'productData' was not specified in '${componentName}'.`,
+      );
     }
     if (productCode && !productData) { return null; }
     if (
@@ -2000,6 +2128,7 @@ const TimeSeriesViewerPropTypes = {
 };
 
 Provider.propTypes = {
+  // eslint-disable-next-line react/no-unused-prop-types
   timeSeriesUniqueId: number,
   mode: PropTypes.string,
   productCode: TimeSeriesViewerPropTypes.productCode,
@@ -2013,14 +2142,6 @@ Provider.propTypes = {
     PropTypes.node,
     PropTypes.string,
   ]).isRequired,
-};
-
-Provider.defaultProps = {
-  timeSeriesUniqueId: 0,
-  mode: VIEWER_MODE.DEFAULT,
-  productCode: null,
-  productData: null,
-  release: null,
 };
 
 /**

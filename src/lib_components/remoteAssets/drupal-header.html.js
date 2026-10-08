@@ -23,7 +23,7 @@ export default html = `<header class="header" role="banner">
   <div>
 
 <input data-drupal-selector="edit-openid-connect-client-auth0-login" type="submit" id="edit-openid-connect-client-auth0-login" name="auth0" value="Sign In" class="button js-form-submit form-submit button--search" />
-</div><input autocomplete="off" data-drupal-selector="form-mmfdtyp1e8lkw-dcd9dwcona1jkazhvuaawqmnhd1ru" type="hidden" name="form_build_id" value="form-mmfDtYp1e8Lkw_DcD9DWcOnA1JkaZhvUaAWQmNhd1RU" />
+</div><input autocomplete="off" data-drupal-selector="form-qxudjvkel3eutisgzqwyvqborkqnvyd0ke8-shwf0ly" type="hidden" name="form_build_id" value="form-qxudJVkeL3EuTiSGzqwyVqboRkqNvyd0kE8-shwf0lY" />
 <input data-drupal-selector="edit-openid-connect-login-form" type="hidden" name="form_id" value="openid_connect_login_form" />
 
 </form>
@@ -337,7 +337,7 @@ export default html = `<header class="header" role="banner">
 
                   </li>
               <li  class="menu__item menu__item--expanded">
-          <a href="https://www.neonscience.org/data-samples/data-management" class="menu__link" data-plugin-id="menu-link-content514fa833-7231-4f27-9e3f-b881c6d5ad62" data-drupal-link-system-path="node/10557">NEON Data Management</a>
+          <a href="https://www.neonscience.org/data/data-management" class="menu__link" data-plugin-id="menu-link-content514fa833-7231-4f27-9e3f-b881c6d5ad62" data-drupal-link-system-path="node/10557">NEON Data Management</a>
 
           
             
@@ -395,7 +395,7 @@ export default html = `<header class="header" role="banner">
                       <ul  class="menu menu--main" data-depth="1">
 
               <li  class="menu__item">
-          <a href="https://biorepo.neonscience.org/portal/neon/search/index.php?utm_source=neon_main&amp;utm_medium=directlink" class="menu__link" data-plugin-id="menu-link-content355c07a4-035c-4917-8312-fc81d899d926">Biorepository Sample Portal at ASU</a>
+          <a href="https://biorepo.neonscience.org/portal/neon/search/index.php?utm_source=neon_main&amp;utm_medium=directlink" class="menu__link" data-plugin-id="menu-link-content355c07a4-035c-4917-8312-fc81d899d926">NEON Biorepository Sample Portal at ASU</a>
 
                   </li>
               <li  class="menu__item menu__item--expanded">
@@ -458,11 +458,23 @@ export default html = `<header class="header" role="banner">
                       <ul  class="menu menu--main" data-depth="2">
 
               <li  class="menu__item">
-          <a href="https://www.neonscience.org/loans-archival-requests" class="menu__link" data-plugin-id="menu-link-contentfa143c2b-8afe-4f65-88c2-e3671ab4580f" data-drupal-link-system-path="node/14875">Loans &amp; Archival Requests</a>
+          <a href="https://biorepo.neonscience.org/portal/misc/samplerequests.php" class="menu__link" data-plugin-id="menu-link-contentfa143c2b-8afe-4f65-88c2-e3671ab4580f">Requesting Samples from the NEON Biorepository</a>
 
                   </li>
               <li  class="menu__item">
-          <a href="https://www.neonscience.org/usage-policies" class="menu__link" data-plugin-id="menu-link-content79ef888e-cc9c-4909-b278-bf9f406b88b9" data-drupal-link-system-path="node/11643">Usage Policies</a>
+          <a href="https://www.neonscience.org/samples/soil-archive" class="menu__link" data-plugin-id="menu-link-content26a9c698-af2e-449d-a9fb-13c6a9f31680" data-drupal-link-system-path="node/5">Request Megapit and Initial Characterization Soil</a>
+
+                  </li>
+              <li  class="menu__item">
+          <a href="https://biorepo.neonscience.org/portal/misc/sampleguidelines.php" class="menu__link" data-plugin-id="menu-link-content79ef888e-cc9c-4909-b278-bf9f406b88b9">Sample Use Guidelines</a>
+
+                  </li>
+              <li  class="menu__item">
+          <a href="https://biorepo.neonscience.org/portal/misc/samplepolicy.php" class="menu__link" data-plugin-id="menu-link-content6fa8e139-01bc-4735-99ab-03f4637d2e38">Sample Use Policy</a>
+
+                  </li>
+              <li  class="menu__item">
+          <a href="https://biorepo.neonscience.org/portal/misc/cite.php" class="menu__link" data-plugin-id="menu-link-contentd63bcbba-09c5-452c-90fe-1e60554793cf">Acknowledging and Citing the NEON Biorepository</a>
 
                   </li>
       
@@ -738,6 +750,10 @@ export default html = `<header class="header" role="banner">
           <a href="https://www.neonscience.org/get-involved/upcoming-events" class="menu__link" data-plugin-id="menu-link-contente2867599-4e9d-41b9-8c7f-126d3a302d0b" data-drupal-link-system-path="node/10737">Upcoming Events</a>
 
                   </li>
+              <li  class="menu__item">
+          <a href="https://www.neonscience.org/get-involved/past-events" class="menu__link" data-plugin-id="menu-link-contentca98b8b9-9aee-474c-ae16-2e049615c72d" data-drupal-link-system-path="node/15106">Past Events</a>
+
+                  </li>
               <li  class="menu__item menu__item--expanded">
           <a href="https://www.neonscience.org/research-and-collaborations" class="menu__link" data-plugin-id="menu-link-content7ad2b09c-c124-4a91-84b1-4b2ff93bd594" data-drupal-link-system-path="node/12059">Research and Collaborations</a>
 
@@ -763,6 +779,10 @@ export default html = `<header class="header" role="banner">
                   </li>
               <li  class="menu__item">
           <a href="https://www.neonscience.org/ncar-neon-community-collaborations" class="menu__link" data-plugin-id="menu-link-content2bc3207d-fc3c-4d83-a352-5842f74b01bf" data-drupal-link-system-path="node/11843">NCAR-NEON-Community Collaborations</a>
+
+                  </li>
+              <li  class="menu__item">
+          <a href="https://www.neonscience.org/research-and-collaborations/sage-grande" class="menu__link" data-plugin-id="menu-link-content373af4ad-7ddf-4b77-857b-b8845ad7c062" data-drupal-link-system-path="node/15210">Sage Grande Testbed</a>
 
                   </li>
       
