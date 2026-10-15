@@ -1,49 +1,49 @@
 import React from 'react';
 
-import Accordion from '@material-ui/core/Accordion';
-import AccordionActions from '@material-ui/core/AccordionActions';
-import AccordionDetails from '@material-ui/core/AccordionDetails';
-import AccordionSummary from '@material-ui/core/AccordionSummary';
-import Button from '@material-ui/core/Button';
-import ButtonGroup from '@material-ui/core/ButtonGroup';
-import Card from '@material-ui/core/Card';
-import CardActions from '@material-ui/core/CardActions';
-import CardContent from '@material-ui/core/CardContent';
-import Checkbox from '@material-ui/core/Checkbox';
-import Divider from '@material-ui/core/Divider';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import IconButton from '@material-ui/core/IconButton';
-import Link from '@material-ui/core/Link';
-import Radio from '@material-ui/core/Radio';
-import Switch from '@material-ui/core/Switch';
-import Tooltip from '@material-ui/core/Tooltip';
-import Typography from '@material-ui/core/Typography';
+import Accordion from '@mui/material/Accordion';
+import AccordionActions from '@mui/material/AccordionActions';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import Button from '@mui/material/Button';
+import ButtonGroup from '@mui/material/ButtonGroup';
+import Card from '@mui/material/Card';
+import CardActions from '@mui/material/CardActions';
+import CardContent from '@mui/material/CardContent';
+import Checkbox from '@mui/material/Checkbox';
+import Divider from '@mui/material/Divider';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import IconButton from '@mui/material/IconButton';
+import Link from '@mui/material/Link';
+import Radio from '@mui/material/Radio';
+import Switch from '@mui/material/Switch';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
 
-import ToggleButton from '@material-ui/lab/ToggleButton';
-import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
-import DownloadIcon from '@material-ui/icons/SaveAlt';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import InfoIcon from '@material-ui/icons/Info';
-import LeftIcon from '@material-ui/icons/ChevronLeft';
-import RightIcon from '@material-ui/icons/ChevronRight';
+import DownloadIcon from '@mui/icons-material/SaveAlt';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import InfoIcon from '@mui/icons-material/Info';
+import LeftIcon from '@mui/icons-material/ChevronLeft';
+import RightIcon from '@mui/icons-material/ChevronRight';
 
-import Breadcrumbs from '@material-ui/core/Breadcrumbs';
-import Chip from '@material-ui/core/Chip';
-import FormControl from '@material-ui/core/FormControl';
-import FormHelperText from '@material-ui/core/FormHelperText';
-import InputLabel from '@material-ui/core/InputLabel';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
-import MenuItem from '@material-ui/core/MenuItem';
-import Select from '@material-ui/core/Select';
-import Tab from '@material-ui/core/Tab';
-import Tabs from '@material-ui/core/Tabs';
-import TextField from '@material-ui/core/TextField';
+import Breadcrumbs from '@mui/material/Breadcrumbs';
+import Chip from '@mui/material/Chip';
+import FormControl from '@mui/material/FormControl';
+import FormHelperText from '@mui/material/FormHelperText';
+import InputLabel from '@mui/material/InputLabel';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
+import TextField from '@mui/material/TextField';
 
-import HomeIcon from '@material-ui/icons/Home';
+import HomeIcon from '@mui/icons-material/Home';;
 /*
  * Hidden component used to seed Material UI component styles.
  *
@@ -298,19 +298,19 @@ export default function StyleSeeds() {
       />
 
       {/* Icon Buttons */}
-      <IconButton size="small">
+      <IconButton color="primary" size="small">
         <DownloadIcon />
       </IconButton>
-
-      <IconButton>
+      
+      <IconButton color="primary">
         <DownloadIcon fontSize="small" />
       </IconButton>
-
-      <IconButton>
+      
+      <IconButton color="primary">
         <DownloadIcon />
       </IconButton>
-
-      <IconButton>
+      
+      <IconButton color="primary">
         <DownloadIcon fontSize="large" />
       </IconButton>
 
@@ -319,37 +319,40 @@ export default function StyleSeeds() {
       </IconButton>
 
       {/* Toggle Buttons */}
-      <ToggleButtonGroup
-        size="small"
-        value="one"
-      >
-        <ToggleButton value="one">
-          One
-        </ToggleButton>
-        <ToggleButton value="two">
-          Two
-        </ToggleButton>
+      {/* SMALL - One selected */}
+      <ToggleButtonGroup size="small" value="one" exclusive>
+        <ToggleButton value="one">One</ToggleButton>
+        <ToggleButton value="two">Two</ToggleButton>
       </ToggleButtonGroup>
-
-      <ToggleButtonGroup value="one">
-        <ToggleButton value="one">
-          One
-        </ToggleButton>
-        <ToggleButton value="two">
-          Two
-        </ToggleButton>
+      
+      {/* SMALL - Two selected */}
+      <ToggleButtonGroup size="small" value="two" exclusive>
+        <ToggleButton value="one">One</ToggleButton>
+        <ToggleButton value="two">Two</ToggleButton>
       </ToggleButtonGroup>
-
-      <ToggleButtonGroup
-        size="large"
-        value="one"
-      >
-        <ToggleButton value="one">
-          One
-        </ToggleButton>
-        <ToggleButton value="two">
-          Two
-        </ToggleButton>
+      
+      {/* MEDIUM - One selected */}
+      <ToggleButtonGroup size="medium" value="one" exclusive>
+        <ToggleButton value="one">One</ToggleButton>
+        <ToggleButton value="two">Two</ToggleButton>
+      </ToggleButtonGroup>
+      
+      {/* MEDIUM - Two selected */}
+      <ToggleButtonGroup size="medium" value="two" exclusive>
+        <ToggleButton value="one">One</ToggleButton>
+        <ToggleButton value="two">Two</ToggleButton>
+      </ToggleButtonGroup>
+      
+      {/* LARGE - One selected */}
+      <ToggleButtonGroup size="large" value="one" exclusive>
+        <ToggleButton value="one">One</ToggleButton>
+        <ToggleButton value="two">Two</ToggleButton>
+      </ToggleButtonGroup>
+      
+      {/* LARGE - Two selected */}
+      <ToggleButtonGroup size="large" value="two" exclusive>
+        <ToggleButton value="one">One</ToggleButton>
+        <ToggleButton value="two">Two</ToggleButton>
       </ToggleButtonGroup>
 
       {/* Tooltip */}
@@ -458,14 +461,6 @@ export default function StyleSeeds() {
         label="Text Field"
         variant="outlined"
       />
-
-      {/*
-      <TextField
-        label="Required Field"
-        variant="outlined"
-        required
-      />
-      */}
 
       <TextField
         label="Disabled Field"

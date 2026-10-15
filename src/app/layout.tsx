@@ -47,35 +47,118 @@ export default function RootLayout({
           integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
           crossOrigin="anonymous"
         ></script>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `window.gtmDataLayer = [{ page_category: "Core Components" }];`,
-          }}
-        ></script>
+        {/* Google Analytics */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
-            (function (w, d, s, l, i) {
-              w[l] = w[l] || [];
-              w[l].push({
-                "gtm.start": new Date().getTime(),
-                event: "gtm.js",
-              });
-              var f = d.getElementsByTagName(s)[0],
-                j = d.createElement(s),
-                dl = l != "dataLayer" ? "&l=" + l : "";
-              j.async = true;
-              j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
-              f.parentNode.insertBefore(j, f);
-            })(window, document, "script", "gtmDataLayer", "GTM-K4S83R2");
-          `,
+              let gaInitialized = false;
+              let interactionTracked = false;
+              window.pendingGAEvents = [];
+        
+              function loadGAScript() {
+                return new Promise(resolve => {
+                  if (document.querySelector('script[data-ga-loader]')) {
+                    resolve();
+                    return;
+                  }
+        
+                  const s = document.createElement('script');
+                  s.async = true;
+                  s.src = 'https://www.googletagmanager.com/gtag/js?id=G-6M1F2QCBWJ';
+                  s.setAttribute('data-ga-loader', 'true');
+                  s.onload = resolve;
+        
+                  document.head.appendChild(s);
+                });
+              }
+        
+              async function initGA() {
+                if (gaInitialized) return;
+                gaInitialized = true;
+        
+                await loadGAScript();
+        
+                window.dataLayer = window.dataLayer || [];
+        
+                window.gtag = function () {
+                  window.dataLayer.push(arguments);
+                };
+        
+                gtag('js', new Date());
+        
+                gtag('config', 'G-6M1F2QCBWJ', {
+                  send_page_view: false
+                });
+        
+                gtag('event', 'page_view', {
+                  page_path: window.location.pathname,
+                  page_location: window.location.href,
+                  page_title: document.title
+                });
+        
+                window.pendingGAEvents.forEach(args => {
+                  gtag(...args);
+                });
+        
+                window.pendingGAEvents = [];
+        
+                document.addEventListener('click', e => {
+                  const el = e.target;
+        
+                  gtag('event', 'ui_click', {
+                    tag: el.tagName || '',
+                    text: (el.innerText || '').trim().substring(0, 100),
+                    id: el.id || '',
+                    page_path: window.location.pathname
+                  });
+                });
+        
+                document
+                  .querySelectorAll('.search-api-form form')
+                  .forEach(form => {
+                    form.addEventListener('submit', e => {
+                      const query = e.target.querySelector('[name="title"]')?.value?.trim();
+        
+                      if (!query) return;
+        
+                      gtag('event', 'neon-search', {
+                        search_term: query
+                      });
+                    });
+                  });
+              }
+        
+              async function trackInteraction(type) {
+                if (interactionTracked) return;
+        
+                interactionTracked = true;
+        
+                await initGA();
+        
+                gtag('event', 'interaction', {
+                  interaction_type: type
+                });
+              }
+        
+              window.addEventListener('click', () => {
+                trackInteraction('click');
+              }, { once: true });
+        
+              window.addEventListener('keydown', () => {
+                trackInteraction('keydown');
+              }, { once: true });
+        
+              window.addEventListener('touchstart', () => {
+                trackInteraction('touchstart');
+              }, { once: true });
+        
+              window.addEventListener('mousemove', () => {
+                trackInteraction('mousemove');
+              }, { once: true });
+            `,
           }}
         ></script>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `window.NEON_SERVER_DATA = "__NEON_SERVER_DATA__";`,
-          }}
-        ></script>
+        {/* End Google Analytics */}
       </head>
       <body>
         <noscript> You need to enable JavaScript to run this app. </noscript>
@@ -91,7 +174,7 @@ export default function RootLayout({
             }}
           ></iframe>
         </noscript>
-        <div id="root">{children}</div>
+        <div id="biorepo-page">{children}</div>
       </body>
     </html>
   );

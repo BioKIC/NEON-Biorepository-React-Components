@@ -407,11 +407,7 @@ const NeonAuth = (props: NeonAuthProps): React.JSX.Element => {
       authFetchCb();
     }
   }, [authFetchCb, isFetchingAuthentication, isAuthFetched]);
-  return (
-    <>
-      {renderAuth(props, classes, isAuthenticated, showAuthWorking, isAuthWsConnected, dispatch)}
-    </>
-  );
+  return <></>; // Remove React authentication UI for Biorepo
 };
 
 const WrappedNeonAuth = NeonAuthContext.getWrappedComponent(NeonAuth);

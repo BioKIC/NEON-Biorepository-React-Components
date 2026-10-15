@@ -1,49 +1,32 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import {
-  makeStyles,
-  ThemeProvider,
-} from '@material-ui/core/styles';
+import { ThemeProvider } from '@mui/material/styles';
+import { makeStyles } from '../lib_components/components/Theme/makeStyles';
 
-import Box from '@material-ui/core/Box';
-import Button from '@material-ui/core/Button';
-import Collapse from '@material-ui/core/Collapse';
-import Divider from '@material-ui/core/Divider';
-import Paper from '@material-ui/core/Paper';
-import TableCell from '@material-ui/core/TableCell';
-import TableRow from '@material-ui/core/TableRow';
-import Typography from '@material-ui/core/Typography';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Collapse from '@mui/material/Collapse';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableHead from '@mui/material/TableHead';
+import TextField from '@mui/material/TextField';
+import InputAdornment from '@mui/material/InputAdornment';
+import Divider from '@mui/material/Divider';
+import Paper from '@mui/material/Paper';
+import TableCell from '@mui/material/TableCell';
+import TableRow from '@mui/material/TableRow';
+import Typography from '@mui/material/Typography';
 
-import AddIcon from '@material-ui/icons/Add';
-import RemoveIcon from '@material-ui/icons/Remove';
-import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import SearchIcon from '@mui/icons-material/Search';
 
-import MaterialTable, { MTableBodyRow } from 'material-table';
 
-import MaterialTableIcons from '../lib_components/components/MaterialTableIcons/MaterialTableIcons';
 import Theme from '../lib_components/components/Theme/Theme';
 
-const ExpansionContext = React.createContext({
-  expanded: {},
-});
-
-const SortIcon = ({ className }) => (
-  <span className={`${className} neon-sort-icon`}>
-    <span className="sort-up">▲</span>
-    <span className="sort-down">▼</span>
-  </span>
-);
-
-SortIcon.propTypes = {
-  className: PropTypes.string,
-};
-
-SortIcon.defaultProps = {
-  className: '',
-};
-
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   tableContainer: {
     backgroundColor: '#fff',
 
@@ -59,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
       fontWeight: 600,
       textTransform: 'uppercase',
       letterSpacing: '1px',
-      borderRight: '0 !important',
+      borderRight: `1px solid ${theme.palette.primary.main} !important`,
     },
 
     '& td.MuiTableCell-body': {
@@ -77,40 +60,6 @@ const useStyles = makeStyles((theme) => ({
       fontSize: '0.7rem !important',
     },
 
-    '& .MuiTableSortLabel-root, & .MuiTableSortLabel-root:hover, & .MuiTableSortLabel-root.MuiTableSortLabel-active': {
-      color: '#fff',
-      textDecoration: 'none',
-    },
-
-    '& .MuiTableSortLabel-icon': {
-      color: '#fff !important',
-    },
-
-    '& .neon-sort-icon': {
-      display: 'inline-flex',
-      flexDirection: 'column',
-      fontSize: '8px',
-      lineHeight: '7px',
-      marginLeft: theme.spacing(1),
-      color: 'rgba(255, 255, 255, 0.4)',
-      transform: 'none !important',
-    },
-
-    '& .MuiTableSortLabel-iconDirectionAsc .sort-up': {
-      color: '#fff',
-    },
-
-    '& .MuiTableSortLabel-iconDirectionAsc .sort-down': {
-      color: 'rgba(255, 255, 255, 0.4)',
-    },
-
-    '& .MuiTableSortLabel-iconDirectionDesc .sort-up': {
-      color: 'rgba(255, 255, 255, 0.4)',
-    },
-
-    '& .MuiTableSortLabel-iconDirectionDesc .sort-down': {
-      color: '#fff',
-    },
   },
 
   detailTableRow: {
@@ -154,6 +103,7 @@ const useStyles = makeStyles((theme) => ({
   },
 
   metaBlock: {
+    marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
   },
 
@@ -187,7 +137,7 @@ const formatDate = (date) => {
 };
 
 function ProjectDetails({ rowData }) {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   return (
     <Paper
@@ -199,10 +149,10 @@ function ProjectDetails({ rowData }) {
           {rowData.description && (
             <Typography
               variant="body1"
+              component="div"
               className={classes.description}
-            >
-              {rowData.description}
-            </Typography>
+              dangerouslySetInnerHTML={{ __html: rowData.description }}
+            />
           )}
 
           <Button
@@ -272,165 +222,106 @@ ProjectDetails.propTypes = {
   }).isRequired,
 };
 
-function ProjectRow(props) {
-  const { data, columns } = props;
-  const classes = useStyles();
-  const { expanded } = React.useContext(ExpansionContext);
-
-  const isOpen = !!expanded[data.datasetid];
+function ProjectRow({ data, isOpen, onToggle, index }) {
+  const { classes } = useStyles();
 
   return (
-    <>
-      <MTableBodyRow {...props} />
-
-      <TableRow className={classes.detailTableRow}>
-        <TableCell
-          colSpan={columns.length}
-          className={classes.detailTableCell}
-        >
-          <Collapse
-            in={isOpen}
-            timeout={350}
-            unmountOnExit
+    <React.Fragment>
+      <TableRow sx={{ backgroundColor: index % 2 === 0 ? Theme.palette.common.white : Theme.palette.grey[100] }}>
+        <TableCell sx={{ width: '55%' }}>
+          <span dangerouslySetInnerHTML={{ __html: data.name || '' }} />
+        </TableCell>
+        <TableCell sx={{ width: '25%' }}>{data.researcherName}</TableCell>
+        <TableCell sx={{ width: '20%', textAlign: 'right', whiteSpace: 'nowrap' }}>
+          <Button
+            variant="outlined"
+            color="primary"
+            size="medium"
+            startIcon={isOpen ? <RemoveIcon /> : <AddIcon />}
+            onClick={() => onToggle(data.datasetid)}
           >
+            {isOpen ? 'Close Details' : 'More Details'}
+          </Button>
+        </TableCell>
+      </TableRow>
+      <TableRow className={classes.detailTableRow}>
+        <TableCell colSpan={3} className={classes.detailTableCell}>
+          <Collapse in={isOpen} timeout={350} unmountOnExit>
             <Box className={classes.detailWrapper}>
               <ProjectDetails rowData={data} />
             </Box>
           </Collapse>
         </TableCell>
       </TableRow>
-    </>
+    </React.Fragment>
   );
 }
 
 ProjectRow.propTypes = {
-  data: PropTypes.shape({
-    datasetid: PropTypes.oneOfType([
-      PropTypes.number,
-      PropTypes.string,
-    ]).isRequired,
-  }).isRequired,
-  columns: PropTypes.arrayOf(
-    PropTypes.shape({
-      field: PropTypes.string,
-      title: PropTypes.string,
-    }),
-  ).isRequired,
+  data: PropTypes.object.isRequired,
+  isOpen: PropTypes.bool.isRequired,
+  onToggle: PropTypes.func.isRequired,
+  index: PropTypes.number.isRequired,
 };
 
 function NeonTableContent() {
-  const classes = useStyles();
-  const data = window.tableData || [];
-
+  const { classes } = useStyles();
+  const data = React.useMemo(() => window.tableData || [], []);
   const [expanded, setExpanded] = React.useState({});
-
-  const expansionContextValue = React.useMemo(
-    () => ({ expanded }),
-    [expanded],
-  );
+  const [search, setSearch] = React.useState('');
 
   const toggleDetails = React.useCallback((datasetid) => {
-    setExpanded((current) => ({
-      ...current,
-      [datasetid]: !current[datasetid],
-    }));
+    setExpanded((current) => ({ ...current, [datasetid]: !current[datasetid] }));
   }, []);
 
-  const columns = [
-    {
-      title: 'Title',
-      field: 'name',
-      sorting: true,
-      searchable: true,
-      cellStyle: {
-        width: '55%',
-      },
-    },
-    {
-      title: 'PI Name',
-      field: 'researcherName',
-      sorting: true,
-      searchable: true,
-      cellStyle: {
-        width: '25%',
-      },
-    },
-    {
-      title: '',
-      field: 'details',
-      sorting: false,
-      searchable: false,
-      cellStyle: {
-        width: '20%',
-        textAlign: 'right',
-        whiteSpace: 'nowrap',
-      },
-      render: (rowData) => {
-        const isOpen = !!expanded[rowData.datasetid];
-
-        return (
-          <Button
-            variant="outlined"
-            color="primary"
-            size="medium"
-            startIcon={isOpen ? <RemoveIcon /> : <AddIcon />}
-            onClick={(event) => {
-              event.stopPropagation();
-              toggleDetails(rowData.datasetid);
-            }}
-          >
-            {isOpen ? 'Close Details' : 'More Details'}
-          </Button>
-        );
-      },
-    },
-  ];
-
-  const tableIcons = {
-    ...MaterialTableIcons,
-    SortArrow: SortIcon,
-  };
+  const visibleRows = React.useMemo(() => {
+    const term = search.trim().toLowerCase();
+    const stripHtml = (value) => String(value ?? '').replace(/<[^>]*>/g, '');
+    return data.filter((row) => !term || ['name', 'researcherName'].some(
+      (field) => stripHtml(row[field]).toLowerCase().includes(term),
+    ));
+  }, [data, search]);
 
   return (
-    <ExpansionContext.Provider value={expansionContextValue}>
-      <Box className={classes.tableContainer}>
-        <MaterialTable
-          title=""
-          icons={tableIcons}
-          components={{
-            Container: Box,
-            Row: ProjectRow,
-          }}
-          columns={columns}
-          data={data}
-          options={{
-            toolbar: true,
-            search: true,
-            filtering: false,
-            paging: false,
-            padding: 'default',
-            thirdSortClick: false,
-            searchFieldAlignment: 'left',
-            searchFieldStyle: {
-              width: '450px',
-            },
-            rowStyle: (rowData) => ({
-              backgroundColor: rowData.tableData.id % 2 === 0
-                ? Theme.palette.common.white
-                : Theme.palette.grey[100],
-            }),
-          }}
-          localization={{
-            body: {
-              emptyDataSourceMessage: 'No projects available.',
-            },
-            toolbar: {
-              searchPlaceholder: 'Search',
-            },
-          }}
+    <Box className={classes.tableContainer}>
+      <Box sx={{ display: 'flex', justifyContent: 'flex-start', p: 2 }}>
+        <TextField
+          size="small"
+          placeholder="Search"
+          aria-label="Search projects"
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          sx={{ width: 450, maxWidth: '100%' }}
+          slotProps={{ input: { startAdornment: (
+            <InputAdornment position="start"><SearchIcon /></InputAdornment>
+          ) } }}
         />
       </Box>
-    </ExpansionContext.Provider>
+      <Box sx={{ overflowX: 'auto' }}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Title</TableCell>
+              <TableCell>PI Name</TableCell>
+              <TableCell />
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {visibleRows.length === 0 ? (
+              <TableRow><TableCell colSpan={3} align="center">No projects available.</TableCell></TableRow>
+            ) : visibleRows.map((row, index) => (
+              <ProjectRow
+                key={row.datasetid}
+                data={row}
+                index={index}
+                isOpen={!!expanded[row.datasetid]}
+                onToggle={toggleDetails}
+              />
+            ))}
+          </TableBody>
+        </Table>
+      </Box>
+    </Box>
   );
 }
 

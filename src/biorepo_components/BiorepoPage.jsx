@@ -63,10 +63,12 @@ export default function BiorepoPage() {
         const breadcrumbData = data[pathname] || [{ name: 'Data & Samples', href: 'https://www.neonscience.org/data-samples' }, { name: 'Sample Portal' }];
         setBreadcrumbs(breadcrumbData);
 
-        const breadcrumbNav = document.querySelector('nav[data-selenium="neon-page.breadcrumbs"]');
+        const breadcrumbNav = document.querySelector(
+          'nav[data-selenium="neon-page.breadcrumbs"]'
+        );
+        
         const innerTextDiv = document.getElementById('innertext');
-        const parentDiv = innerTextDiv.parentNode;
-        parentDiv.insertBefore(breadcrumbNav, innerTextDiv);
+        
       } catch (error) {
         console.error('Error fetching breadcrumbs:', error);
       }
@@ -93,6 +95,19 @@ export default function BiorepoPage() {
     fetchBreadcrumbs();
     fetchSidebarLinks();
   }, [config]);
+  
+  useEffect(() => {
+    const neonPageContent = document.querySelector(
+      'div[data-selenium="neon-page.content"]'
+    );
+  
+    if (neonPageContent) {
+  
+      window.dispatchEvent(
+        new CustomEvent('biorepo:neon-page-ready')
+      );
+    }
+  }, []);
 
   return (
     <NeonPage

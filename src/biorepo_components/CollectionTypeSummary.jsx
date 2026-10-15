@@ -1,32 +1,30 @@
 import React, { useEffect, useState } from 'react';
 
-import {
-  makeStyles,
-  ThemeProvider,
-} from '@material-ui/core/styles';
+import { makeStyles } from '../lib_components/components/Theme/makeStyles';
+import { ThemeProvider } from '@mui/material/styles';
 
-import Accordion from '@material-ui/core/Accordion';
-import AccordionDetails from '@material-ui/core/AccordionDetails';
-import AccordionSummary from '@material-ui/core/AccordionSummary';
-import Button from '@material-ui/core/Button';
-import Card from '@material-ui/core/Card';
-import Divider from '@material-ui/core/Divider';
-import IconButton from '@material-ui/core/IconButton';
-import LinearProgress from '@material-ui/core/LinearProgress';
-import Tooltip from '@material-ui/core/Tooltip';
-import Typography from '@material-ui/core/Typography';
-import Link from '@material-ui/core/Link';
-import LinkIcon from '@material-ui/icons/Link';
+import Accordion from '@mui/material/Accordion';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import Button from '@mui/material/Button';
+import Card from '@mui/material/Card';
+import Divider from '@mui/material/Divider';
+import IconButton from '@mui/material/IconButton';
+import LinearProgress from '@mui/material/LinearProgress';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
+import Link from '@mui/material/Link';
+import LinkIcon from '@mui/icons-material/Link';
 
-import GetAppIcon from '@material-ui/icons/GetApp';
-import DescriptionOutlinedIcon from '@material-ui/icons/DescriptionOutlined';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import InfoIcon from '@material-ui/icons/Info';
-import SubdirectoryArrowRightIcon from '@material-ui/icons/SubdirectoryArrowRight';
+import GetAppIcon from '@mui/icons-material/GetApp';
+import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import InfoIcon from '@mui/icons-material/Info';
+import SubdirectoryArrowRightIcon from '@mui/icons-material/SubdirectoryArrowRight';
 
 import Theme from '../lib_components/components/Theme/Theme';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   card: {
     padding: theme.spacing(4),
     width: '100%',
@@ -237,7 +235,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function CollectionTypeSummary() {
-  const classes = useStyles(Theme);
+  const { classes } = useStyles();
 
   const [showAll, setShowAll] = useState(false);
 

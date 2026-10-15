@@ -1,263 +1,159 @@
-
 import { createRequire } from 'module';
 
 const require = createRequire(import.meta.url);
 const fs = require('fs-extra');
 const path = require('path');
 
-const sourceDir = '/usr/src/NEON-Biorepository-React-Components/build';
-const targetDir = '/mnt/c/xampp/htdocs/neon/neon-react';
+const sourceDir =
+    '/usr/src/NEON-Biorepository-React-Components/build';
+
+const targetDir =
+    '/mnt/c/xampp/htdocs/neon/neon-react/core-components';
+
 const indexFilePath = path.join(sourceDir, 'index.html');
-const targetHtmlFilePath = '/mnt/c/xampp/htdocs/neon/includes/head.php';
+
+const targetHtmlFilePath =
+    '/mnt/c/xampp/htdocs/neon/includes/head.php';
 
 const START = '<!-- NEON REACT ASSETS START -->';
 const END = '<!-- NEON REACT ASSETS END -->';
 
-function logSection(number, message) {
-    console.log(`\n[${number}/5] ${message}`);
+const phpAssetRoot =
+    '<?php echo $CLIENT_ROOT; ?>/neon-react/core-components';
+
+function rewriteAssetUrls(html) {
+    return html.replace(
+        /(\b(?:href|src)=["'])\/(?:neon-react\/)?core-components\//gi,
+        (_, prefix) => prefix + phpAssetRoot + '/'
+    );
 }
 
-function extractAttribute(tag, attribute) {
-    const match = tag.match(new RegExp(`${attribute}="([^"]+)"`, 'i'));
-    return match ? match[1] : 'unknown';
-}
+function extractAssets(indexHtml) {
+    const head = indexHtml.match(
+        /<head\b[^>]*>([\s\S]*?)<\/head>/i
+    )?.[1];
 
-async function main() {
-    const startedAt = Date.now();
-    const updatedAt = new Date().toLocaleString();
-
-    let deletedCount = 0;
-    let copiedCount = 0;
-
-    console.log('\n========================================');
-    console.log('       NEON REACT DEPLOYMENT');
-    console.log('========================================');
-    console.log(`Started:     ${updatedAt}`);
-    console.log(`Source:      ${sourceDir}`);
-    console.log(`Destination: ${targetDir}`);
-    console.log(`PHP file:    ${targetHtmlFilePath}`);
-
-    // --------------------------------------------------
-    // 1. Validate build and deployment paths
-    // --------------------------------------------------
-
-    logSection(1, 'Validating build and deployment paths...');
-
-    if (!(await fs.pathExists(indexFilePath))) {
-        throw new Error(`Build index.html not found: ${indexFilePath}`);
-    }
-
-    console.log(`  OK: ${indexFilePath}`);
-
-    if (!(await fs.pathExists(targetHtmlFilePath))) {
-        throw new Error(`PHP file not found: ${targetHtmlFilePath}`);
-    }
-
-    console.log(`  OK: ${targetHtmlFilePath}`);
-
-    const indexHtml = await fs.readFile(indexFilePath, 'utf8');
-    let headPhp = await fs.readFile(targetHtmlFilePath, 'utf8');
-
-    if (!headPhp.includes(START) || !headPhp.includes(END)) {
+    if (head === undefined) {
         throw new Error(
-            `Missing deployment markers in head.php.\n` +
-            `Add these where the React assets belong:\n` +
-            `${START}\n${END}`
+            'Generated index.html is missing <head>.'
         );
     }
 
-    // --------------------------------------------------
-    // 2. Extract generated Next.js assets
-    // --------------------------------------------------
+    return head.trim();
+}
 
-    logSection(2, 'Extracting Next.js assets...');
+function replaceManagedSection(headPhp, content) {
+    const start = headPhp.indexOf(START);
+    const end = headPhp.indexOf(END);
 
-    const headMatch = indexHtml.match(/<head>([\s\S]*?)<\/head>/i);
-
-    if (!headMatch) {
-        throw new Error('Cannot find <head> in generated index.html');
+    if (start === -1 || end === -1 || end <= start) {
+        throw new Error(
+            'Missing NEON REACT ASSETS markers in head.php.'
+        );
     }
 
-    const generatedHead = headMatch[1];
+    return (
+        headPhp.slice(0, start) +
+        content +
+        headPhp.slice(end + END.length)
+    );
+}
 
-    const cssTags = generatedHead.match(
-        /<link\b(?=[^>]*rel="stylesheet")[^>]*>/gi
-    ) || [];
+async function main() {
+    console.log('\n========================================');
+    console.log('       NEON REACT DEPLOYMENT');
+    console.log('========================================');
 
-    const scriptTags = generatedHead.match(
-        /<script\b[^>]*src="[^"]+"[^>]*><\/script>/gi
-    ) || [];
+    if (!(await fs.pathExists(indexFilePath))) {
+        throw new Error(
+            `Build index.html not found: ${indexFilePath}`
+        );
+    }
 
-    const bodyMatch = indexHtml.match(
-        /<body[^>]*>([\s\S]*?)<\/body>/i
+    if (!(await fs.pathExists(targetHtmlFilePath))) {
+        throw new Error(
+            `PHP file not found: ${targetHtmlFilePath}`
+        );
+    }
+
+    const indexHtml = await fs.readFile(
+        indexFilePath,
+        'utf8'
     );
 
-    const bodyHtml = bodyMatch ? bodyMatch[1] : '';
+    const originalHeadPhp = await fs.readFile(
+        targetHtmlFilePath,
+        'utf8'
+    );
 
-    const bootstrapScripts = bodyHtml.match(
-        /<script\b[^>]*>[\s\S]*?<\/script>/gi
-    ) || [];
-
-    console.log(`  Stylesheets found:     ${cssTags.length}`);
-    console.log(`  Head scripts found:    ${scriptTags.length}`);
-    console.log(`  Body scripts found:    ${bootstrapScripts.length}`);
-
-    console.log('\n  Stylesheets:');
-
-    for (const tag of cssTags) {
-        console.log(`    ${extractAttribute(tag, 'href')}`);
+    const headContent = extractAssets(indexHtml);
+    
+    if (!headContent.includes('/_next/static/')) {
+        throw new Error(
+            'No generated Next.js assets found in <head>.'
+        );
     }
-
-    console.log('\n  Head JavaScript files:');
-
-    for (const tag of scriptTags) {
-        console.log(`    ${extractAttribute(tag, 'src')}`);
-    }
-
-    console.log('\n  Body scripts:');
-
-    for (const tag of bootstrapScripts) {
-        const src = extractAttribute(tag, 'src');
-
-        if (src !== 'unknown') {
-            console.log(`    ${src}`);
-        } else {
-            console.log('    Inline Next.js bootstrap script');
-        }
-    }
-
-    if (cssTags.length === 0 && scriptTags.length === 0) {
-        throw new Error('No generated CSS or JavaScript assets found.');
-    }
-
-    const assets = [
+    
+    const updatedAt = new Date().toLocaleString();
+    
+    const generatedContent = [
         START,
         `<!-- React last updated: ${updatedAt} -->`,
-        ...cssTags,
-        ...scriptTags,
-        ...bootstrapScripts,
+        rewriteAssetUrls(headContent),
         END
     ].join('\n');
 
-    const startIndex = headPhp.indexOf(START);
-    const endIndex = headPhp.indexOf(END) + END.length;
+    const updatedHeadPhp = replaceManagedSection(
+        originalHeadPhp,
+        generatedContent
+    );
 
-    if (endIndex <= startIndex) {
-        throw new Error('Deployment markers are in the wrong order.');
-    }
+    // Back up the original PHP file.
+    await fs.copy(
+        targetHtmlFilePath,
+        `${targetHtmlFilePath}.bak`,
+        { overwrite: true }
+    );
 
-    const updatedHeadPhp =
-        headPhp.slice(0, startIndex) +
-        assets +
-        headPhp.slice(endIndex);
-
-    // --------------------------------------------------
-    // 3. Back up head.php
-    // --------------------------------------------------
-
-    logSection(3, 'Backing up head.php...');
-
-    const backupPath = `${targetHtmlFilePath}.bak`;
-
-    await fs.copy(targetHtmlFilePath, backupPath, {
-        overwrite: true
-    });
-
-    console.log(`  Backup created: ${backupPath}`);
-
-    // --------------------------------------------------
-    // 4. Clean deployment directory
-    // --------------------------------------------------
-
-    logSection(4, 'Cleaning deployment directory...');
-
+    // Remove old deployed files, preserving biorepo_lib.
     await fs.ensureDir(targetDir);
 
-    const existingFiles = await fs.readdir(targetDir);
-
-    for (const file of existingFiles) {
-        const targetPath = path.join(targetDir, file);
-
+    for (const file of await fs.readdir(targetDir)) {
         if (file === 'biorepo_lib') {
-            console.log(`  PRESERVED: ${file}`);
             continue;
         }
 
-        await fs.remove(targetPath);
-        console.log(`  DELETED:   ${file}`);
-        deletedCount++;
+        await fs.remove(path.join(targetDir, file));
     }
 
-    console.log(`\n  Total deleted: ${deletedCount}`);
-
-    // --------------------------------------------------
-    // 5. Copy build files and update head.php
-    // --------------------------------------------------
-
-    logSection(5, 'Copying build files and updating PHP...');
-
-    const buildFiles = await fs.readdir(sourceDir);
-
-    for (const file of buildFiles) {
+    // Copy the new build, excluding index.html.
+    for (const file of await fs.readdir(sourceDir)) {
         if (file === 'index.html') {
-            console.log(`  SKIPPED: ${file}`);
             continue;
         }
 
-        const sourcePath = path.join(sourceDir, file);
-        const targetPath = path.join(targetDir, file);
+        await fs.copy(
+            path.join(sourceDir, file),
+            path.join(targetDir, file),
+            { overwrite: true }
+        );
 
-        await fs.copy(sourcePath, targetPath, {
-            overwrite: true
-        });
-
-        const stats = await fs.stat(sourcePath);
-        const type = stats.isDirectory() ? 'DIRECTORY' : 'FILE';
-
-        console.log(`  COPIED [${type}]: ${file}`);
-        copiedCount++;
+        console.log(`Copied: ${file}`);
     }
 
-    console.log(`\n  Total copied: ${copiedCount}`);
-
+    // Only the managed asset section is changed.
+    // reactScript code outside it is untouched.
     await fs.writeFile(
         targetHtmlFilePath,
         updatedHeadPhp,
         'utf8'
     );
 
-    console.log(`\n  UPDATED: ${targetHtmlFilePath}`);
-    console.log(`  React last updated: ${updatedAt}`);
-
-    // --------------------------------------------------
-    // Deployment summary
-    // --------------------------------------------------
-
-    const elapsedSeconds = (
-        (Date.now() - startedAt) / 1000
-    ).toFixed(2);
-
-    console.log('\n========================================');
-    console.log('         DEPLOYMENT SUMMARY');
-    console.log('========================================');
-    console.log(`Status:             SUCCESS`);
-    console.log(`Last updated:       ${updatedAt}`);
-    console.log(`Stylesheets:        ${cssTags.length}`);
-    console.log(`Head scripts:       ${scriptTags.length}`);
-    console.log(`Body scripts:       ${bootstrapScripts.length}`);
-    console.log(`Files/dirs deleted: ${deletedCount}`);
-    console.log(`Files/dirs copied:  ${copiedCount}`);
-    console.log(`PHP updated:        YES`);
-    console.log(`PHP backup:         ${backupPath}`);
-    console.log(`Duration:           ${elapsedSeconds} seconds`);
-    console.log('========================================\n');
+    console.log('Complete generated <head> copied.');
+    console.log('Deployment complete.');
 }
 
-main().catch((err) => {
-    console.error('\n========================================');
-    console.error('         DEPLOYMENT FAILED');
-    console.error('========================================');
-    console.error(err);
-    console.error('========================================\n');
+main().catch(error => {
+    console.error('Deployment failed:', error);
     process.exit(1);
 });

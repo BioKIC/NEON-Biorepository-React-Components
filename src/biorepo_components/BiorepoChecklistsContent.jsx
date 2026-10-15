@@ -1,31 +1,86 @@
 import React, { useState, useEffect } from 'react';
 
-import Grid from '@material-ui/core/Grid';
+import Grid from '@mui/material/Grid';
+import Typography from '@mui/material/Typography';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import CardMedia from '@mui/material/CardMedia';
 
-import Typography from '@material-ui/core/Typography';
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
-import CardMedia from '@material-ui/core/CardMedia';
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import ExpandIcon from '@mui/icons-material/ExpandMore';
+import Link from '@mui/material/Link';
 
-import Accordion from '@material-ui/core/Accordion';
-import AccordionSummary from '@material-ui/core/AccordionSummary';
-import AccordionDetails from '@material-ui/core/AccordionDetails';
-import ExpandIcon from '@material-ui/icons/ExpandMore';
-import Link from '@material-ui/core/Link';
+import { makeStyles } from '../lib_components/components/Theme/makeStyles';
+import { ThemeProvider } from '@mui/material/styles';
+import Theme from '../lib_components/components/Theme/Theme';
 
-function renderNode(nodes, depth = 0) {
+const useStyles = makeStyles()((theme) => ({
+  root: {
+    fontFamily: '"Inter", Helvetica, Arial, sans-serif',
+  },
+
+  accordion: {
+    boxShadow: 'none',
+    backgroundColor: 'transparent',
+
+    '&, &.Mui-expanded, &:hover, &:active': {
+      border: 'none',
+    },
+
+    '&::before': {
+      display: 'none',
+    },
+
+    '&.Mui-expanded': {
+      margin: 0,
+    },
+
+    '& .MuiAccordionSummary-root': {
+      paddingLeft: 0,
+      paddingRight: 0,
+    },
+    
+    '& .MuiAccordionSummary-content': {
+      minWidth: 0,
+      overflowWrap: 'anywhere',
+    },
+
+    '& .MuiAccordionDetails-root': {
+      paddingLeft: 0,
+      paddingRight: 0,
+    },
+  },
+
+  cardTitle: {
+    marginBottom: 20,
+  },
+}));
+
+function renderNode(nodes, classes, depth = 0) {
   return nodes.map((node, index) => {
     const isLastChild = index === nodes.length - 1;
+
     const collidLink = node.collid
       ? `../neon/checklists/checklist.php?clid=${node.collid}`
       : null;
 
     const nodeContent = collidLink ? (
-      <Link href={collidLink} color="primary" underline="always" target="_self">
-        <Typography color="inherit">{node.name}</Typography>
+      <Link
+        href={collidLink}
+        color="primary"
+        underline="always"
+        target="_self"
+      >
+        <Typography color="inherit">
+          {node.name}
+        </Typography>
       </Link>
     ) : (
-      <Typography>{node.name}</Typography>
+      <Typography>
+        {node.name}
+      </Typography>
     );
 
     return (
@@ -36,7 +91,10 @@ function renderNode(nodes, depth = 0) {
           marginBottom: isLastChild ? 20 : 0,
         }}
       >
-        <Accordion disabled={node.collid === 0}>
+        <Accordion
+          className={classes.accordion}
+          disabled={node.collid === 0}
+        >
           {node.children ? (
             <AccordionSummary expandIcon={<ExpandIcon />}>
               {nodeContent}
@@ -46,7 +104,9 @@ function renderNode(nodes, depth = 0) {
               {nodeContent}
             </AccordionDetails>
           )}
-          {node.children && renderNode(node.children, depth + 1)}
+
+          {node.children
+            && renderNode(node.children, classes, depth + 1)}
         </Accordion>
       </div>
     );
@@ -54,6 +114,8 @@ function renderNode(nodes, depth = 0) {
 }
 
 export default function BiorepoChecklistsContent() {
+  const { classes } = useStyles();
+
   const [invertebrateNodesData, setInvertebrateNodes] = useState([]);
   const [vertebrateNodesData, setVertebrateNodes] = useState([]);
   const [plantNodesData, setPlantNodes] = useState([]);
@@ -86,18 +148,10 @@ export default function BiorepoChecklistsContent() {
   }, []);
 
   return (
-    <>
-      <style>
-        {`
-          html, body {
-            font-family: "Inter", Helvetica, Arial, sans-serif !important;
-          }
-        `}
-      </style>
-
-      <div id="callout-cards">
+    <ThemeProvider theme={Theme}>
+      <div id="callout-cards" className={classes.root}>
         <Grid container spacing={7}>
-          <Grid item xs={4}>
+          <Grid size={4}>
             <Card variant="outlined">
               <CardMedia
                 component="img"
@@ -107,16 +161,21 @@ export default function BiorepoChecklistsContent() {
                 loading="lazy"
               />
               <CardContent>
-                <Typography variant="h5" style={{ marginBottom: 20 }}>
+                <Typography
+                  variant="h5"
+                  className={classes.cardTitle}
+                >
                   Invertebrates
                 </Typography>
+
                 <div>
-                  {renderNode(invertebrateNodesData)}
+                  {renderNode(invertebrateNodesData, classes)}
                 </div>
               </CardContent>
             </Card>
           </Grid>
-          <Grid item xs={4}>
+
+          <Grid size={4}>
             <Card variant="outlined">
               <CardMedia
                 component="img"
@@ -126,16 +185,21 @@ export default function BiorepoChecklistsContent() {
                 loading="lazy"
               />
               <CardContent>
-                <Typography variant="h5" style={{ marginBottom: 20 }}>
+                <Typography
+                  variant="h5"
+                  className={classes.cardTitle}
+                >
                   Plants & Algae
                 </Typography>
+
                 <div>
-                  {renderNode(plantNodesData)}
+                  {renderNode(plantNodesData, classes)}
                 </div>
               </CardContent>
             </Card>
           </Grid>
-          <Grid item xs={4}>
+
+          <Grid size={4}>
             <Card variant="outlined">
               <CardMedia
                 component="img"
@@ -145,17 +209,21 @@ export default function BiorepoChecklistsContent() {
                 loading="lazy"
               />
               <CardContent>
-                <Typography variant="h5" style={{ marginBottom: 20 }}>
+                <Typography
+                  variant="h5"
+                  className={classes.cardTitle}
+                >
                   Vertebrates
                 </Typography>
+
                 <div>
-                  {renderNode(vertebrateNodesData)}
+                  {renderNode(vertebrateNodesData, classes)}
                 </div>
               </CardContent>
             </Card>
           </Grid>
         </Grid>
       </div>
-    </>
+    </ThemeProvider>
   );
 }

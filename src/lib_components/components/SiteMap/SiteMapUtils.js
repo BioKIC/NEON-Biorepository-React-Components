@@ -1117,6 +1117,38 @@ export const FEATURES = {
     maxZoom: 19,
   },
 };
+
+// Next.js generates SVG URLs without Symbiota's dynamic CLIENT_ROOT prefix.
+// Update all map icon URLs centrally so they resolve correctly when the
+// React components are embedded in Symbiota, without modifying SVG imports
+// or individual icon references.
+const fixIconUrls = (obj) => {
+  const clientRoot = typeof window !== 'undefined'
+    ? window.NEON_CLIENT_ROOT || ''
+    : '';
+
+  Object.values(obj).forEach((item) => {
+    if (typeof item.iconSvg === 'string') {
+      item.iconSvg = `${clientRoot}${item.iconSvg}`;
+    }
+
+    if (typeof item.iconSelectedSvg === 'string') {
+      item.iconSelectedSvg = `${clientRoot}${item.iconSelectedSvg}`;
+    }
+
+    if (item.shadow) {
+      Object.values(item.shadow).forEach((shadow) => {
+        if (typeof shadow.svg === 'string') {
+          shadow.svg = `${clientRoot}${shadow.svg}`;
+        }
+      });
+    }
+  });
+};
+
+fixIconUrls(LOCATION_ICON_SVG_SHAPES);
+fixIconUrls(FEATURES);
+
 // Replicate keys as attributes to completely eliminate the need to write a feature key string
 Object.keys(FEATURES).forEach((key) => { FEATURES[key].KEY = key; });
 

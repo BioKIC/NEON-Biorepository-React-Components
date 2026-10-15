@@ -1,38 +1,24 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+import { ThemeProvider } from '@mui/material/styles';
+import Box from '@mui/material/Box';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import TableSortLabel from '@mui/material/TableSortLabel';
 
-import { makeStyles } from '@material-ui/core/styles';
-import Box from '@material-ui/core/Box';
-
-import MaterialTable from 'material-table';
-
-import MaterialTableIcons from '../lib_components/components/MaterialTableIcons/MaterialTableIcons';
+import { makeStyles } from '../lib_components/components/Theme/makeStyles';
 import Theme from '../lib_components/components/Theme/Theme';
 
-const SortIcon = ({ className }) => (
-  <span className={`${className} neon-sort-icon`}>
-    <span className="sort-up">▲</span>
-    <span className="sort-down">▼</span>
-  </span>
-);
-
-SortIcon.propTypes = {
-  className: PropTypes.string,
-};
-
-SortIcon.defaultProps = {
-  className: '',
-};
-
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   tableContainer: {
     backgroundColor: '#fff',
-
     '& table': {
       margin: '0 !important',
       borderCollapse: 'collapse',
     },
-
     '& th.MuiTableCell-head': {
       padding: '6px 16px',
       backgroundColor: theme.palette.primary.main,
@@ -42,91 +28,38 @@ const useStyles = makeStyles((theme) => ({
       letterSpacing: '1px',
       borderRight: '1px solid rgba(0, 0, 0, 0.2)',
     },
-
     '& th.MuiTableCell-head:last-child': {
       borderRight: 'none',
     },
-
     '& td.MuiTableCell-body': {
       borderBottom: 'none',
       borderRight: '1px solid #ddd',
     },
-
     '& td.MuiTableCell-body:last-child': {
       borderRight: 'none',
     },
-
-    '& tbody tr:nth-child(even)': {
+    '& tbody tr:nth-of-type(even)': {
       backgroundColor: theme.palette.grey[100],
     },
-
-    '& tbody tr:nth-child(odd)': {
+    '& tbody tr:nth-of-type(odd)': {
       backgroundColor: '#fff',
     },
-
     '& tbody tr:hover': {
       backgroundColor: theme.palette.grey[200],
     },
-
-    '& .MuiTableSortLabel-root': {
+    '& .MuiTableSortLabel-root, & .MuiTableSortLabel-root:hover, & .MuiTableSortLabel-root.Mui-active': {
       color: '#fff',
+      textDecoration: 'none',
     },
-
-    '& .MuiTableSortLabel-root:hover': {
-      color: '#fff',
-    },
-
-    '& .MuiTableSortLabel-root.MuiTableSortLabel-active': {
-      color: '#fff',
-    },
-
     '& .MuiTableSortLabel-icon': {
       color: '#fff !important',
     },
-
-    '& td.MuiTablePagination-root': {
-      borderBottom: 'none',
-      borderRight: 'none',
-    },
-
-    '& .neon-sort-icon': {
-      display: 'inline-flex',
-      flexDirection: 'column',
-      fontSize: '8px',
-      lineHeight: '7px',
-      marginLeft: '8px',
-      color: 'rgba(255, 255, 255, 0.4)',
-      transform: 'none !important',
-    },
-
-    '& .MuiTableSortLabel-iconDirectionAsc .sort-up': {
-      color: '#fff',
-    },
-
-    '& .MuiTableSortLabel-iconDirectionAsc .sort-down': {
-      color: 'rgba(255, 255, 255, 0.4)',
-    },
-
-    '& .MuiTableSortLabel-iconDirectionDesc .sort-up': {
-      color: 'rgba(255, 255, 255, 0.4)',
-    },
-
-    '& .MuiTableSortLabel-iconDirectionDesc .sort-down': {
-      color: '#fff',
-    },
-
-    '& .MuiTableSortLabel-root, & .MuiTableSortLabel-root:hover, & .MuiTableSortLabel-root.MuiTableSortLabel-active': {
-      textDecoration: 'none',
-    },
-
     '& td.MuiTableCell-body, & td.MuiTableCell-body *': {
       fontSize: '0.7rem !important',
     },
-
     '& th.MuiTableCell-head, & th.MuiTableCell-head *': {
       fontSize: '0.7rem !important',
     },
-
     '& td.MuiTableCell-body a': {
       textDecoration: 'underline',
     },
@@ -140,97 +73,91 @@ const formatTitle = (key = '') => (
     .replace(/^./, (str) => str.toUpperCase())
 );
 
-export default function NeonTable() {
-  const classes = useStyles(Theme);
-  /*
-   * Expected tableData structure:
-   *
-   * window.tableData = [
-   *   {
-   *     columnName: 'Plain text or numeric value',
-   *     anotherColumn: 123,
-   *   },
-   * ];
-   *
-   * To render a value as a link, pass an object containing
-   * a "value" to display and a "link" for the URL:
-   *
-   * window.tableData = [
-   *   {
-   *     sampleType: {
-   *       value: 'Plant Tissue',
-   *       link: 'https://example.com',
-   *     },
-   *     sampleCount: 25,
-   *   },
-   * ];
-   *
-   * Column names are generated automatically from the object keys.
-   * Any field with { value, link } will be rendered as a clickable link.
-   */
+const displayValue = (value) => (
+  value && typeof value === 'object' && 'value' in value ? value.value : value
+);
+
+function compareValues(a, b) {
+  const aValue = displayValue(a);
+  const bValue = displayValue(b);
+  if (aValue === bValue) return 0;
+  if (aValue == null) return -1;
+  if (bValue == null) return 1;
+  return aValue > bValue ? 1 : -1;
+}
+
+function NeonTableContent() {
+  const { classes } = useStyles();
   const data = window.tableData || [];
+  const columns = data.length ? Object.keys(data[0]) : [];
+  const [sortField, setSortField] = React.useState(null);
+  const [sortDirection, setSortDirection] = React.useState('asc');
 
-  const columns = data.length
-    ? Object.keys(data[0]).map((field) => ({
-      title: formatTitle(field),
-      field,
-      sorting: true,
-      searchable: true,
+  const sortedData = React.useMemo(() => {
+    if (!sortField) return data;
+    return [...data].sort((a, b) => (
+      compareValues(a[sortField], b[sortField]) * (sortDirection === 'asc' ? 1 : -1)
+    ));
+  }, [data, sortField, sortDirection]);
 
-      customSort: (rowA, rowB) => {
-        const a = rowA[field];
-        const b = rowB[field];
-
-        const aValue = a && typeof a === 'object' && 'value' in a ? a.value : a;
-        const bValue = b && typeof b === 'object' && 'value' in b ? b.value : b;
-
-        if (aValue === bValue) return 0;
-        return aValue > bValue ? 1 : -1;
-      },
-
-      render: (row) => {
-        const value = row[field];
-
-        if (value && typeof value === 'object' && value.link) {
-          return (
-            <a href={value.link}>
-              {value.value}
-            </a>
-          );
-        }
-
-        return value;
-      },
-    }))
-    : [];
-
-  const tableIcons = {
-    ...MaterialTableIcons,
-    SortArrow: SortIcon,
+  const handleSort = (field) => {
+    if (sortField === field) {
+      setSortDirection((direction) => direction === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
   };
 
   return (
-    <div className={classes.tableContainer}>
-      <MaterialTable
-        icons={tableIcons}
-        components={{
-          Container: Box,
-        }}
-        columns={columns}
-        data={data}
-        options={{
-          toolbar: false,
-          filtering: false,
-          padding: 'default',
-          thirdSortClick: false,
-          paging: false,
-        }}
-        localization={{
-          body: {
-            emptyDataSourceMessage: 'No data available.',
-          },
-        }}
-      />
-    </div>
+    <TableContainer component={Box} className={classes.tableContainer}>
+      <Table>
+        <TableHead>
+          <TableRow>
+            {columns.map((field) => (
+              <TableCell key={field} sortDirection={sortField === field ? sortDirection : false}>
+                <TableSortLabel
+                  active={sortField === field}
+                  direction={sortField === field ? sortDirection : 'asc'}
+                  onClick={() => handleSort(field)}
+                >
+                  {formatTitle(field)}
+                </TableSortLabel>
+              </TableCell>
+            ))}
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {sortedData.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={Math.max(columns.length, 1)} align="center">
+                No data available.
+              </TableCell>
+            </TableRow>
+          ) : sortedData.map((row, index) => (
+            <TableRow key={row.id ?? row.datasetid ?? index}>
+              {columns.map((field) => {
+                const value = row[field];
+                return (
+                  <TableCell key={field}>
+                    {value && typeof value === 'object' && value.link ? (
+                      <a href={value.link}>{value.value}</a>
+                    ) : displayValue(value)}
+                  </TableCell>
+                );
+              })}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+}
+
+export default function NeonTable() {
+  return (
+    <ThemeProvider theme={Theme}>
+      <NeonTableContent />
+    </ThemeProvider>
   );
 }

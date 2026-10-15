@@ -1,22 +1,23 @@
 import React, { useState, useEffect } from 'react';
 
 import PropTypes from 'prop-types';
-import Box from '@material-ui/core/Box';
-import Typography from '@material-ui/core/Typography';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
 
-import Accordion from '@material-ui/core/Accordion';
-import AccordionSummary from '@material-ui/core/AccordionSummary';
-import AccordionDetails from '@material-ui/core/AccordionDetails';
-import ExpandIcon from '@material-ui/icons/ExpandMore';
-import Button from '@material-ui/core/Button';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import ExpandIcon from '@mui/icons-material/ExpandMore';
+import Button from '@mui/material/Button';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
-import { makeStyles, ThemeProvider } from '@material-ui/core/styles';
+import { makeStyles } from '../lib_components/components/Theme/makeStyles';
+import { ThemeProvider } from '@mui/material/styles';
 import Theme from '../lib_components/components/Theme/Theme';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   fullWidth: {
     width: '100%',
   },
@@ -36,13 +37,16 @@ const useStyles = makeStyles((theme) => ({
 
     '& .MuiAccordion-root': {
       boxShadow: 'none',
-      border: 'none',
       backgroundColor: 'transparent',
-
+    
+      '&, &.Mui-expanded, &:hover, &:active': {
+        border: 'none',
+      },
+    
       '&:before': {
         display: 'none',
       },
-
+    
       '&.Mui-expanded': {
         margin: 0,
       },
@@ -76,6 +80,7 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
     justifyContent: 'space-between',
     width: '100%',
+    boxSizing: 'border-box',
     minHeight: '64px',
     padding: theme.spacing(2),
   },
@@ -135,7 +140,7 @@ function RenderNode({
   handleAccordionChange,
   treeKey,
 }) {
-  const classes = useStyles({
+  const { classes } = useStyles({
     depth,
     isLastChild,
   });
@@ -259,7 +264,7 @@ function renderNodes(
 }
 
 export default function BiorepoCollectionsContent() {
-  const classes = useStyles({
+  const { classes } = useStyles({
     depth: 0,
     isLastChild: false,
   });
