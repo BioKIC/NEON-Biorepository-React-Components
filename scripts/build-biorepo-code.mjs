@@ -25,10 +25,11 @@ function rewriteAssetUrls(html) {
     );
 }
 
-// Remove async attributes from generated script tags.
+// Remove async from generated scripts, excluding Google Analytics.
 function removeAsync(html) {
-    return html.replace(/<script\b[^>]*>/gi, tag =>
-        tag.replace(/\s+async(?:\s*=\s*(?:""|''))?(?=[\s>])/gi, '')
+    return html.replace(
+        /<script\b[^>]*\bsrc=["'][^"']*\/_next\/static\/chunks\/[^"']+\.js["'][^>]*>/gi,
+        tag => tag.replace(/\s+async\s*=\s*["']["']/gi, '')
     );
 }
 
