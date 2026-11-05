@@ -400,20 +400,24 @@ const NeonPage = (inProps) => {
     if (!hasSidebarLinks || !sidebarLinks.length) {
       return '#';
     }
-    // Length === 5: fixed behavior
-    if (sidebarLinks.length === 5) {
+
+    const { pathname } = window.location;
+    const matchedLink = sidebarLinks.find((link) => {
+      if (!link.match) return false;
+      const matches = Array.isArray(link.match) ? link.match : [link.match];
+      return matches.some((m) => pathname.includes(m));
+    });
+
+    if (matchedLink) return matchedLink.hash;
+
+    // Preserve the Impact sidebar's Papers & Publications selection.
+    if (
+      sidebarLinks.length === 5
+      && sidebarLinks.every((link) => !link.match)
+    ) {
       return sidebarLinks[3].hash;
     }
-    // Length === 4: page-aware via `match`
-    if (sidebarLinks.length === 4) {
-      const { pathname } = window.location;
-      const matchedLink = sidebarLinks.find((link) => {
-        if (!link.match) return false;
-        const matches = Array.isArray(link.match) ? link.match : [link.match];
-        return matches.some((m) => pathname.includes(m));
-      });
-      return matchedLink?.hash || '#';
-    }
+
     return '#';
   })();
   const currentSidebarHash = initialCurrentSidebarHash;
