@@ -398,7 +398,7 @@ const NeonPage = (inProps) => {
   )), [hasSidebarLinks, sidebarLinks]);
   const initialCurrentSidebarHash = (() => {
     if (!hasSidebarLinks || !sidebarLinks.length) {
-      return '#';
+      return null;
     }
 
     const { pathname } = window.location;
@@ -408,17 +408,7 @@ const NeonPage = (inProps) => {
       return matches.some((m) => pathname.includes(m));
     });
 
-    if (matchedLink) return matchedLink.hash;
-
-    // Preserve the Impact sidebar's Papers & Publications selection.
-    if (
-      sidebarLinks.length === 5
-      && sidebarLinks.every((link) => !link.match)
-    ) {
-      return sidebarLinks[3].hash;
-    }
-
-    return '#';
+    return matchedLink?.hash ?? null;
   })();
   const currentSidebarHash = initialCurrentSidebarHash;
   // const [currentSidebarHash, setCurrentSidebarHash] = useState(initialCurrentSidebarHash);
