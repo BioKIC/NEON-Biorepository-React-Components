@@ -84,6 +84,7 @@ if (!window.gtmDataLayer) {
 
 const useStyles = makeStyles()((theme, { sidebarWidth, sidebarDisableMaxHeight }) => ({
   outerPageContainer: {
+    minWidth: 0,
     display: 'flex',
     position: 'relative',
     minHeight: theme.spacing(30),
@@ -96,6 +97,8 @@ const useStyles = makeStyles()((theme, { sidebarWidth, sidebarDisableMaxHeight }
     },
   },
   pageContent: {
+    minWidth: 0,
+    boxSizing: 'border-box',
     display: 'block',
     verticalAlign: 'top',
     position: 'relative',
@@ -124,6 +127,8 @@ const useStyles = makeStyles()((theme, { sidebarWidth, sidebarDisableMaxHeight }
     },
   },
   sidebarContainer: {
+    flexShrink: 0,
+    boxSizing: 'border-box',
     display: 'block',
     verticalAlign: 'top',
     backgroundColor: COLORS.GREY[50],
