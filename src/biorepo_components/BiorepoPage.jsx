@@ -1,6 +1,7 @@
 import React, {
   useState,
   useEffect,
+  useLayoutEffect,
 } from 'react';
 
 import NeonPage from '../lib_components/components/NeonPage/NeonPage';
@@ -8,6 +9,7 @@ import StyleSeeds from './StyleSeeds';
 
 export default function BiorepoPage() {
   const [config, setConfig] = useState(null);
+  const [layoutReady, setLayoutReady] = useState(false);
 
   // Get breadcrumbs and sidebar from json based on pathname
   const [breadcrumbs, setBreadcrumbs] = useState([]);
@@ -17,25 +19,25 @@ export default function BiorepoPage() {
   useEffect(() => {
     // Fetch configuration from getSymbiniConfig.php
     const fetchConfig = async () => {
-      const basePath = window.location.origin;
-      const currentPath = window.location.pathname.split('/').slice(0, -1).join('/');
-      const pathSegments = currentPath.split('/').filter(Boolean);
-      let clientRootPath = '/';
-      for (let i = 1; i <= pathSegments.length; i += 1) {
-        const candidatePath = `/${pathSegments.slice(0, i).join('/')}/neon-react`;
-        // Check if the resource exists (use HEAD request to test for existence)
-        const xhr = new XMLHttpRequest();
-        xhr.open('HEAD', `${basePath}${candidatePath}/biorepo_lib/getSymbiniConfig.php`, false);
-        xhr.send();
-        if (xhr.status === 200) {
-          clientRootPath = `/${pathSegments.slice(0, i).join('/')}`;
-          break;
-        } else if (xhr.status === 404) {
-          // pass
-        }
-      }
-      const fetchUrl = `${basePath}${clientRootPath}/neon-react/biorepo_lib/getSymbiniConfig.php`;
       try {
+        const basePath = window.location.origin;
+        let clientRootPath = window.NEON_CLIENT_ROOT;
+        if (typeof clientRootPath !== 'string') {
+          const pathSegments = window.location.pathname.split('/').slice(0, -1).filter(Boolean);
+          clientRootPath = '';
+          for (let i = 1; i <= pathSegments.length; i += 1) {
+            const candidatePath = `/${pathSegments.slice(0, i).join('/')}`;
+            const response = await fetch(
+              `${basePath}${candidatePath}/neon-react/biorepo_lib/getSymbiniConfig.php`,
+              { method: 'HEAD' },
+            );
+            if (response.ok) {
+              clientRootPath = candidatePath;
+              break;
+            }
+          }
+        }
+        const fetchUrl = `${basePath}${clientRootPath.endsWith('/') ? clientRootPath.slice(0, -1) : clientRootPath}/neon-react/biorepo_lib/getSymbiniConfig.php`;
         const response = await fetch(fetchUrl);
         if (!response.ok) {
           throw new Error('Failed to fetch configuration');
@@ -44,6 +46,7 @@ export default function BiorepoPage() {
         setConfig(data);
       } catch (error) {
         console.error('Error fetching configuration:', error);
+        setLayoutReady(true);
       }
     };
 
@@ -62,13 +65,6 @@ export default function BiorepoPage() {
         const pathname = window.location.pathname.slice(config.CLIENT_ROOT.length);
         const breadcrumbData = data[pathname] || [{ name: 'Data & Samples', href: 'https://www.neonscience.org/data-samples' }, { name: 'Sample Portal' }];
         setBreadcrumbs(breadcrumbData);
-
-        const breadcrumbNav = document.querySelector(
-          'nav[data-selenium="neon-page.breadcrumbs"]'
-        );
-        
-        const innerTextDiv = document.getElementById('innertext');
-        
       } catch (error) {
         console.error('Error fetching breadcrumbs:', error);
       }
@@ -92,11 +88,13 @@ export default function BiorepoPage() {
       }
     };
 
-    fetchBreadcrumbs();
-    fetchSidebarLinks();
+    // Reveal only after both requests settle, including their error paths.
+    Promise.allSettled([fetchBreadcrumbs(), fetchSidebarLinks()])
+      .then(() => setLayoutReady(true));
   }, [config]);
   
-  useEffect(() => {
+  useLayoutEffect(() => {
+    if (!layoutReady) return;
     const neonPageContent = document.querySelector(
       'div[data-selenium="neon-page.content"]'
     );
@@ -107,7 +105,7 @@ export default function BiorepoPage() {
         new CustomEvent('biorepo:neon-page-ready')
       );
     }
-  }, []);
+  }, [layoutReady]);
 
   return (
     <NeonPage
