@@ -63,7 +63,7 @@ export function filterCatalog(items, filters, reference = {}) {
       ]
         .join(' ')
         .toLowerCase();
-      if (!terms.every((term) => text.includes(term))) return false;
+      if (terms.length && !terms.some((term) => text.includes(term))) return false;
       if (
         ['taxa', 'preservation', 'protocols'].some(
           (key) => filters[key].length && !filters[key].some((value) => item[key].includes(value)),

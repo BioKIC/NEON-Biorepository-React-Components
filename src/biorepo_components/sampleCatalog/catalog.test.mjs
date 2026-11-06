@@ -39,3 +39,16 @@ test('card descriptions stop before Sampling and keep the full introduction', ()
   assert.equal(cardDescription('Sampling details'), '');
   assert.equal(cardDescription(), '');
 });
+
+test('text search matches any term, preserves quoted phrases, and allows empty queries', () => {
+  const plants = { ...item, id: 2, name: 'Plant Leaves', description: 'Dried foliage', taxa: ['Plants'], preservation: ['Dry'], protocols: ['PLANT'] };
+  const items = [item, plants];
+  const search = (q, extra = {}) => filterCatalog(items, { ...emptyFilters(), q, ...extra }, reference).map((entry) => entry.id).sort();
+  assert.deepEqual(search('liver leaves'), [1, 2]);
+  assert.deepEqual(search('LIVER nonexistent'), [1]);
+  assert.deepEqual(search('"small mammal" leaves'), [1, 2]);
+  assert.deepEqual(search('"small liver"'), []);
+  assert.deepEqual(search('nonexistent'), []);
+  assert.deepEqual(search('   '), [1, 2]);
+  assert.deepEqual(search('liver leaves', { preservation: ['Dry'] }), [2]);
+});
