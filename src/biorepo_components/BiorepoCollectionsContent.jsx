@@ -195,9 +195,11 @@ function Facet({
         )}
       </Stack>
       <TextField
+        className="catalog-search-field"
         fullWidth
         size="small"
-        label={`Search ${labels[name].toLowerCase()}`}
+        placeholder={`Search ${labels[name].toLowerCase()}`}
+        slotProps={{ htmlInput: { 'aria-label': `Search ${labels[name].toLowerCase()}` } }}
         value={query}
         onChange={(event) => setQuery(event.target.value)}
       />
