@@ -4,6 +4,7 @@ import React, {
 import { createPortal } from 'react-dom';
 import PropTypes from 'prop-types';
 import SearchIcon from '@mui/icons-material/Search';
+import CloseIcon from '@mui/icons-material/Close';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import { createTheme, ThemeProvider, useTheme } from '@mui/material/styles';
@@ -69,6 +70,22 @@ const compactCatalogStyles = {
     [catalogTextSelector]: { fontSize: '0.75rem !important' },
     '& h2.MuiTypography-root': { fontSize: '1rem !important' },
     '& h3.MuiTypography-root': { fontSize: '0.8125rem !important' },
+    '& .catalog-reset-button.MuiButton-root': {
+      fontSize: '0.625rem !important', fontWeight: 600,
+      letterSpacing: '0.04em', lineHeight: 1.25, minHeight: '2rem',
+      whiteSpace: 'nowrap', backgroundColor: '#0073cf', color: '#fff',
+      '&:hover': { backgroundColor: '#005da8' },
+      '& .MuiSvgIcon-root': { fontSize: '1rem' },
+    },
+    '& .catalog-search-heading.MuiTypography-root': {
+      fontSize: '1.125rem !important', fontWeight: 500,
+    },
+    '& .catalog-search-help.MuiTypography-root': {
+      fontSize: '0.625rem !important', color: '#808080', lineHeight: 1.5,
+    },
+    '& .catalog-search-field .MuiOutlinedInput-root': {
+      backgroundColor: '#fff', borderRadius: 0,
+    },
   },
   '#biorepo-collections-content': {
     '& .catalog-summary-title.MuiTypography-root': {
@@ -371,25 +388,41 @@ function Catalog() {
   };
 
   const filterPanel = (
-    <Box sx={{ p: 2, bgcolor: '#f5f6f7' }}>
-      <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h5" component="h2">
-          Filter
-        </Typography>
-        <Button size="small" onClick={() => update(emptyFilters())}>
-          Reset all filters
-        </Button>
-      </Stack>
+    <Box sx={{ pt: 2, bgcolor: '#f5f6f7' }}>
+      <Button
+        className="catalog-reset-button"
+        fullWidth
+        variant="contained"
+        startIcon={<CloseIcon />}
+        onClick={() => update(emptyFilters())}
+      >
+        Reset all filters
+      </Button>
+      <Typography
+        id="catalog-search-heading"
+        className="catalog-search-heading"
+        component="h2"
+        sx={{ mt: 3, mb: 2 }}
+      >
+        Search
+      </Typography>
       <TextField
-        sx={{ mt: 2 }}
+        className="catalog-search-field"
         fullWidth
         size="small"
-        label="Search sample types"
+        placeholder='Soil, "DNA extracts", etc...'
+        slotProps={{ htmlInput: {
+          'aria-labelledby': 'catalog-search-heading',
+          'aria-describedby': 'catalog-search-help',
+        } }}
         type="search"
         value={filters.q}
         onChange={(event) => update({ q: event.target.value }, true)}
       />
-      <Typography variant="caption">Match all terms; use quotes for phrases.</Typography>
+      <Typography id="catalog-search-help" className="catalog-search-help" sx={{ mt: 1.5 }}>
+        Use several terms to match sample types having all terms. Quote terms to match
+        phrases (e.g. "DNA extracts").
+      </Typography>
       <Box component="section" sx={{ py: 2 }}>
         <Typography component="h3" variant="subtitle1" sx={{ fontWeight: 700 }}>
           Available Dates

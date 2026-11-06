@@ -120,11 +120,13 @@ export default function BiorepoPage() {
       sidebarContentResponsive={isSampleCatalog}
       sidebarDisableMaxHeight={isSampleCatalog}
       sidebarUnsticky={isSampleCatalog}
-      sidebarTitle={isSampleCatalog ? 'Filters' : sidebarTitle}
+      sidebarTitle={isSampleCatalog ? 'Filter' : sidebarTitle}
+      sidebarContainerClassName={isSampleCatalog ? 'catalog-sidebar' : undefined}
     >
       {isSampleCatalog && (
         <GlobalStyles styles={{
           '#header': { position: 'relative !important', top: 'auto !important' },
+          '.catalog-sidebar > div > .MuiDivider-root': { display: 'none' },
         }} />
       )}
       <StyleSeeds />
