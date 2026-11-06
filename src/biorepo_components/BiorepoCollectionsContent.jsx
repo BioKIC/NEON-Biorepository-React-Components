@@ -54,12 +54,12 @@ const compactCatalogStyles = {
       '&', '& p', '& span', '& a', '& label', '& button', '& input', '& textarea',
       '& legend', '& li', '& svg text', '& .MuiTypography-root', '& .MuiInputBase-root',
     ].join(', ')]: {
-      fontSize: '10px !important',
+      fontSize: '0.875rem !important',
     },
-    '& h1.MuiTypography-root, & h1 a': { fontSize: '16px !important' },
-    '& h2.MuiTypography-root, & h2 a, & .MuiDialogTitle-root': { fontSize: '12px !important' },
+    '& h1.MuiTypography-root, & h1 a': { fontSize: '1.75rem !important' },
+    '& h2.MuiTypography-root, & h2 a, & .MuiDialogTitle-root': { fontSize: '1.125rem !important' },
     [['h3', 'h4', 'h5', 'h6'].map((tag) => `& ${tag}.MuiTypography-root`).join(', ')]: {
-      fontSize: '11px !important',
+      fontSize: '0.875rem !important',
     },
   },
 };
