@@ -7,6 +7,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import CatalogDateFilter from './sampleCatalog/CatalogDateFilter';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
@@ -117,6 +118,9 @@ const compactCatalogStyles = {
     '& .catalog-search-help.MuiTypography-root': {
       fontSize: '0.625rem !important', color: '#808080', lineHeight: 1.5,
     },
+    '& .catalog-selection-count.MuiTypography-root': {
+      fontSize: '0.625rem !important', color: '#808080',
+    },
     '& .catalog-facet-subtitle': {
       display: 'block', fontSize: '0.625rem !important', color: '#9b9b9b',
       lineHeight: 1.4, marginTop: '0.125rem',
@@ -201,30 +205,63 @@ function Facet({
 }) {
   const [query, setQuery] = useState('');
   const [expanded, setExpanded] = useState(false);
+  const [selectedOnly, setSelectedOnly] = useState(false);
+  useEffect(() => {
+    if (!selected.length) setSelectedOnly(false);
+  }, [selected.length]);
+  const showingSelected = selectedOnly && selected.length > 0;
   const matches = options.filter((option) => (
     option.label.toLowerCase().includes(query.toLowerCase())
   ));
-  const visible = expanded || query ? matches : matches.slice(0, 5);
+  const visible = showingSelected
+    ? matches.filter((option) => selected.includes(option.value))
+    : (expanded || query ? matches : matches.slice(0, 5));
   return (
     <Box component="section" sx={{ py: 2 }} aria-label={labels[name]}>
       <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
         <Typography component="h3" variant="subtitle1" sx={{ fontWeight: 700 }}>
           {labels[name]}
         </Typography>
-        {mapTypes[name] && mapReady && (
-          <MapSelectionButton
-            selection={mapTypes[name]}
-            validItems={options.filter((option) => option.known).map((option) => option.value)}
-            selectedItems={selected}
-            onSave={(values) => onChange([...values])}
-            buttonProps={{ size: 'small', variant: 'outlined', className: 'catalog-map-button' }}
-            tooltipProps={{ slotProps: { tooltip: {
-              sx: { fontSize: '0.625rem !important', lineHeight: 1.4 },
-            } } }}
-            icon
-          />
-        )}
+        <Stack direction="row" sx={{ gap: 1, flexShrink: 0 }}>
+          {mapTypes[name] && mapReady && (
+            <MapSelectionButton
+              selection={mapTypes[name]}
+              validItems={options.filter((option) => option.known).map((option) => option.value)}
+              selectedItems={selected}
+              onSave={(values) => {
+                onChange([...values]);
+                setQuery('');
+                setSelectedOnly(values.size > 0);
+                setExpanded(false);
+              }}
+              buttonProps={{ size: 'small', variant: 'outlined', className: 'catalog-map-button' }}
+              tooltipProps={{ slotProps: { tooltip: {
+                sx: { fontSize: '0.625rem !important', lineHeight: 1.4 },
+              } } }}
+              icon
+            />
+          )}
+          {selected.length > 0 && (
+            <Button
+              className="catalog-map-button"
+              variant="outlined"
+              size="small"
+              startIcon={<CloseIcon />}
+              onClick={() => {
+                onChange([]);
+                setSelectedOnly(false);
+                setExpanded(false);
+                setQuery('');
+              }}
+            >
+              Reset
+            </Button>
+          )}
+        </Stack>
       </Stack>
+      <Typography className="catalog-selection-count" aria-live="polite" sx={{ mb: 2 }}>
+        {selected.length ? `(${selected.length} selected)` : '(none selected)'}
+      </Typography>
       <TextField
         className="catalog-search-field"
         fullWidth
@@ -275,18 +312,37 @@ function Facet({
           </Typography>
         )}
       </Box>
-      {!query && matches.length > 5 && (
-        <Button
-          className="catalog-view-all"
-          variant="outlined"
-          size="small"
-          startIcon={expanded ? <RemoveIcon /> : <AddIcon />}
-          aria-expanded={expanded}
-          onClick={() => setExpanded(!expanded)}
-        >
-          {expanded ? 'View fewer' : `View all (${matches.length})`}
-        </Button>
-      )}
+      <Stack direction="row" sx={{ gap: 1, flexWrap: 'wrap' }}>
+        {(showingSelected || (!query && matches.length > 5)) && (
+          <Button
+            className="catalog-view-all"
+            variant="outlined"
+            size="small"
+            startIcon={expanded && !showingSelected ? <RemoveIcon /> : <AddIcon />}
+            aria-expanded={expanded && !showingSelected}
+            onClick={() => {
+              if (showingSelected) {
+                setSelectedOnly(false);
+                setExpanded(true);
+                setQuery('');
+              } else setExpanded(!expanded);
+            }}
+          >
+            {expanded && !showingSelected ? 'View fewer' : `View all (${options.length})`}
+          </Button>
+        )}
+        {selected.length > 0 && !showingSelected && (
+          <Button
+            className="catalog-view-all"
+            variant="outlined"
+            size="small"
+            startIcon={<CheckBoxIcon />}
+            onClick={() => { setSelectedOnly(true); setQuery(''); }}
+          >
+            {`View selected (${selected.length})`}
+          </Button>
+        )}
+      </Stack>
     </Box>
   );
 }

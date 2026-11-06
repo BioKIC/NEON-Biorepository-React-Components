@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, fireEvent, render, screen, waitFor, cleanup } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, cleanup, within } from '@testing-library/react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import BiorepoCollectionsContent from '../BiorepoCollectionsContent';
 
@@ -143,12 +143,15 @@ test.each(['csv', 'json', 'pdf'])('downloads the PR summary as a %s attachment',
     mount();
     await screen.findByRole('link', { name: 'Ear Punches' });
     fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'Hearts' } });
+    jest.useFakeTimers();
     await act(async () => fireEvent.click(screen.getByRole('button', { name: `Download full catalog ${format.toUpperCase()}` })));
     expect(global.fetch).toHaveBeenLastCalledWith(`/collections/download/downloadsampletypes.php?format=${format}`);
     expect(createUrl).toHaveBeenCalledWith(blob);
     expect(clicked).toEqual([{ href: 'blob:summary', filename }]);
     expect(open).not.toHaveBeenCalled();
   } finally {
+    act(() => jest.runOnlyPendingTimers());
+    jest.useRealTimers();
     URL.createObjectURL = oldCreate;
     URL.revokeObjectURL = oldRevoke;
   }
@@ -177,4 +180,40 @@ test('inline date reset clears the range without clearing other filters', async 
   expect(window.location.search).not.toContain('from=');
   expect(window.location.search).not.toContain('to=');
   expect(screen.queryByRole('slider')).toBeNull();
+});
+
+test('manual facet selections keep the list visible and support selected view and per-facet reset', async () => {
+  mount();
+  await screen.findByRole('link', { name: 'Ear Punches' });
+  const sites = within(screen.getByRole('region', { name: 'Sites' }));
+  expect(sites.getByText('(none selected)')).toBeTruthy();
+  fireEvent.click(sites.getByRole('checkbox', { name: /ABBY/ }));
+  expect(sites.getByText('(1 selected)')).toBeTruthy();
+  expect(sites.getByRole('checkbox', { name: /BART/ })).toBeTruthy();
+  fireEvent.click(sites.getByRole('button', { name: 'View selected (1)' }));
+  expect(sites.queryByRole('checkbox', { name: /BART/ })).toBeNull();
+  fireEvent.click(sites.getByRole('button', { name: 'View all (2)' }));
+  expect(sites.getByRole('checkbox', { name: /BART/ })).toBeTruthy();
+  expect(sites.getByRole('checkbox', { name: /ABBY/ }).checked).toBe(true);
+  fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'Ear' } });
+  fireEvent.click(sites.getByRole('button', { name: 'Reset' }));
+  expect(sites.getByText('(none selected)')).toBeTruthy();
+  expect(screen.getByRole('searchbox').value).toBe('Ear');
+  expect(window.location.search).not.toContain('sites=');
+});
+
+test('saving a map selection shows only selected entries and reset all restores the list', async () => {
+  mount();
+  await screen.findByRole('link', { name: 'Ear Punches' });
+  const sites = within(screen.getByRole('region', { name: 'Sites' }));
+  fireEvent.change(sites.getByRole('textbox'), { target: { value: 'Bart' } });
+  fireEvent.click(sites.getByRole('button', { name: 'Map SITES' }));
+  expect(sites.getByRole('textbox').value).toBe('');
+  expect(sites.getByRole('checkbox', { name: /ABBY/ }).checked).toBe(true);
+  expect(sites.queryByRole('checkbox', { name: /BART/ })).toBeNull();
+  expect(sites.getByText('(1 selected)')).toBeTruthy();
+  expect(sites.getByRole('button', { name: 'View all (2)' })).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name: 'Reset all filters' }));
+  expect(sites.getByText('(none selected)')).toBeTruthy();
+  expect(sites.getByRole('checkbox', { name: /BART/ })).toBeTruthy();
 });
