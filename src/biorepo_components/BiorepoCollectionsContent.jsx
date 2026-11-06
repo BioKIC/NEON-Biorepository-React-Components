@@ -140,7 +140,7 @@ const compactCatalogStyles = {
       fontSize: '0.5rem !important', fontWeight: '600 !important',
     },
     '& .catalog-map-button.MuiButton-root': {
-      marginTop: 0, fontSize: '0.5rem !important',
+      marginTop: 0, fontSize: '0.5rem !important', fontWeight: '600 !important',
     },
     '& .catalog-search-field .MuiOutlinedInput-root': {
       backgroundColor: '#fff', borderRadius: 0,
