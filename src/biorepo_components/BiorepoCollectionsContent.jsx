@@ -91,7 +91,7 @@ const compactCatalogStyles = {
     },
     '& .catalog-reset-button.MuiButton-root, & .catalog-date-reset.MuiButton-root': {
       fontSize: '0.5625rem !important', lineHeight: '1.2 !important',
-      minHeight: '1.25rem', minWidth: 0, padding: '0.15rem 0.375rem !important',
+      minHeight: '1.25rem', minWidth: 0, padding: '0.3rem 0.375rem !important',
       '& .MuiButton-startIcon': { marginLeft: 0, marginRight: '0.25rem' },
       '& .MuiSvgIcon-root': { fontSize: '0.75rem !important' },
     },
