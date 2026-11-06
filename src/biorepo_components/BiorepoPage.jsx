@@ -120,7 +120,7 @@ export default function BiorepoPage() {
       sidebarContentResponsive={isSampleCatalog}
       sidebarDisableMaxHeight={isSampleCatalog}
       sidebarUnsticky={isSampleCatalog}
-      sidebarWidth={isSampleCatalog ? 380 : 300}
+      sidebarWidth={isSampleCatalog ? 360 : 300}
       sidebarTitle={isSampleCatalog ? 'Filter' : sidebarTitle}
       sidebarContainerClassName={isSampleCatalog ? 'catalog-sidebar' : undefined}
     >
