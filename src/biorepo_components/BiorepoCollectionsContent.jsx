@@ -455,26 +455,6 @@ function Catalog() {
           {invalidDates && (
             <Alert severity="error">The start month must be on or before the end month.</Alert>
           )}
-          <Stack
-            direction={{ xs: 'column', sm: 'row' }}
-            sx={{
-              justifyContent: 'space-between',
-              gap: 2,
-              alignItems: { sm: 'center' },
-              bgcolor: '#f5f6f7',
-              p: 2,
-              mb: 3,
-              border: '1px solid #ddd',
-            }}
-          >
-            <Typography role="status" aria-live="polite">
-              {results.length}
-              {' '}
-              sample types
-              {results.length > visibleLimit ? ` · Showing ${visibleLimit}` : ''}
-            </Typography>
-
-          </Stack>
           {!results.length && (
             <Alert severity="info">
               No sample types match these filters. Try removing a filter or changing the date
