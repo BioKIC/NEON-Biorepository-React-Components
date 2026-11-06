@@ -18,6 +18,7 @@ import {
   DialogTitle,
   Divider,
   FormControlLabel,
+  GlobalStyles,
   Link,
   Stack,
   TextField,
@@ -45,6 +46,22 @@ const labels = {
   sites: 'Sites',
   states: 'States',
   domains: 'Domains',
+};
+// Override legacy portal CSS and the shared theme's responsive font rules only here.
+const compactCatalogStyles = {
+  '#biorepo-collections-content, #biorepo-catalog-filters, .biorepo-catalog-dialog': {
+    [[
+      '&', '& p', '& span', '& a', '& label', '& button', '& input', '& textarea',
+      '& legend', '& li', '& svg text', '& .MuiTypography-root', '& .MuiInputBase-root',
+    ].join(', ')]: {
+      fontSize: '10px !important',
+    },
+    '& h1.MuiTypography-root, & h1 a': { fontSize: '16px !important' },
+    '& h2.MuiTypography-root, & h2 a, & .MuiDialogTitle-root': { fontSize: '12px !important' },
+    [['h3', 'h4', 'h5', 'h6'].map((tag) => `& ${tag}.MuiTypography-root`).join(', ')]: {
+      fontSize: '11px !important',
+    },
+  },
 };
 const EMPTY_ITEMS = [];
 const EMPTY_SITES = {};
@@ -573,7 +590,13 @@ function Catalog() {
           </Typography>
         </>
       )}
-      <Dialog open={datesOpen} onClose={() => setDatesOpen(false)} fullWidth maxWidth="xs">
+      <Dialog
+        className="biorepo-catalog-dialog"
+        open={datesOpen}
+        onClose={() => setDatesOpen(false)}
+        fullWidth
+        maxWidth="xs"
+      >
         <DialogTitle>Filter by collection month</DialogTitle>
         <DialogContent>
           <Typography variant="body2" sx={{ mb: 2 }}>
@@ -639,6 +662,7 @@ export default function BiorepoCollectionsContent() {
   }), [outerTheme]);
   return (
     <ThemeProvider theme={catalogTheme}>
+      <GlobalStyles styles={compactCatalogStyles} />
       <NeonContext.Provider>
         <Catalog />
       </NeonContext.Provider>
