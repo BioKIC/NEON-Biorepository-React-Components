@@ -70,7 +70,8 @@ const compactCatalogStyles = {
     '& h2.MuiTypography-root': { fontSize: '1rem !important' },
     '& h3.MuiTypography-root': { fontSize: '0.8125rem !important' },
     '& .catalog-reset-button.MuiButton-root': {
-      fontSize: '0.625rem !important', fontWeight: 600,
+      fontSize: '0.625rem !important', fontWeight: '600 !important',
+      padding: '0.45rem 0.375rem !important',
       letterSpacing: '0.04em', lineHeight: 1.25, minHeight: '2rem',
       whiteSpace: 'nowrap', backgroundColor: '#0073cf', color: '#fff',
       '&:hover': { backgroundColor: '#005da8' },
@@ -89,14 +90,14 @@ const compactCatalogStyles = {
       '& .MuiSvgIcon-root': { fontSize: '1rem' },
     },
     '& .catalog-date-button.MuiButton-root:not(.catalog-date-reset)': {
-      fontWeight: '500 !important',
+      fontWeight: '600 !important',
     },
     '& .catalog-date-reset.MuiButton-root': {
-      minHeight: '1.5rem', padding: '0.25rem 0.5rem', flexShrink: 0,
+      minHeight: '1.5rem', padding: '0.3rem 0.375rem !important', flexShrink: 0,
     },
     '& .catalog-reset-button.MuiButton-root, & .catalog-date-reset.MuiButton-root': {
       fontSize: '0.5625rem !important', lineHeight: '1.2 !important',
-      minHeight: '1.25rem', minWidth: 0, padding: '0.3rem 0.375rem !important',
+      minHeight: '1.25rem', minWidth: 0,
       '& .MuiButton-startIcon': { marginLeft: 0, marginRight: '0.25rem' },
       '& .MuiSvgIcon-root': { fontSize: '0.75rem !important' },
     },
@@ -136,9 +137,11 @@ const compactCatalogStyles = {
       '& .MuiSvgIcon-root': { fontSize: '0.875rem !important' },
     },
     '& .catalog-view-all.MuiButton-root': {
-      fontSize: '0.5rem !important', fontWeight: '500 !important',
+      fontSize: '0.5rem !important', fontWeight: '600 !important',
     },
-    '& .catalog-map-button.MuiButton-root': { marginTop: 0 },
+    '& .catalog-map-button.MuiButton-root': {
+      marginTop: 0, fontSize: '0.5rem !important',
+    },
     '& .catalog-search-field .MuiOutlinedInput-root': {
       backgroundColor: '#fff', borderRadius: 0,
     },
