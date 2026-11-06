@@ -79,3 +79,17 @@ test('ranking rewards additional distinct terms without inflating repeated terms
   assert.deepEqual(rank('liver'), [1, 3, 2]);
   assert.deepEqual(rank('"liver tissue"'), [2]);
 });
+
+test('sample type and collection names outrank the first five description words', () => {
+  const base = { ...item, taxa: [], protocols: [], preservation: [], description: '' };
+  const records = [
+    { ...base, id: 1, name: 'A later introduction', description: 'One two three four five frozen tissue.' },
+    { ...base, id: 2, name: 'B opening description', description: 'One two three four frozen tissue.' },
+    { ...base, id: 3, name: 'C collection match', collectionName: 'Frozen collection' },
+    { ...base, id: 4, name: 'D sample type match', sampleTypeName: 'Frozen samples' },
+    { ...base, id: 5, name: 'Frozen public name' },
+  ];
+  const rank = (q) => filterCatalog(records, { ...emptyFilters(), q }, reference).map(({ id }) => id);
+  assert.deepEqual(rank('frozen'), [3, 4, 5, 2, 1]);
+  assert.deepEqual(rank('"frozen tissue"'), [1, 2]);
+});
