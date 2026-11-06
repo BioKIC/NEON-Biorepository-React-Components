@@ -12,5 +12,3 @@ The shared `NeonContext` supplies site/state/domain reference data. `MapSelectio
 - `npx jest src/biorepo_components/__tests__/BiorepoCollectionsContent.jsx --runInBand --coverage=false`
 - `npx eslint src/biorepo_components/BiorepoCollectionsContent.jsx src/biorepo_components/sampleCatalog/catalog.js`
 - `npx next build` (build only; avoids the machine-specific deployment script)
-
-Deploy the matching PHP branch, generate the initial snapshot, and schedule its nightly refresh before exposing this frontend. The normal `npm run build` also runs `scripts/build-biorepo-code.mjs`, whose deployment paths must match the local portal checkout. See `neon/scripts/SAMPLE-CATALOG.md` in the PHP repository for refresh instructions. Do not commit generated bundles to this source repository.
