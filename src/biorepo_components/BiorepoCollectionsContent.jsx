@@ -3,6 +3,7 @@ import React, {
 } from 'react';
 import { createPortal } from 'react-dom';
 import PropTypes from 'prop-types';
+import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import { createTheme, ThemeProvider, useTheme } from '@mui/material/styles';
 import {
   Alert,
@@ -69,6 +70,24 @@ const compactCatalogStyles = {
     '& h3.MuiTypography-root': { fontSize: '0.8125rem !important' },
   },
   '#biorepo-collections-content': {
+    '& .catalog-summary-title.MuiTypography-root': {
+      fontSize: '1rem !important', color: '#202020', fontWeight: 500,
+    },
+    '& .catalog-summary-count.MuiTypography-root': {
+      fontSize: '0.75rem !important', color: '#595d60',
+    },
+    '& .catalog-download-label.MuiTypography-root': {
+      fontSize: '0.625rem !important', color: '#808080',
+    },
+    '& .catalog-download-button.MuiButton-root': {
+      fontSize: '0.625rem !important',
+      color: '#0073cf',
+      fontWeight: 600,
+      minWidth: 0,
+      borderRadius: 0,
+      padding: '0.5rem 0.625rem',
+      '& + .catalog-download-button': { borderLeft: '1px solid #0073cf' },
+    },
     '& .catalog-sample-title.MuiTypography-root, & .catalog-sample-title a': {
       fontSize: '1.25rem !important',
       fontWeight: 600,
@@ -440,29 +459,40 @@ function Catalog() {
       )}
       {catalog && (
         <>
-          <Typography component="h2" variant="h5">
-            All Sample Types
-          </Typography>
-          <Typography color="text.secondary" sx={{ mt: 1 }}>
-            {items.length}
-            {' '}
-            sample types from
-            {siteCount}
-            {' '}
-            sites
-          </Typography>
-          <Stack direction="row" sx={{ alignItems: 'center', flexWrap: 'wrap', mb: 2 }}>
-            <Typography color="text.secondary">Download Full Catalog:</Typography>
-            {['csv', 'json', 'pdf'].map((format) => (
-              <Button
-                key={format}
-                onClick={() => download(format)}
-                aria-label={`Download full catalog ${format.toUpperCase()}`}
-              >
-                {format.toUpperCase()}
-              </Button>
-            ))}
-          </Stack>
+          <Box component="section" aria-label="Sample catalog summary" sx={{ mb: 3 }}>
+            <Typography className="catalog-summary-title" component="h2" variant="h5">
+              All Sample Types
+            </Typography>
+            <Stack
+              direction="row"
+              sx={{
+                alignItems: 'center', gap: 0.75, mt: 2, mb: 1,
+              }}
+            >
+              <FormatListBulletedIcon
+                aria-hidden="true"
+                sx={{ fontSize: '0.75rem', color: '#595d60' }}
+              />
+              <Typography className="catalog-summary-count">
+                {`${items.length} sample types from ${siteCount} sites`}
+              </Typography>
+            </Stack>
+            <Stack direction="row" sx={{ alignItems: 'center', flexWrap: 'wrap', gap: 0.5 }}>
+              <Typography className="catalog-download-label">Download Full Catalog:</Typography>
+              <Stack direction="row">
+                {['csv', 'json', 'pdf'].map((format) => (
+                  <Button
+                    className="catalog-download-button"
+                    key={format}
+                    onClick={() => download(format)}
+                    aria-label={`Download full catalog ${format.toUpperCase()}`}
+                  >
+                    {format.toUpperCase()}
+                  </Button>
+                ))}
+              </Stack>
+            </Stack>
+          </Box>
           {exportError && <Alert severity="warning">{exportError}</Alert>}
           <Stack direction="row" sx={{ gap: 1, flexWrap: 'wrap', mb: 2 }}>
             {filters.q && (
