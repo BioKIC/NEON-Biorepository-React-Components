@@ -6,7 +6,7 @@ exports[`NeonPage NeonErrorPage 1`] = `
   "baseElement": <body>
     <div>
       <div
-        class="MuiContainer-root MuiContainer-maxWidthLg css-1bvevnd-MuiContainer-root-outerPageContainer"
+        class="MuiContainer-root MuiContainer-maxWidthLg MuiContainer-disableGutters css-1yydozg-MuiContainer-root-outerPageContainer"
       >
         <div
           class="css-om5qko-pageContent"
@@ -100,7 +100,7 @@ exports[`NeonPage NeonErrorPage 1`] = `
   </body>,
   "container": <div>
     <div
-      class="MuiContainer-root MuiContainer-maxWidthLg css-1bvevnd-MuiContainer-root-outerPageContainer"
+      class="MuiContainer-root MuiContainer-maxWidthLg MuiContainer-disableGutters css-1yydozg-MuiContainer-root-outerPageContainer"
     >
       <div
         class="css-om5qko-pageContent"
@@ -260,7 +260,7 @@ exports[`NeonPage renders a basic functional page with no props 1`] = `
         </div>
       </header>
       <div
-        class="MuiContainer-root MuiContainer-maxWidthLg css-1bvevnd-MuiContainer-root-outerPageContainer"
+        class="MuiContainer-root MuiContainer-maxWidthLg MuiContainer-disableGutters css-10cobnu-MuiContainer-root-outerPageContainer"
         style="max-width: 2000px;"
       >
         <div
@@ -295,7 +295,7 @@ exports[`NeonPage renders a basic functional page with no props 1`] = `
       </div>
     </header>
     <div
-      class="MuiContainer-root MuiContainer-maxWidthLg css-1bvevnd-MuiContainer-root-outerPageContainer"
+      class="MuiContainer-root MuiContainer-maxWidthLg MuiContainer-disableGutters css-10cobnu-MuiContainer-root-outerPageContainer"
       style="max-width: 2000px;"
     >
       <div
@@ -387,7 +387,7 @@ exports[`NeonPage renders sidebar items as skeletons when in appropriate state 1
         </div>
       </header>
       <div
-        class="MuiContainer-root MuiContainer-maxWidthLg css-1bvevnd-MuiContainer-root-outerPageContainer"
+        class="MuiContainer-root MuiContainer-maxWidthLg MuiContainer-disableGutters css-10cobnu-MuiContainer-root-outerPageContainer"
         style="max-width: calc(2000px - 348px);"
       >
         <div
@@ -494,7 +494,7 @@ exports[`NeonPage renders sidebar items as skeletons when in appropriate state 1
       </div>
     </header>
     <div
-      class="MuiContainer-root MuiContainer-maxWidthLg css-1bvevnd-MuiContainer-root-outerPageContainer"
+      class="MuiContainer-root MuiContainer-maxWidthLg MuiContainer-disableGutters css-10cobnu-MuiContainer-root-outerPageContainer"
       style="max-width: calc(2000px - 348px);"
     >
       <div
@@ -654,7 +654,7 @@ exports[`NeonPage renders with a custom header/footer 1`] = `
         </div>
       </header>
       <div
-        class="MuiContainer-root MuiContainer-maxWidthLg css-1bvevnd-MuiContainer-root-outerPageContainer"
+        class="MuiContainer-root MuiContainer-maxWidthLg MuiContainer-disableGutters css-10cobnu-MuiContainer-root-outerPageContainer"
         style="max-width: 2000px;"
       >
         <div
@@ -682,7 +682,7 @@ exports[`NeonPage renders with a custom header/footer 1`] = `
       </div>
     </header>
     <div
-      class="MuiContainer-root MuiContainer-maxWidthLg css-1bvevnd-MuiContainer-root-outerPageContainer"
+      class="MuiContainer-root MuiContainer-maxWidthLg MuiContainer-disableGutters css-10cobnu-MuiContainer-root-outerPageContainer"
       style="max-width: 2000px;"
     >
       <div
@@ -771,7 +771,7 @@ exports[`NeonPage renders with a notification 1`] = `
         </div>
       </header>
       <div
-        class="MuiContainer-root MuiContainer-maxWidthLg css-1bvevnd-MuiContainer-root-outerPageContainer"
+        class="MuiContainer-root MuiContainer-maxWidthLg MuiContainer-disableGutters css-10cobnu-MuiContainer-root-outerPageContainer"
         style="max-width: 2000px;"
       >
         <div
@@ -859,7 +859,7 @@ exports[`NeonPage renders with a notification 1`] = `
       </div>
     </header>
     <div
-      class="MuiContainer-root MuiContainer-maxWidthLg css-1bvevnd-MuiContainer-root-outerPageContainer"
+      class="MuiContainer-root MuiContainer-maxWidthLg MuiContainer-disableGutters css-10cobnu-MuiContainer-root-outerPageContainer"
       style="max-width: 2000px;"
     >
       <div
@@ -1004,7 +1004,7 @@ exports[`NeonPage renders with a title and subtitle 1`] = `
         </div>
       </header>
       <div
-        class="MuiContainer-root MuiContainer-maxWidthLg css-1bvevnd-MuiContainer-root-outerPageContainer"
+        class="MuiContainer-root MuiContainer-maxWidthLg MuiContainer-disableGutters css-10cobnu-MuiContainer-root-outerPageContainer"
         style="max-width: 2000px;"
       >
         <div
@@ -1051,7 +1051,7 @@ exports[`NeonPage renders with a title and subtitle 1`] = `
       </div>
     </header>
     <div
-      class="MuiContainer-root MuiContainer-maxWidthLg css-1bvevnd-MuiContainer-root-outerPageContainer"
+      class="MuiContainer-root MuiContainer-maxWidthLg MuiContainer-disableGutters css-10cobnu-MuiContainer-root-outerPageContainer"
       style="max-width: 2000px;"
     >
       <div
@@ -1155,7 +1155,7 @@ exports[`NeonPage renders with an error 1`] = `
         </div>
       </header>
       <div
-        class="MuiContainer-root MuiContainer-maxWidthLg css-1bvevnd-MuiContainer-root-outerPageContainer"
+        class="MuiContainer-root MuiContainer-maxWidthLg MuiContainer-disableGutters css-10cobnu-MuiContainer-root-outerPageContainer"
         style="max-width: 2000px;"
       >
         <div
@@ -1247,7 +1247,7 @@ exports[`NeonPage renders with an error 1`] = `
       </div>
     </header>
     <div
-      class="MuiContainer-root MuiContainer-maxWidthLg css-1bvevnd-MuiContainer-root-outerPageContainer"
+      class="MuiContainer-root MuiContainer-maxWidthLg MuiContainer-disableGutters css-10cobnu-MuiContainer-root-outerPageContainer"
       style="max-width: 2000px;"
     >
       <div
@@ -1396,7 +1396,7 @@ exports[`NeonPage renders with custom sidebar content 1`] = `
         </div>
       </header>
       <div
-        class="MuiContainer-root MuiContainer-maxWidthLg css-1bvevnd-MuiContainer-root-outerPageContainer"
+        class="MuiContainer-root MuiContainer-maxWidthLg MuiContainer-disableGutters css-10cobnu-MuiContainer-root-outerPageContainer"
         style="max-width: calc(2000px - 348px);"
       >
         <div
@@ -1439,7 +1439,7 @@ exports[`NeonPage renders with custom sidebar content 1`] = `
       </div>
     </header>
     <div
-      class="MuiContainer-root MuiContainer-maxWidthLg css-1bvevnd-MuiContainer-root-outerPageContainer"
+      class="MuiContainer-root MuiContainer-maxWidthLg MuiContainer-disableGutters css-10cobnu-MuiContainer-root-outerPageContainer"
       style="max-width: calc(2000px - 348px);"
     >
       <div
@@ -1539,7 +1539,7 @@ exports[`NeonPage renders with loading message 1`] = `
         </div>
       </header>
       <div
-        class="MuiContainer-root MuiContainer-maxWidthLg css-1bvevnd-MuiContainer-root-outerPageContainer"
+        class="MuiContainer-root MuiContainer-maxWidthLg MuiContainer-disableGutters css-10cobnu-MuiContainer-root-outerPageContainer"
         style="max-width: 3333px;"
       >
         <div
@@ -1638,7 +1638,7 @@ exports[`NeonPage renders with loading message 1`] = `
       </div>
     </header>
     <div
-      class="MuiContainer-root MuiContainer-maxWidthLg css-1bvevnd-MuiContainer-root-outerPageContainer"
+      class="MuiContainer-root MuiContainer-maxWidthLg MuiContainer-disableGutters css-10cobnu-MuiContainer-root-outerPageContainer"
       style="max-width: 3333px;"
     >
       <div
@@ -1794,7 +1794,7 @@ exports[`NeonPage renders with loading message and progress 1`] = `
         </div>
       </header>
       <div
-        class="MuiContainer-root MuiContainer-maxWidthLg css-1bvevnd-MuiContainer-root-outerPageContainer"
+        class="MuiContainer-root MuiContainer-maxWidthLg MuiContainer-disableGutters css-10cobnu-MuiContainer-root-outerPageContainer"
         style="max-width: 2000px;"
       >
         <div
@@ -1897,7 +1897,7 @@ exports[`NeonPage renders with loading message and progress 1`] = `
       </div>
     </header>
     <div
-      class="MuiContainer-root MuiContainer-maxWidthLg css-1bvevnd-MuiContainer-root-outerPageContainer"
+      class="MuiContainer-root MuiContainer-maxWidthLg MuiContainer-disableGutters css-10cobnu-MuiContainer-root-outerPageContainer"
       style="max-width: 2000px;"
     >
       <div
@@ -2057,7 +2057,7 @@ exports[`NeonPage renders with sidebar links 1`] = `
         </div>
       </header>
       <div
-        class="MuiContainer-root MuiContainer-maxWidthLg css-1bvevnd-MuiContainer-root-outerPageContainer"
+        class="MuiContainer-root MuiContainer-maxWidthLg MuiContainer-disableGutters css-10cobnu-MuiContainer-root-outerPageContainer"
         style="max-width: calc(2000px - 348px);"
       >
         <div
@@ -2166,7 +2166,7 @@ exports[`NeonPage renders with sidebar links 1`] = `
       </div>
     </header>
     <div
-      class="MuiContainer-root MuiContainer-maxWidthLg css-1bvevnd-MuiContainer-root-outerPageContainer"
+      class="MuiContainer-root MuiContainer-maxWidthLg MuiContainer-disableGutters css-10cobnu-MuiContainer-root-outerPageContainer"
       style="max-width: calc(2000px - 348px);"
     >
       <div
@@ -2332,7 +2332,7 @@ exports[`NeonPage renders with sidebar links as standlone children 1`] = `
         </div>
       </header>
       <div
-        class="MuiContainer-root MuiContainer-maxWidthLg css-1bvevnd-MuiContainer-root-outerPageContainer"
+        class="MuiContainer-root MuiContainer-maxWidthLg MuiContainer-disableGutters css-10cobnu-MuiContainer-root-outerPageContainer"
         style="max-width: calc(2000px - 470px);"
       >
         <div
@@ -2407,7 +2407,7 @@ exports[`NeonPage renders with sidebar links as standlone children 1`] = `
       </div>
     </header>
     <div
-      class="MuiContainer-root MuiContainer-maxWidthLg css-1bvevnd-MuiContainer-root-outerPageContainer"
+      class="MuiContainer-root MuiContainer-maxWidthLg MuiContainer-disableGutters css-10cobnu-MuiContainer-root-outerPageContainer"
       style="max-width: calc(2000px - 470px);"
     >
       <div

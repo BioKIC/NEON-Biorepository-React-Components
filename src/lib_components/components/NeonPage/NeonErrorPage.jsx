@@ -86,7 +86,7 @@ const NeonErrorPage = (props) => {
   // eslint-disable-next-line no-console
   console.error(stack);
   return (
-    <Container className={classes.outerPageContainer}>
+    <Container disableGutters className={classes.outerPageContainer}>
       <div className={classes.pageContent} data-selenium="neon-page.content">
         <img
           title="NEON Data Portal"

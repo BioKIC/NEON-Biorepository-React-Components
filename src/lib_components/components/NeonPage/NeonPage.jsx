@@ -893,7 +893,7 @@ const NeonPage = (inProps) => {
             showSkeleton={showHeaderSkeleton}
           />
         )}
-        <Container className={classes.outerPageContainer} style={outerPageContainerStyles}>
+        <Container disableGutters className={classes.outerPageContainer} style={outerPageContainerStyles}>
           {renderSidebar()}
           <div
             className={classes.pageContent}
