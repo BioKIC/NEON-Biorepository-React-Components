@@ -95,7 +95,15 @@ const compactCatalogStyles = {
       fontSize: '0.75rem !important', lineHeight: 1.5,
     },
     '& .catalog-card .MuiButton-root': {
-      fontSize: '0.625rem !important', minHeight: '2.75rem', width: '100%',
+      fontSize: '0.625rem !important',
+      fontWeight: 500,
+      letterSpacing: '0.04em',
+      lineHeight: 1.25,
+      minHeight: '2rem',
+      padding: '0.375rem 0.75rem',
+      width: '100%',
+      '& .MuiButton-endIcon': { marginLeft: '0.375rem', marginRight: 0 },
+      '& .MuiButton-endIcon svg': { fontSize: '1rem', width: '1em', height: '1em' },
     },
     '& .catalog-card .catalog-code, & .catalog-card .catalog-code span': {
       fontSize: '0.6875rem !important',
@@ -105,7 +113,7 @@ const compactCatalogStyles = {
     },
     '& .catalog-card .catalog-sample-title, & .catalog-card .catalog-sample-title a': {
       fontSize: '1rem !important',
-      fontWeight: 600,
+      fontWeight: 400,
     },
   },
 };
