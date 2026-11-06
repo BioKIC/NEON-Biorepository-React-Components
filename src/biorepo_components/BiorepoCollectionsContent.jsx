@@ -48,18 +48,30 @@ const labels = {
   domains: 'Domains',
 };
 // Override legacy portal CSS and the shared theme's responsive font rules only here.
+const catalogTextSelector = [
+  '&', '& p', '& span', '& a', '& label', '& button', '& input', '& textarea',
+  '& legend', '& li', '& svg text', '& .MuiTypography-root', '& .MuiInputBase-root',
+].join(', ');
 const compactCatalogStyles = {
   '#biorepo-collections-content, #biorepo-catalog-filters, .biorepo-catalog-dialog': {
-    [[
-      '&', '& p', '& span', '& a', '& label', '& button', '& input', '& textarea',
-      '& legend', '& li', '& svg text', '& .MuiTypography-root', '& .MuiInputBase-root',
-    ].join(', ')]: {
+    [catalogTextSelector]: {
       fontSize: '0.875rem !important',
     },
-    '& h1.MuiTypography-root, & h1 a': { fontSize: '1.75rem !important' },
+    '& h1.MuiTypography-root, & h1 a': { fontSize: '2rem !important' },
     '& h2.MuiTypography-root, & h2 a, & .MuiDialogTitle-root': { fontSize: '1.125rem !important' },
     [['h3', 'h4', 'h5', 'h6'].map((tag) => `& ${tag}.MuiTypography-root`).join(', ')]: {
       fontSize: '0.875rem !important',
+    },
+  },
+  '#biorepo-catalog-filters': {
+    [catalogTextSelector]: { fontSize: '0.75rem !important' },
+    '& h2.MuiTypography-root': { fontSize: '1rem !important' },
+    '& h3.MuiTypography-root': { fontSize: '0.8125rem !important' },
+  },
+  '#biorepo-collections-content': {
+    '& .catalog-sample-title.MuiTypography-root, & .catalog-sample-title a': {
+      fontSize: '1.25rem !important',
+      fontWeight: 600,
     },
   },
 };
@@ -500,7 +512,7 @@ function Catalog() {
                   sx={{ gap: 3, justifyContent: 'space-between' }}
                 >
                   <Box sx={{ minWidth: 0 }}>
-                    <Typography component="h2" variant="h5">
+                    <Typography className="catalog-sample-title" component="h2" variant="h5">
                       <Link href={details}>{item.name}</Link>
                     </Typography>
                     {item.description && (
