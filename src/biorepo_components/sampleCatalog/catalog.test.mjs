@@ -52,3 +52,30 @@ test('text search matches any term, preserves quoted phrases, and allows empty q
   assert.deepEqual(search('   '), [1, 2]);
   assert.deepEqual(search('liver leaves', { preservation: ['Dry'] }), [2]);
 });
+
+test('search ranks names, card descriptions, other fields, then the rest of the description', () => {
+  const base = { ...item, taxa: [], protocols: [], preservation: [], description: '', dataProducts: '' };
+  const records = [
+    { ...base, id: 1, name: 'A remainder match', description: 'Introduction. Sampling frozen material.' },
+    { ...base, id: 2, name: 'B metadata match', preservation: ['Frozen'] },
+    { ...base, id: 3, name: 'C introduction match', description: 'Frozen material. Sampling details.' },
+    { ...base, id: 4, name: 'Z frozen samples' },
+  ];
+  const ranked = filterCatalog(records, { ...emptyFilters(), q: 'frozen' }, reference);
+  assert.deepEqual(ranked.map(({ id }) => id), [4, 3, 2, 1]);
+  assert.equal(ranked[0], records[3]);
+  assert.deepEqual(filterCatalog(records, emptyFilters(), reference).map(({ id }) => id), [1, 2, 3, 4]);
+});
+
+test('ranking rewards additional distinct terms without inflating repeated terms or occurrences', () => {
+  const records = [
+    { ...item, id: 1, name: 'Alpha liver', description: 'liver '.repeat(100), taxa: [], protocols: [], preservation: [] },
+    { ...item, id: 2, name: 'Zeta liver tissue', description: '', taxa: [], protocols: [], preservation: [] },
+    { ...item, id: 3, name: 'Beta liver', description: '', taxa: [], protocols: [], preservation: [] },
+  ];
+  const rank = (q) => filterCatalog(records, { ...emptyFilters(), q }, reference).map(({ id }) => id);
+  assert.deepEqual(rank('liver tissue'), [2, 1, 3]);
+  assert.deepEqual(rank('LIVER liver tissue tissue'), [2, 1, 3]);
+  assert.deepEqual(rank('liver'), [1, 3, 2]);
+  assert.deepEqual(rank('"liver tissue"'), [2]);
+});

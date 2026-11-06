@@ -47,23 +47,31 @@ export function matchingSites(item, filters, reference) {
       ),
     }));
 }
+// Count each distinct term once, using the highest-priority field it matches.
+function searchScore(item, terms) {
+  const description = item.description || '';
+  const samplingIndex = description.search(/\bSampling\b/);
+  const fields = [
+    { weight: 100, values: [item.name] },
+    { weight: 30, values: [cardDescription(description)] },
+    { weight: 10, values: [...item.taxa, ...item.protocols, ...item.preservation, item.dataProducts] },
+    { weight: 1, values: [samplingIndex < 0 ? '' : description.slice(samplingIndex)] },
+  ].map(({ weight, values }) => ({
+    weight,
+    values: values.map((value) => (value || '').replace(/\s+/g, ' ').toLowerCase()),
+  }));
+  return terms.reduce((score, term) => score + (
+    fields.find(({ values }) => values.some((value) => value.includes(term)))?.weight || 0
+  ), 0);
+}
 export function filterCatalog(items, filters, reference = {}) {
   if (filters.from && filters.to && filters.from > filters.to) return [];
   const words = filters.q.toLowerCase().match(/"[^"]+"|\S+/g) || [];
-  const terms = words.map((term) => term.replaceAll('"', ''));
+  const terms = [...new Set(words.map((term) => term.replaceAll('"', '').replace(/\s+/g, ' ').trim()).filter(Boolean))];
   return items
-    .filter((item) => {
-      const text = [
-        item.name,
-        item.description,
-        ...item.taxa,
-        ...item.protocols,
-        ...item.preservation,
-        item.dataProducts,
-      ]
-        .join(' ')
-        .toLowerCase();
-      if (terms.length && !terms.some((term) => text.includes(term))) return false;
+    .map((item) => ({ item, score: terms.length ? searchScore(item, terms) : 0 }))
+    .filter(({ item, score }) => {
+      if (terms.length && score === 0) return false;
       if (
         ['taxa', 'preservation', 'protocols'].some(
           (key) => filters[key].length && !filters[key].some((value) => item[key].includes(value)),
@@ -78,7 +86,8 @@ export function filterCatalog(items, filters, reference = {}) {
         )
       );
     })
-    .sort((a, b) => a.name.localeCompare(b.name));
+    .sort((a, b) => b.score - a.score || a.item.name.localeCompare(b.item.name))
+    .map(({ item }) => item);
 }
 export function validateCatalog(data) {
   if (data?.version !== 1 || !Array.isArray(data.items)) {
