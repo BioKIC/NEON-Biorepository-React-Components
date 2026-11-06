@@ -731,7 +731,7 @@ function Catalog() {
                       endIcon={<SearchIcon />}
                       href={`${root}/collections/list.php?db=${item.id}`}
                     >
-                      Browse samples
+                      Browse all samples
                     </Button>
                     <Button variant="outlined" href={details} endIcon={<InfoOutlinedIcon />}>
                       Sample type details
