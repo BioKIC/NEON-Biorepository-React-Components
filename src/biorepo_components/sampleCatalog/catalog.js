@@ -3,7 +3,6 @@ export const emptyFilters = () => ({
   q: '',
   from: '',
   to: '',
-  sort: 'name',
   ...Object.fromEntries(FACETS.map((key) => [key, []])),
 });
 const monthPattern = /^\d{4}-(0[1-9]|1[0-2])$/;
@@ -15,9 +14,6 @@ export function readFilters(search) {
     const value = params.get(key);
     result[key] = monthPattern.test(value || '') ? value : '';
   });
-  result.sort = ['name', 'name-desc', 'count'].includes(params.get('sort'))
-    ? params.get('sort')
-    : 'name';
   FACETS.forEach((key) => {
     result[key] = [...new Set(params.getAll(key))];
   });
@@ -25,11 +21,12 @@ export function readFilters(search) {
 }
 export function writeFilters(search, filters) {
   const params = new URLSearchParams(search);
+  params.delete('sort');
   Object.keys(emptyFilters()).forEach((key) => {
     params.delete(key);
     const value = filters[key];
     if (Array.isArray(value)) value.forEach((entry) => params.append(key, entry));
-    else if (value && !(key === 'sort' && value === 'name')) params.set(key, value);
+    else if (value) params.set(key, value);
   });
   return params.toString();
 }
@@ -81,10 +78,7 @@ export function filterCatalog(items, filters, reference = {}) {
         )
       );
     })
-    .sort(
-      (a, b) => (filters.sort === 'count' ? b.totalSamples - a.totalSamples : 0)
-        || a.name.localeCompare(b.name) * (filters.sort === 'name-desc' ? -1 : 1),
-    );
+    .sort((a, b) => a.name.localeCompare(b.name));
 }
 export function validateCatalog(data) {
   if (data?.version !== 1 || !Array.isArray(data.items)) {

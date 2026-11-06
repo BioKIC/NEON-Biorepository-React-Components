@@ -79,3 +79,34 @@ test('sidebar portal follows mobile disclosure remount', async () => {
   act(() => { const target = document.createElement('div'); target.id = 'biorepo-catalog-filters'; document.body.append(target); });
   await screen.findByRole('searchbox');
 });
+test('scrolling reveals every batch and filtering resets progressive rendering', async () => {
+  const observers = [];
+  window.IntersectionObserver = jest.fn().mockImplementation((callback) => {
+    const observer = { callback, observe: jest.fn(), disconnect: jest.fn() };
+    observers.push(observer);
+    return observer;
+  });
+  global.fetch.mockResolvedValueOnce({ ok: true, json: async () => ({ ...data,
+    items: Array.from({ length: 23 }, (_, i) => makeItem(i + 1, `Sample ${String(i + 1).padStart(2, '0')}`, 'ABBY', '2020-01')),
+  }) });
+  try {
+    const view = mount();
+    await screen.findByRole('link', { name: 'Sample 01' });
+    expect(screen.getAllByTestId('availability')).toHaveLength(10);
+    expect(screen.queryByLabelText('Sort by')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Show more sample types' })).toBeNull();
+    await act(async () => observers[0].callback([{ isIntersecting: false }]));
+    expect(screen.getAllByTestId('availability')).toHaveLength(10);
+    await act(async () => observers[0].callback([{ isIntersecting: true }]));
+    expect(screen.getAllByTestId('availability')).toHaveLength(20);
+    await act(async () => observers[observers.length - 1].callback([{ isIntersecting: true }]));
+    expect(screen.getAllByTestId('availability')).toHaveLength(23);
+    fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'Sample' } });
+    expect(screen.getAllByTestId('availability')).toHaveLength(10);
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+    view.unmount();
+    expect(observers.every((observer) => observer.disconnect.mock.calls.length)).toBe(true);
+  } finally {
+    delete window.IntersectionObserver;
+  }
+});

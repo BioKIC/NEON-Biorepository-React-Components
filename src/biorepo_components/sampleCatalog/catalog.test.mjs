@@ -20,7 +20,7 @@ test('unknown and undated sites remain browsable but cannot match date filters',
   assert.equal(filterCatalog([unknown], { ...emptyFilters(), from: '2020-01' }, reference).length, 0);
 });
 test('URL round trip retains unrelated parameters and multiple selections', () => {
-  const filters = { ...emptyFilters(), q: 'frozen & tissue', sites: ['ABBY', 'BART'], sort: 'count' };
+  const filters = { ...emptyFilters(), q: 'frozen & tissue', sites: ['ABBY', 'BART'] };
   const search = writeFilters('?keep=1', filters);
   assert.deepEqual(readFilters(search), filters);
   assert.equal(new URLSearchParams(search).get('keep'), '1');

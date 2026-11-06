@@ -1,4 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, {
+  useEffect, useMemo, useRef, useState,
+} from 'react';
 import { createPortal } from 'react-dom';
 import PropTypes from 'prop-types';
 import {
@@ -16,7 +18,6 @@ import {
   Divider,
   FormControlLabel,
   Link,
-  MenuItem,
   Stack,
   TextField,
   Typography,
@@ -143,6 +144,7 @@ function Catalog() {
   const [attempt, setAttempt] = useState(0);
   const [filters, setFilters] = useState(() => readFilters(window.location.search));
   const [limit, setLimit] = useState(10);
+  const loadMoreRef = useRef(null);
   const [datesOpen, setDatesOpen] = useState(false);
   const [sidebar, setSidebar] = useState(
     () => document.getElementById('biorepo-catalog-filters'),
@@ -195,6 +197,25 @@ function Catalog() {
     }
   };
   const results = useMemo(() => filterCatalog(items, filters, sites), [items, filters, sites]);
+  const visibleLimit = window.IntersectionObserver ? limit : results.length;
+  useEffect(() => {
+    const target = loadMoreRef.current;
+    if (!target || limit >= results.length) return undefined;
+    if (!window.IntersectionObserver) return undefined;
+    let active = true;
+    const observer = new IntersectionObserver((entries) => {
+      if (active && entries.some((entry) => entry.isIntersecting)) {
+        active = false;
+        observer.disconnect();
+        setLimit((current) => Math.min(current + 10, results.length));
+      }
+    }, { rootMargin: '400px 0px' });
+    observer.observe(target);
+    return () => {
+      active = false;
+      observer.disconnect();
+    };
+  }, [limit, results]);
   const options = useMemo(
     () => Object.fromEntries(
       FACETS.map((key) => {
@@ -450,20 +471,9 @@ function Catalog() {
               {results.length}
               {' '}
               sample types
-              {results.length > limit ? ` · Showing ${limit}` : ''}
+              {results.length > visibleLimit ? ` · Showing ${visibleLimit}` : ''}
             </Typography>
-            <TextField
-              select
-              size="small"
-              label="Sort by"
-              value={filters.sort}
-              onChange={(event) => update({ sort: event.target.value })}
-              sx={{ minWidth: 190 }}
-            >
-              <MenuItem value="name">Sample name A–Z</MenuItem>
-              <MenuItem value="name-desc">Sample name Z–A</MenuItem>
-              <MenuItem value="count">Total records</MenuItem>
-            </TextField>
+
           </Stack>
           {!results.length && (
             <Alert severity="info">
@@ -471,7 +481,7 @@ function Catalog() {
               range.
             </Alert>
           )}
-          {results.slice(0, limit).map((item) => {
+          {results.slice(0, visibleLimit).map((item) => {
             const coverage = matchingSites(item, filters, sites);
             const chartSites = coverage.filter(
               (site) => sites[site.siteCode] && site.availableMonths.length,
@@ -573,10 +583,8 @@ function Catalog() {
               </Card>
             );
           })}
-          {results.length > limit && (
-            <Button variant="outlined" onClick={() => setLimit(limit + 10)}>
-              Show more sample types
-            </Button>
+          {results.length > visibleLimit && (
+            <Box ref={loadMoreRef} aria-hidden="true" sx={{ height: 1 }} />
           )}
           <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 3 }}>
             Catalog updated
