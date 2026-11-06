@@ -137,3 +137,7 @@ export function toCsv(rows) {
     .map((row) => row.map(escape).join(','))
     .join('\r\n');
 }
+
+export function cardDescription(description = '') {
+  return description.split(/\bSampling\b/, 1)[0].replace(/\s+/g, ' ').trim();
+}

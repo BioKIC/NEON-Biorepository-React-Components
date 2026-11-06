@@ -32,6 +32,7 @@ import DataProductAvailability from '../lib_components/components/DataProductAva
 import MapSelectionButton from '../lib_components/components/MapSelectionButton/MapSelectionButton';
 import {
   FACETS,
+  cardDescription,
   emptyFilters,
   exportRows,
   filterCatalog,
@@ -544,6 +545,7 @@ function Catalog() {
               ...new Set(coverage.flatMap((site) => site.availableMonths)),
             ].sort();
             const details = `${root}/collections/misc/neoncollprofiles.php?collid=${item.id}`;
+            const description = cardDescription(item.description || '');
             return (
               <Card
                 key={item.id}
@@ -576,16 +578,9 @@ function Catalog() {
                         }}
                       />
                     )}
-                    {item.description && (
-                      <Typography sx={{
-                        mt: 2,
-                        display: '-webkit-box',
-                        WebkitBoxOrient: 'vertical',
-                        WebkitLineClamp: 3,
-                        overflow: 'hidden',
-                      }}
-                      >
-                        {item.description.replace(/\s+/g, ' ').trim()}
+                    {description && (
+                      <Typography sx={{ mt: 2 }}>
+                        {description}
                       </Typography>
                     )}
                   </Box>

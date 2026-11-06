@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { emptyFilters, filterCatalog, readFilters, writeFilters, toCsv, validateCatalog } from './catalog.js';
+import { cardDescription, emptyFilters, filterCatalog, readFilters, writeFilters, toCsv, validateCatalog } from './catalog.js';
 const item = { id: 1, name: 'Small Mammal Tissues', description: 'Frozen liver', taxa: ['Small Mammals'], preservation: ['Frozen'], protocols: ['MAM'], totalSamples: 12,
   siteCodes: [{ siteCode: 'ABBY', availableMonths: ['2020-01'] }, { siteCode: 'BART', availableMonths: ['2023-01'] }] };
 const reference = { ABBY: { stateCode: 'WA', domainCode: 'D16' }, BART: { stateCode: 'NH', domainCode: 'D01' } };
@@ -32,4 +32,13 @@ test('CSV quotes text and neutralizes spreadsheet formulas', () => {
 test('rejects duplicate collection identities and invalid months', () => {
   assert.throws(() => validateCatalog({ version: 1, items: [item, item] }));
   assert.throws(() => validateCatalog({ version: 1, items: [{ ...item, siteCodes: [{ siteCode: 'ABBY', availableMonths: ['2020-13'] }] }] }));
+});
+
+test('card descriptions stop before Sampling and keep the full introduction', () => {
+  const intro = 'A long introduction. '.repeat(40).trim();
+  assert.equal(cardDescription(`${intro}\n\nSampling\nThree visits per year`), intro);
+  assert.equal(cardDescription('Intro text without a section.'), 'Intro text without a section.');
+  assert.equal(cardDescription('Routine sampling produces tissue.\nSampling: Details'), 'Routine sampling produces tissue.');
+  assert.equal(cardDescription('Sampling details'), '');
+  assert.equal(cardDescription(), '');
 });
