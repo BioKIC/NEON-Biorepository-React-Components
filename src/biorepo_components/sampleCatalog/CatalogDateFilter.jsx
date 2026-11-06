@@ -43,7 +43,7 @@ export default function CatalogDateFilter({ items, from, through, onChange }) {
       <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
         <Typography component="h2" className="catalog-date-heading">Available Dates</Typography>
         {open && (
-          <Button className="catalog-date-button" variant="outlined" startIcon={<CloseIcon />} onClick={reset}>
+          <Button className="catalog-date-button catalog-date-reset" variant="outlined" startIcon={<CloseIcon />} onClick={reset}>
             Reset
           </Button>
         )}

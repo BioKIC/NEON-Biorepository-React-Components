@@ -75,7 +75,7 @@ const compactCatalogStyles = {
       '& .MuiSvgIcon-root': { fontSize: '1rem' },
     },
     '& .catalog-date-heading.MuiTypography-root': {
-      fontSize: '1.125rem !important', fontWeight: 500,
+      fontSize: '1.125rem !important', fontWeight: 500, whiteSpace: 'nowrap',
     },
     '& .catalog-date-help.MuiTypography-root': {
       fontSize: '0.625rem !important', color: '#808080', lineHeight: 1.5,
@@ -85,6 +85,9 @@ const compactCatalogStyles = {
       lineHeight: 1.25, minHeight: '2rem', whiteSpace: 'nowrap',
       padding: '0.375rem 0.5rem', color: '#0073cf', borderColor: '#0073cf',
       '& .MuiSvgIcon-root': { fontSize: '1rem' },
+    },
+    '& .catalog-date-reset.MuiButton-root': {
+      minHeight: '1.5rem', padding: '0.25rem 0.5rem', flexShrink: 0,
     },
     '& .catalog-date-filter .MuiPickersInputBase-root': {
       fontSize: '0.75rem !important', borderRadius: 0,
