@@ -218,6 +218,9 @@ function Facet({
             selectedItems={selected}
             onSave={(values) => onChange([...values])}
             buttonProps={{ size: 'small', variant: 'outlined', className: 'catalog-map-button' }}
+            tooltipProps={{ slotProps: { tooltip: {
+              sx: { fontSize: '0.625rem !important', lineHeight: 1.4 },
+            } } }}
             icon
           />
         )}
