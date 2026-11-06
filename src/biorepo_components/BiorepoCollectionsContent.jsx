@@ -86,6 +86,9 @@ const compactCatalogStyles = {
       padding: '0.375rem 0.5rem', color: '#0073cf', borderColor: '#0073cf',
       '& .MuiSvgIcon-root': { fontSize: '1rem' },
     },
+    '& .catalog-date-button.MuiButton-root:not(.catalog-date-reset)': {
+      fontWeight: '500 !important',
+    },
     '& .catalog-date-reset.MuiButton-root': {
       minHeight: '1.5rem', padding: '0.25rem 0.5rem', flexShrink: 0,
     },
