@@ -5,6 +5,8 @@ import { createPortal } from 'react-dom';
 import PropTypes from 'prop-types';
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
 import CatalogDateFilter from './sampleCatalog/CatalogDateFilter';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
@@ -113,6 +115,15 @@ const compactCatalogStyles = {
     },
     '& .catalog-search-help.MuiTypography-root': {
       fontSize: '0.625rem !important', color: '#808080', lineHeight: 1.5,
+    },
+    '& .MuiCheckbox-root .MuiSvgIcon-root': { fontSize: '0.875rem !important' },
+    '& .catalog-view-all.MuiButton-root': {
+      fontSize: '0.5625rem !important', fontWeight: '500 !important',
+      lineHeight: 1.2, letterSpacing: '0.04em', minWidth: 0,
+      padding: '0.3rem 0.5rem !important', marginTop: '0.5rem',
+      color: '#0073cf', borderColor: '#0073cf',
+      '& .MuiButton-startIcon': { marginLeft: 0, marginRight: '0.25rem' },
+      '& .MuiSvgIcon-root': { fontSize: '0.875rem !important' },
     },
     '& .catalog-search-field .MuiOutlinedInput-root': {
       backgroundColor: '#fff', borderRadius: 0,
@@ -234,8 +245,15 @@ function Facet({
         )}
       </Box>
       {!query && matches.length > 5 && (
-        <Button size="small" onClick={() => setExpanded(!expanded)}>
-          {expanded ? 'Show fewer' : `View all (${matches.length})`}
+        <Button
+          className="catalog-view-all"
+          variant="outlined"
+          size="small"
+          startIcon={expanded ? <RemoveIcon /> : <AddIcon />}
+          aria-expanded={expanded}
+          onClick={() => setExpanded(!expanded)}
+        >
+          {expanded ? 'View fewer' : `View all (${matches.length})`}
         </Button>
       )}
     </Box>
