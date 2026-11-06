@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { cardDescription, emptyFilters, filterCatalog, readFilters, writeFilters, toCsv, validateCatalog } from './catalog.js';
+import { cardDescription, emptyFilters, filterCatalog, readFilters, writeFilters, validateCatalog } from './catalog.js';
 const item = { id: 1, name: 'Small Mammal Tissues', description: 'Frozen liver', taxa: ['Small Mammals'], preservation: ['Frozen'], protocols: ['MAM'], totalSamples: 12,
   siteCodes: [{ siteCode: 'ABBY', availableMonths: ['2020-01'] }, { siteCode: 'BART', availableMonths: ['2023-01'] }] };
 const reference = { ABBY: { stateCode: 'WA', domainCode: 'D16' }, BART: { stateCode: 'NH', domainCode: 'D01' } };
@@ -25,9 +25,6 @@ test('URL round trip retains unrelated parameters and multiple selections', () =
   assert.deepEqual(readFilters(search), filters);
   assert.equal(new URLSearchParams(search).get('keep'), '1');
   assert.equal(readFilters('?from=bad&sort=bad').from, '');
-});
-test('CSV quotes text and neutralizes spreadsheet formulas', () => {
-  assert.equal(toCsv([{ name: '=CMD()', description: 'a,"b"\nc' }]), '"name","description"\r\n"\'=CMD()","a,""b""\nc"');
 });
 test('rejects duplicate collection identities and invalid months', () => {
   assert.throws(() => validateCatalog({ version: 1, items: [item, item] }));

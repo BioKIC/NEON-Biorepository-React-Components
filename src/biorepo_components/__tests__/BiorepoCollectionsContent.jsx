@@ -121,3 +121,44 @@ test('cards show collection codes and request summary-only availability', async 
     expect(chart.getAttribute('data-hide-controls')).toBe('true');
   });
 });
+
+test.each(['csv', 'json', 'pdf'])('downloads the PR summary as a %s attachment', async (format) => {
+  const blob = new Blob(['file contents'], { type: format === 'pdf' ? 'application/pdf' : 'text/plain' });
+  const filename = `NEON_Sample_Type_Summary20261106.${format}`;
+  global.fetch.mockResolvedValueOnce({ ok: true, json: async () => data })
+    .mockResolvedValueOnce({ ok: true, blob: async () => blob,
+      headers: { get: () => `attachment; filename="${filename}"` } });
+  const createUrl = jest.fn(() => 'blob:summary');
+  const oldCreate = URL.createObjectURL;
+  const oldRevoke = URL.revokeObjectURL;
+  URL.createObjectURL = createUrl;
+  URL.revokeObjectURL = jest.fn();
+  const clicked = [];
+  jest.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function recordDownload() {
+    clicked.push({ href: this.href, filename: this.download });
+  });
+  const open = jest.spyOn(window, 'open');
+  try {
+    mount();
+    await screen.findByRole('link', { name: 'Ear Punches' });
+    fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'Hearts' } });
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: `Download full catalog ${format.toUpperCase()}` })));
+    expect(global.fetch).toHaveBeenLastCalledWith(`/collections/download/downloadsampletypes.php?format=${format}`);
+    expect(createUrl).toHaveBeenCalledWith(blob);
+    expect(clicked).toEqual([{ href: 'blob:summary', filename }]);
+    expect(open).not.toHaveBeenCalled();
+  } finally {
+    URL.createObjectURL = oldCreate;
+    URL.revokeObjectURL = oldRevoke;
+  }
+});
+test('failed downloads show the server error without saving a file', async () => {
+  global.fetch.mockResolvedValueOnce({ ok: true, json: async () => data })
+    .mockResolvedValueOnce({ ok: false, json: async () => ({ error: 'Summary unavailable' }) });
+  const click = jest.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+  mount();
+  await screen.findByRole('link', { name: 'Ear Punches' });
+  await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Download full catalog PDF' })));
+  expect(screen.getByText('Summary unavailable')).toBeTruthy();
+  expect(click).not.toHaveBeenCalled();
+});

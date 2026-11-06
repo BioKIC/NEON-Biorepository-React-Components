@@ -34,11 +34,9 @@ import {
   FACETS,
   cardDescription,
   emptyFilters,
-  exportRows,
   filterCatalog,
   matchingSites,
   readFilters,
-  toCsv,
   validateCatalog,
   writeFilters,
 } from './sampleCatalog/catalog';
@@ -223,6 +221,7 @@ function Catalog() {
     () => document.getElementById('biorepo-catalog-filters'),
   );
   const [exportError, setExportError] = useState('');
+  const [downloading, setDownloading] = useState('');
   const sites = geography.sites || EMPTY_SITES;
   const items = catalog?.items || EMPTY_ITEMS;
 
@@ -341,60 +340,34 @@ function Catalog() {
     label: options[key].find((option) => option.value === value)?.label || value,
   })));
 
-  const download = (format) => {
+  const download = async (format) => {
     setExportError('');
-    const rows = exportRows(items, `${window.location.origin}${root}`);
-    if (format === 'pdf') {
-      const preview = window.open('', '_blank');
-      if (!preview) {
-        setExportError(
-          'Allow pop-ups to open the printable catalog, then choose Save as PDF.',
-        );
-        return;
+    setDownloading(format);
+    try {
+      const response = await fetch(
+        `${root}/collections/download/downloadsampletypes.php?format=${format}`,
+      );
+      if (!response.ok) {
+        const failure = await response.json().catch(() => ({}));
+        throw new Error(failure.error || 'Unable to download the sample type summary.');
       }
-      preview.opener = null;
-      preview.document.title = 'NEON Sample Type Catalog';
-      const style = preview.document.createElement('style');
-      style.textContent = [
-        'body{font:12pt Arial,sans-serif;margin:30px}',
-        'article{break-inside:avoid;border-bottom:1px solid #ccc;padding:16px 0}',
-        'h1,h2{color:#0073cf}p{white-space:pre-wrap}button{padding:12px}',
-        '@media print{button{display:none}}',
-      ].join('');
-      preview.document.head.append(style);
-      const heading = preview.document.createElement('h1');
-      heading.textContent = 'NEON Sample Type Catalog';
-      preview.document.body.append(heading);
-      const print = preview.document.createElement('button');
-      print.textContent = 'Print / Save as PDF';
-      print.onclick = () => preview.print();
-      preview.document.body.append(print);
-      rows.forEach((row) => {
-        const article = preview.document.createElement('article');
-        Object.entries(row).forEach(([key, value]) => {
-          const element = preview.document.createElement(key === 'sample_type' ? 'h2' : 'p');
-          element.textContent = key === 'sample_type'
-            ? value : `${key.replaceAll('_', ' ')}: ${value ?? ''}`;
-          article.append(element);
-        });
-        preview.document.body.append(article);
-      });
-      return;
+      const blob = await response.blob();
+      const disposition = response.headers.get('Content-Disposition') || '';
+      const filename = disposition.match(/filename="?([^";]+)"?/i)?.[1]
+        || `NEON_Sample_Type_Summary.${format}`;
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.append(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (reason) {
+      setExportError(reason.message || 'Unable to download the sample type summary.');
+    } finally {
+      setDownloading('');
     }
-    const blob = new Blob(
-      [
-        format === 'csv'
-          ? `\uFEFF${toCsv(rows)}`
-          : JSON.stringify({ generatedAt: catalog.generatedAt, items: rows }, null, 2),
-      ],
-      { type: format === 'csv' ? 'text/csv;charset=utf-8' : 'application/json' },
-    );
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `NEON_Sample_Type_Catalog.${format}`;
-    link.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
   const filterPanel = (
@@ -509,9 +482,10 @@ function Catalog() {
                     className="catalog-download-button"
                     key={format}
                     onClick={() => download(format)}
+                    disabled={Boolean(downloading)}
                     aria-label={`Download full catalog ${format.toUpperCase()}`}
                   >
-                    {format.toUpperCase()}
+                    {downloading === format ? 'Downloading…' : format.toUpperCase()}
                   </Button>
                 ))}
               </Stack>

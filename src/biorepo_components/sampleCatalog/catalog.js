@@ -105,39 +105,6 @@ export function validateCatalog(data) {
   });
   return data;
 }
-export function exportRows(items, root) {
-  return items.map((item) => ({
-    sample_type: item.name,
-    collection_id: item.id,
-    collection_code: item.collectionCode || '',
-    description: item.description,
-    taxonomic_groups: item.taxa.join('; '),
-    protocols: item.protocols.join('; '),
-    preservation: item.preservation.join('; '),
-    storage_conditions: item.storageConditions,
-    storage_container: item.storageContainer,
-    data_product_ids: item.dataProducts,
-    sites: item.siteCodes.map((site) => site.siteCode).join('; '),
-    collection_months: [...new Set(item.siteCodes.flatMap((site) => site.availableMonths))]
-      .sort()
-      .join('; '),
-    total_public_records: item.totalSamples,
-    description_url: `${root}/collections/misc/neoncollprofiles.php?collid=${item.id}`,
-  }));
-}
-export function toCsv(rows) {
-  if (!rows.length) return '';
-  const escape = (value) => {
-    let text = String(value ?? '');
-    if (/^[\s]*[=+@-]/.test(text)) text = `'${text}`;
-    return `"${text.replaceAll('"', '""')}"`;
-  };
-  const keys = Object.keys(rows[0]);
-  return [keys, ...rows.map((row) => keys.map((key) => row[key]))]
-    .map((row) => row.map(escape).join(','))
-    .join('\r\n');
-}
-
 export function cardDescription(description = '') {
   return description.split(/\bSampling\b/, 1)[0].replace(/\s+/g, ' ').trim();
 }
