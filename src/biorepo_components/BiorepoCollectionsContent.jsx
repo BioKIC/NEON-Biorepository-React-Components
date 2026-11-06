@@ -135,6 +135,9 @@ const compactCatalogStyles = {
       '& .MuiButton-startIcon': { marginLeft: 0, marginRight: '0.25rem' },
       '& .MuiSvgIcon-root': { fontSize: '0.875rem !important' },
     },
+    '& .catalog-view-all.MuiButton-root': {
+      fontSize: '0.5rem !important', fontWeight: '500 !important',
+    },
     '& .catalog-map-button.MuiButton-root': { marginTop: 0 },
     '& .catalog-search-field .MuiOutlinedInput-root': {
       backgroundColor: '#fff', borderRadius: 0,
@@ -415,7 +418,8 @@ function Catalog() {
                 count,
                 subtitle,
                 known: Boolean(meta),
-                label: subtitle ? `${value} — ${subtitle}` : (title ? `${value} — ${title}` : value),
+                label: key === 'states' ? (title || value)
+                  : (subtitle ? `${value} — ${subtitle}` : (title ? `${value} — ${title}` : value)),
               };
             })
             .sort((a, b) => a.label.localeCompare(b.label)),
