@@ -107,13 +107,14 @@ const compactCatalogStyles = {
     },
     '& .catalog-card .catalog-code, & .catalog-card .catalog-code span': {
       fontSize: '0.6875rem !important',
+      fontWeight: 500,
     },
     '& .catalog-card .catalog-card-note.MuiTypography-root': {
       fontSize: '0.625rem !important', color: '#666',
     },
     '& .catalog-card .catalog-sample-title, & .catalog-card .catalog-sample-title a': {
       fontSize: '1rem !important',
-      fontWeight: 400,
+      fontWeight: 500,
     },
   },
 };
