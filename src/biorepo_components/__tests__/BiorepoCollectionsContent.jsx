@@ -17,14 +17,14 @@ jest.mock('../../lib_components/components/NeonContext/NeonContext', () => ({
 }));
 jest.mock('../../lib_components/components/DataProductAvailability/DataProductAvailability', () => ({
   __esModule: true,
-  default: ({ siteCodes }) => <div data-testid="availability">{JSON.stringify(siteCodes)}</div>,
+  default: ({ siteCodes, view, hideViewControls }) => <div data-testid="availability" data-view={view} data-hide-controls={hideViewControls}>{JSON.stringify(siteCodes)}</div>,
 }));
 jest.mock('../../lib_components/components/MapSelectionButton/MapSelectionButton', () => ({
   __esModule: true,
   default: ({ selection, onSave }) => <button type="button" onClick={() => onSave(new Set(['ABBY']))}>{`Map ${selection}`}</button>,
 }));
 const makeItem = (id, name, code, month) => ({
-  id, name, description: 'Sample description', taxa: ['Small Mammals'],
+  id, name, collectionCode: `COLL-${id}`, description: 'Sample description', taxa: ['Small Mammals'],
   preservation: ['Frozen'], protocols: ['MAM'], totalSamples: 3,
   storageConditions: '', storageContainer: '', dataProducts: '',
   siteCodes: [{ siteCode: code, availableMonths: [month] }],
@@ -109,4 +109,15 @@ test('scrolling reveals every batch and filtering resets progressive rendering',
   } finally {
     delete window.IntersectionObserver;
   }
+});
+
+test('cards show collection codes and request summary-only availability', async () => {
+  mount();
+  await screen.findByRole('link', { name: 'Ear Punches' });
+  expect(screen.getByText('COLL-1')).toBeTruthy();
+  expect(screen.getByText('COLL-2')).toBeTruthy();
+  screen.getAllByTestId('availability').forEach((chart) => {
+    expect(chart.getAttribute('data-view')).toBe('summary');
+    expect(chart.getAttribute('data-hide-controls')).toBe('true');
+  });
 });

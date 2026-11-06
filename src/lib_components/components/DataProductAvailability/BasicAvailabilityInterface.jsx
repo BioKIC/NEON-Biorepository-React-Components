@@ -112,6 +112,7 @@ const defaultProps = {
   sortMethod: null,
   sortDirection: 'ASC',
   disableSelection: false,
+  hideViewControls: false,
   delineateRelease: false,
   availabilityStatusType: null,
 };
@@ -692,6 +693,7 @@ const BasicAvailabilityInterface = (inProps) => {
      Render: View Controls
   */
   const renderViewControls = () => {
+    if (props.hideViewControls) return null;
     if (currentView === 'products') {
       return (<Grid size={{ xs: 12 }} />);
     }
@@ -708,7 +710,7 @@ const BasicAvailabilityInterface = (inProps) => {
   const renderKey = () => {
     let smWidth = currentView === 'ungrouped' ? 12 : 7;
     let mdWidth = 6;
-    if (currentView === 'products') {
+    if (currentView === 'products' || props.hideViewControls) {
       smWidth = 12;
       mdWidth = 12;
     }
@@ -923,6 +925,7 @@ BasicAvailabilityInterface.propTypes = {
   sortMethod: PropTypes.oneOf(['sites', 'states', 'domains']),
   sortDirection: PropTypes.oneOf(['ASC', 'DESC']),
   disableSelection: PropTypes.bool,
+  hideViewControls: PropTypes.bool,
   delineateRelease: PropTypes.bool,
   availabilityStatusType: PropTypes.oneOf(['available', 'tombstoned']),
 };

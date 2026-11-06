@@ -3,6 +3,8 @@ import React, {
 } from 'react';
 import { createPortal } from 'react-dom';
 import PropTypes from 'prop-types';
+import SearchIcon from '@mui/icons-material/Search';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import { createTheme, ThemeProvider, useTheme } from '@mui/material/styles';
 import {
@@ -51,7 +53,7 @@ const labels = {
 // Override legacy portal CSS and the shared theme's responsive font rules only here.
 const catalogTextSelector = [
   '&', '& p', '& span', '& a', '& label', '& button', '& input', '& textarea',
-  '& legend', '& li', '& svg text', '& .MuiTypography-root', '& .MuiInputBase-root',
+  '& legend', '& li', '& .MuiTypography-root', '& .MuiInputBase-root',
 ].join(', ');
 const compactCatalogStyles = {
   '#biorepo-collections-content, #biorepo-catalog-filters, .biorepo-catalog-dialog': {
@@ -88,8 +90,20 @@ const compactCatalogStyles = {
       padding: '0.5rem 0.625rem',
       '& + .catalog-download-button': { borderLeft: '1px solid #0073cf' },
     },
-    '& .catalog-sample-title.MuiTypography-root, & .catalog-sample-title a': {
-      fontSize: '1.25rem !important',
+    '& .catalog-card .MuiTypography-root': {
+      fontSize: '0.75rem !important', lineHeight: 1.5,
+    },
+    '& .catalog-card .MuiButton-root': {
+      fontSize: '0.625rem !important', minHeight: '2.75rem', width: '100%',
+    },
+    '& .catalog-card .catalog-code, & .catalog-card .catalog-code span': {
+      fontSize: '0.6875rem !important',
+    },
+    '& .catalog-card .catalog-card-note.MuiTypography-root': {
+      fontSize: '0.625rem !important', color: '#666',
+    },
+    '& .catalog-card .catalog-sample-title, & .catalog-card .catalog-sample-title a': {
+      fontSize: '1rem !important',
       fontWeight: 600,
     },
   },
@@ -533,38 +547,61 @@ function Catalog() {
             return (
               <Card
                 key={item.id}
+                className="catalog-card"
                 variant="outlined"
                 component="article"
                 sx={{ p: { xs: 2, md: 3 }, mb: 3, boxShadow: 'none' }}
               >
-                <Stack
-                  direction={{ xs: 'column', lg: 'row' }}
-                  sx={{ gap: 3, justifyContent: 'space-between' }}
+                <Box sx={{
+                  display: 'grid',
+                  gap: 3,
+                  alignItems: 'start',
+                  gridTemplateColumns: {
+                    xs: 'minmax(0, 1fr)', lg: 'minmax(0, 1fr) minmax(16rem, 28%)',
+                  },
+                }}
                 >
+
                   <Box sx={{ minWidth: 0 }}>
                     <Typography className="catalog-sample-title" component="h2" variant="h5">
                       <Link href={details}>{item.name}</Link>
                     </Typography>
+                    {item.collectionCode && (
+                      <Chip
+                        className="catalog-code"
+                        label={item.collectionCode}
+                        size="small"
+                        sx={{
+                          mt: 1, bgcolor: '#e4e7e7', color: '#737d81', border: '1px solid #92999b',
+                        }}
+                      />
+                    )}
                     {item.description && (
-                      <Typography sx={{ mt: 2, whiteSpace: 'pre-line' }}>
-                        {item.description.length > 420
-                          ? `${item.description.slice(0, 420)}…`
-                          : item.description}
+                      <Typography sx={{
+                        mt: 2,
+                        display: '-webkit-box',
+                        WebkitBoxOrient: 'vertical',
+                        WebkitLineClamp: 3,
+                        overflow: 'hidden',
+                      }}
+                      >
+                        {item.description.replace(/\s+/g, ' ').trim()}
                       </Typography>
                     )}
                   </Box>
-                  <Stack sx={{ gap: 1, minWidth: 200, flexShrink: 0 }}>
+                  <Stack sx={{ gap: 1.5, width: '100%', minWidth: 0 }}>
                     <Button
                       variant="contained"
+                      endIcon={<SearchIcon />}
                       href={`${root}/collections/list.php?db=${item.id}`}
                     >
                       Explore samples
                     </Button>
-                    <Button variant="outlined" href={details}>
+                    <Button variant="outlined" href={details} endIcon={<InfoOutlinedIcon />}>
                       Sample type details
                     </Button>
                   </Stack>
-                </Stack>
+                </Box>
                 <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 3, my: 3 }}>
                   <Box>
                     <Typography sx={{ fontWeight: 700 }}>Preservation</Typography>
@@ -598,6 +635,7 @@ function Catalog() {
                     key={item.id}
                     siteCodes={chartSites}
                     view="summary"
+                    hideViewControls
                     disableSelection
                     delineateRelease={false}
                   />
@@ -609,6 +647,7 @@ function Catalog() {
                   </Typography>
                 )}
                 <Typography
+                  className="catalog-card-note"
                   variant="caption"
                   display="block"
                   sx={{ mt: 2 }}

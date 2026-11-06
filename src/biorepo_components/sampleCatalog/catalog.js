@@ -109,6 +109,7 @@ export function exportRows(items, root) {
   return items.map((item) => ({
     sample_type: item.name,
     collection_id: item.id,
+    collection_code: item.collectionCode || '',
     description: item.description,
     taxonomic_groups: item.taxa.join('; '),
     protocols: item.protocols.join('; '),
