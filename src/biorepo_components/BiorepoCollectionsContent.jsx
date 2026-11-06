@@ -116,8 +116,18 @@ const compactCatalogStyles = {
     '& .catalog-search-help.MuiTypography-root': {
       fontSize: '0.625rem !important', color: '#808080', lineHeight: 1.5,
     },
+    '& .catalog-facet-subtitle': {
+      display: 'block', fontSize: '0.625rem !important', color: '#9b9b9b',
+      lineHeight: 1.4, marginTop: '0.125rem',
+    },
+    '& .catalog-facet-count': {
+      fontSize: '0.625rem !important', lineHeight: 1.4, color: '#565a5c',
+      border: '1px solid #bdbdbd', borderRadius: '1rem',
+      padding: '0.125rem 0.375rem', minWidth: '1.75rem',
+      textAlign: 'center', flexShrink: 0, boxSizing: 'border-box',
+    },
     '& .MuiCheckbox-root .MuiSvgIcon-root': { fontSize: '0.875rem !important' },
-    '& .catalog-view-all.MuiButton-root': {
+    '& .catalog-view-all.MuiButton-root, & .catalog-map-button.MuiButton-root': {
       fontSize: '0.5625rem !important', fontWeight: '500 !important',
       lineHeight: 1.2, letterSpacing: '0.04em', minWidth: 0,
       padding: '0.3rem 0.5rem !important', marginTop: '0.5rem',
@@ -125,6 +135,7 @@ const compactCatalogStyles = {
       '& .MuiButton-startIcon': { marginLeft: 0, marginRight: '0.25rem' },
       '& .MuiSvgIcon-root': { fontSize: '0.875rem !important' },
     },
+    '& .catalog-map-button.MuiButton-root': { marginTop: 0 },
     '& .catalog-search-field .MuiOutlinedInput-root': {
       backgroundColor: '#fff', borderRadius: 0,
     },
@@ -200,8 +211,8 @@ function Facet({
             validItems={options.filter((option) => option.known).map((option) => option.value)}
             selectedItems={selected}
             onSave={(values) => onChange([...values])}
-            buttonProps={{ size: 'small', variant: 'outlined' }}
-            icon={false}
+            buttonProps={{ size: 'small', variant: 'outlined', className: 'catalog-map-button' }}
+            icon
           />
         )}
       </Stack>
@@ -221,8 +232,9 @@ function Facet({
             sx={{
               display: 'flex',
               m: 0,
-              alignItems: 'flex-start',
-              '& .MuiFormControlLabel-label': { pt: 1, fontSize: '0.65625rem' },
+              alignItems: 'center',
+              py: 0.5,
+              '& .MuiFormControlLabel-label': { flex: 1, minWidth: 0 },
             }}
             control={(
               <Checkbox
@@ -235,7 +247,17 @@ function Facet({
                 )}
               />
             )}
-            label={`${option.label} (${option.count})`}
+            label={(
+              <Box component="span" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
+                <Box component="span" sx={{ minWidth: 0 }}>
+                  <Box component="span">{option.subtitle ? option.value : option.label}</Box>
+                  {option.subtitle && (
+                    <Box component="span" className="catalog-facet-subtitle">{option.subtitle}</Box>
+                  )}
+                </Box>
+                <Box component="span" className="catalog-facet-count">{option.count}</Box>
+              </Box>
+            )}
           />
         ))}
         {!visible.length && (
@@ -265,6 +287,7 @@ Facet.propTypes = {
     PropTypes.shape({
       value: PropTypes.string,
       label: PropTypes.string,
+      subtitle: PropTypes.string,
       count: PropTypes.number,
       known: PropTypes.bool,
     }),
@@ -384,11 +407,15 @@ function Catalog() {
             .map(([value, count]) => {
               const meta = (geography[key] || {})[value];
               const title = key === 'sites' ? meta?.description : meta?.name;
+              const subtitle = key === 'sites'
+                ? [title, meta?.stateCode].filter(Boolean).join(', ')
+                : (key === 'domains' ? title || '' : '');
               return {
                 value,
                 count,
+                subtitle,
                 known: Boolean(meta),
-                label: title ? `${value} — ${title}` : value,
+                label: subtitle ? `${value} — ${subtitle}` : (title ? `${value} — ${title}` : value),
               };
             })
             .sort((a, b) => a.label.localeCompare(b.label)),
