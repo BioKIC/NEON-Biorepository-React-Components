@@ -151,6 +151,17 @@ const compactCatalogStyles = {
     },
   },
   '#biorepo-collections-content': {
+    '& .catalog-active-filters .MuiChip-root': {
+      height: '1.5rem', maxWidth: '100%', borderRadius: '0.75rem',
+    },
+    '& .catalog-active-filters .MuiChip-label': {
+      fontSize: '0.625rem !important', fontWeight: '500 !important',
+      paddingLeft: '0.375rem', paddingRight: '0.375rem',
+    },
+    '& .catalog-active-filters .MuiChip-deleteIcon': {
+      fontSize: '0.875rem !important', width: '0.875rem', height: '0.875rem',
+      marginLeft: 0, marginRight: '0.25rem',
+    },
     '& .catalog-summary-title.MuiTypography-root': {
       fontSize: '1rem !important', color: '#202020', fontWeight: 500,
     },
@@ -650,7 +661,7 @@ function Catalog() {
             </Stack>
           </Box>
           {exportError && <Alert severity="warning">{exportError}</Alert>}
-          <Stack direction="row" sx={{ gap: 1, flexWrap: 'wrap', mb: 2 }}>
+          <Stack className="catalog-active-filters" direction="row" sx={{ gap: 1, flexWrap: 'wrap', mb: 2 }}>
             {filters.q && (
               <Chip label={`Search: ${filters.q}`} onDelete={() => update({ q: '' })} />
             )}
