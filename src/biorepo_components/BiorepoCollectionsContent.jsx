@@ -3,6 +3,7 @@ import React, {
 } from 'react';
 import { createPortal } from 'react-dom';
 import PropTypes from 'prop-types';
+import { createTheme, ThemeProvider, useTheme } from '@mui/material/styles';
 import {
   Alert,
   Box,
@@ -90,7 +91,7 @@ function Facet({
               display: 'flex',
               m: 0,
               alignItems: 'flex-start',
-              '& .MuiFormControlLabel-label': { pt: 1, fontSize: '0.875rem' },
+              '& .MuiFormControlLabel-label': { pt: 1, fontSize: '0.75rem' },
             }}
             control={(
               <Checkbox
@@ -608,9 +609,39 @@ function Catalog() {
 }
 
 export default function BiorepoCollectionsContent() {
+  const outerTheme = useTheme();
+  const catalogTheme = useMemo(() => createTheme(outerTheme, {
+    typography: {
+      h1: { fontSize: '2rem' },
+      h2: { fontSize: '1.75rem' },
+      h3: { fontSize: '1.75rem' },
+      h4: { fontSize: '1.375rem' },
+      h5: { fontSize: '1.125rem' },
+      h6: { fontSize: '1rem' },
+      subtitle1: { fontSize: '0.875rem' },
+      subtitle2: { fontSize: '0.8125rem' },
+      body1: { fontSize: '0.875rem' },
+      body2: { fontSize: '0.75rem' },
+      button: { fontSize: '0.75rem' },
+      caption: { fontSize: '0.6875rem' },
+      overline: { fontSize: '0.6875rem' },
+    },
+    components: {
+      MuiButton: {
+        styleOverrides: {
+          sizeSmall: { fontSize: '0.6875rem' },
+          sizeMedium: { fontSize: '0.75rem' },
+          sizeLarge: { fontSize: '0.8125rem' },
+        },
+      },
+      MuiChip: { styleOverrides: { root: { fontSize: '0.75rem' } } },
+    },
+  }), [outerTheme]);
   return (
-    <NeonContext.Provider>
-      <Catalog />
-    </NeonContext.Provider>
+    <ThemeProvider theme={catalogTheme}>
+      <NeonContext.Provider>
+        <Catalog />
+      </NeonContext.Provider>
+    </ThemeProvider>
   );
 }
