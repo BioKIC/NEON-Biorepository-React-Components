@@ -672,7 +672,7 @@ function Catalog() {
                       endIcon={<SearchIcon />}
                       href={`${root}/collections/list.php?db=${item.id}`}
                     >
-                      Explore samples
+                      Browse samples
                     </Button>
                     <Button variant="outlined" href={details} endIcon={<InfoOutlinedIcon />}>
                       Sample type details
@@ -742,10 +742,6 @@ function Catalog() {
           {results.length > visibleLimit && (
             <Box ref={loadMoreRef} aria-hidden="true" sx={{ height: 1 }} />
           )}
-          <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 3 }}>
-            Catalog updated
-            {new Date(catalog.generatedAt).toLocaleString()}
-          </Typography>
         </>
       )}
 
