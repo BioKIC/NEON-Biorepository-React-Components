@@ -55,10 +55,11 @@ test('month filters restrict cards and chart data; browser history restores stat
   mount();
   await screen.findByRole('link', { name: 'Ear Punches' });
   fireEvent.click(screen.getByRole('button', { name: /Filter on available dates/ }));
-  fireEvent.change(screen.getByLabelText('Start month'), { target: { value: '2023-01' } });
+  fireEvent.change(screen.getByRole('slider', { name: 'From month' }), { target: { value: 2023 * 12 } });
   expect(screen.queryByRole('link', { name: 'Ear Punches' })).toBeNull();
   expect(screen.getByTestId('availability').textContent).toContain('2023-01');
-  fireEvent.click(screen.getByRole('button', { name: 'Done' }));
+  expect(screen.queryByRole('dialog')).toBeNull();
+  expect(screen.getByRole('slider', { name: 'Through month' })).toBeTruthy();
   act(() => { window.history.replaceState(null, '', '?sites=ABBY'); window.dispatchEvent(new PopStateEvent('popstate')); });
   await screen.findByRole('link', { name: 'Ear Punches' });
   expect(screen.queryByRole('link', { name: 'Hearts' })).toBeNull();
@@ -161,4 +162,19 @@ test('failed downloads show the server error without saving a file', async () =>
   await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Download full catalog PDF' })));
   expect(screen.getByText('Summary unavailable')).toBeTruthy();
   expect(click).not.toHaveBeenCalled();
+});
+
+test('inline date reset clears the range without clearing other filters', async () => {
+  mount();
+  await screen.findByRole('link', { name: 'Hearts' });
+  fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'Hearts' } });
+  fireEvent.click(screen.getByRole('button', { name: /Filter on available dates/ }));
+  fireEvent.change(screen.getByRole('slider', { name: 'Through month' }), { target: { value: 2021 * 12 } });
+  expect(screen.queryByRole('link', { name: 'Hearts' })).toBeNull();
+  fireEvent.click(screen.getByRole('button', { name: 'Reset' }));
+  expect(screen.getByRole('link', { name: 'Hearts' })).toBeTruthy();
+  expect(screen.getByRole('searchbox').value).toBe('Hearts');
+  expect(window.location.search).not.toContain('from=');
+  expect(window.location.search).not.toContain('to=');
+  expect(screen.queryByRole('slider')).toBeNull();
 });

@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import PropTypes from 'prop-types';
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
+import CatalogDateFilter from './sampleCatalog/CatalogDateFilter';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import { createTheme, ThemeProvider, useTheme } from '@mui/material/styles';
@@ -16,10 +17,6 @@ import {
   Checkbox,
   Chip,
   CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   Divider,
   FormControlLabel,
   GlobalStyles,
@@ -76,6 +73,28 @@ const compactCatalogStyles = {
       whiteSpace: 'nowrap', backgroundColor: '#0073cf', color: '#fff',
       '&:hover': { backgroundColor: '#005da8' },
       '& .MuiSvgIcon-root': { fontSize: '1rem' },
+    },
+    '& .catalog-date-heading.MuiTypography-root': {
+      fontSize: '1.125rem !important', fontWeight: 500,
+    },
+    '& .catalog-date-help.MuiTypography-root': {
+      fontSize: '0.625rem !important', color: '#808080', lineHeight: 1.5,
+    },
+    '& .catalog-date-button.MuiButton-root': {
+      fontSize: '0.625rem !important', fontWeight: 500, letterSpacing: '0.04em',
+      lineHeight: 1.25, minHeight: '2rem', whiteSpace: 'nowrap',
+      padding: '0.375rem 0.5rem', color: '#0073cf', borderColor: '#0073cf',
+      '& .MuiSvgIcon-root': { fontSize: '1rem' },
+    },
+    '& .catalog-date-filter .MuiPickersInputBase-root': {
+      fontSize: '0.75rem !important', borderRadius: 0,
+    },
+    '& .catalog-date-filter .MuiIconButton-root': { color: '#0073cf' },
+    '& .catalog-date-slider': {
+      color: '#0073cf', height: 6,
+      '& .MuiSlider-thumb': { width: 10, height: 26, borderRadius: 1, backgroundColor: '#f5f6f7', border: '2px solid currentColor' },
+      '& .MuiSlider-mark': { height: 12, width: 3, borderRadius: 1 },
+      '& .MuiSlider-markLabel': { fontSize: '0.75rem !important' },
     },
     '& .catalog-search-heading.MuiTypography-root': {
       fontSize: '1.125rem !important', fontWeight: 500,
@@ -233,7 +252,6 @@ function Catalog() {
   const [filters, setFilters] = useState(() => readFilters(window.location.search));
   const [limit, setLimit] = useState(10);
   const loadMoreRef = useRef(null);
-  const [datesOpen, setDatesOpen] = useState(false);
   const [sidebar, setSidebar] = useState(
     () => document.getElementById('biorepo-catalog-filters'),
   );
@@ -423,25 +441,7 @@ function Catalog() {
         Use several terms to match sample types having all terms. Quote terms to match
         phrases (e.g. "DNA extracts").
       </Typography>
-      <Box component="section" sx={{ py: 2 }}>
-        <Typography component="h3" variant="subtitle1" sx={{ fontWeight: 700 }}>
-          Available Dates
-        </Typography>
-        <Typography variant="body2" sx={{ my: 1 }}>
-          Show sample types with records collected between two months.
-        </Typography>
-        <Button fullWidth variant="outlined" size="small" onClick={() => setDatesOpen(true)}>
-          Filter on available dates…
-        </Button>
-        {(filters.from || filters.to) && (
-          <Typography variant="body2" sx={{ mt: 1 }}>
-            {filters.from || 'Any start'}
-            {' '}
-            –
-            {filters.to || 'Any end'}
-          </Typography>
-        )}
-      </Box>
+      <CatalogDateFilter items={items} from={filters.from} through={filters.to} onChange={update} />
       <Divider />
       {FACETS.map((key) => (
         <React.Fragment key={key}>
@@ -682,43 +682,7 @@ function Catalog() {
           </Typography>
         </>
       )}
-      <Dialog
-        className="biorepo-catalog-dialog"
-        open={datesOpen}
-        onClose={() => setDatesOpen(false)}
-        fullWidth
-        maxWidth="xs"
-      >
-        <DialogTitle>Filter by collection month</DialogTitle>
-        <DialogContent>
-          <Typography variant="body2" sx={{ mb: 2 }}>
-            Both endpoints are inclusive. Leave either blank for an open range.
-          </Typography>
-          <Stack sx={{ gap: 2, pt: 1 }}>
-            <TextField
-              label="Start month"
-              type="month"
-              slotProps={{ inputLabel: { shrink: true } }}
-              value={filters.from}
-              onChange={(event) => update({ from: event.target.value })}
-              error={invalidDates}
-            />
-            <TextField
-              label="End month"
-              type="month"
-              slotProps={{ inputLabel: { shrink: true } }}
-              value={filters.to}
-              onChange={(event) => update({ to: event.target.value })}
-              error={invalidDates}
-              helperText={invalidDates ? 'End month must not precede start month.' : ''}
-            />
-          </Stack>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => update({ from: '', to: '' })}>Clear dates</Button>
-          <Button onClick={() => setDatesOpen(false)}>Done</Button>
-        </DialogActions>
-      </Dialog>
+
     </Box>
   );
 }
