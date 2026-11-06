@@ -4,6 +4,8 @@ import React, {
   useLayoutEffect,
 } from 'react';
 
+import GlobalStyles from '@mui/material/GlobalStyles';
+
 import NeonPage from '../lib_components/components/NeonPage/NeonPage';
 import StyleSeeds from './StyleSeeds';
 
@@ -120,6 +122,11 @@ export default function BiorepoPage() {
       sidebarUnsticky={isSampleCatalog}
       sidebarTitle={isSampleCatalog ? 'Filters' : sidebarTitle}
     >
+      {isSampleCatalog && (
+        <GlobalStyles styles={{
+          '#header': { position: 'relative !important', top: 'auto !important' },
+        }} />
+      )}
       <StyleSeeds />
     </NeonPage>
   );
