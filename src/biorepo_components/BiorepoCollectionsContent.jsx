@@ -89,6 +89,12 @@ const compactCatalogStyles = {
     '& .catalog-date-reset.MuiButton-root': {
       minHeight: '1.5rem', padding: '0.25rem 0.5rem', flexShrink: 0,
     },
+    '& .catalog-reset-button.MuiButton-root, & .catalog-date-reset.MuiButton-root': {
+      fontSize: '0.5625rem !important', lineHeight: '1.2 !important',
+      minHeight: '1.25rem', minWidth: 0, padding: '0.15rem 0.375rem !important',
+      '& .MuiButton-startIcon': { marginLeft: 0, marginRight: '0.25rem' },
+      '& .MuiSvgIcon-root': { fontSize: '0.75rem !important' },
+    },
     '& .catalog-date-filter .MuiPickersInputBase-root': {
       fontSize: '0.75rem !important', borderRadius: 0,
     },
