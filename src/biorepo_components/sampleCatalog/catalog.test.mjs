@@ -138,3 +138,26 @@ test('live trapping ranks above incidental mammals when both match', () => {
   }
   assert.deepEqual(filterCatalog(records, { ...emptyFilters(), q: 'incidental' }, reference).map(({ id }) => id), [19]);
 });
+
+
+test('preferred carabids are not boosted for incidental mammal mentions', () => {
+  const base = { ...item, description: '', taxa: [], protocols: [], preservation: [] };
+  const records = [
+    { ...base, id: 39, name: 'Pinned Carabids', taxa: ['Invertebrates', 'Beetles (Carabids)'], description: 'Collected during mammal sampling.' },
+    { ...base, id: 123, name: 'Small Mammal Livers' },
+    { ...base, id: 28, name: 'Small Mammals - Live Trapping' },
+  ];
+  assert.deepEqual(filterCatalog(records, { ...emptyFilters(), q: 'mammal' }, reference).map(({ id }) => id), [28, 123, 39]);
+});
+
+
+test('taxonomic groups boost pinned carabids for beetle searches without aliases', () => {
+  const base = { ...item, description: '', taxa: ['Invertebrates', 'Beetles (Carabids)'], protocols: [], preservation: [] };
+  const records = [
+    { ...base, id: 63, name: 'Carabid DNA Extracts' },
+    { ...base, id: 39, name: 'Pinned Carabids' },
+  ];
+  for (const q of ['carabid', 'carabids', 'beetle', 'beetles']) {
+    assert.deepEqual(filterCatalog(records, { ...emptyFilters(), q }, reference).map(({ id }) => id), [39, 63]);
+  }
+});

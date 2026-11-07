@@ -54,18 +54,20 @@ function searchScore(item, terms) {
   const description = item.description || '';
   const samplingIndex = description.search(/\bSampling\b/);
   const fields = [
-    { weight: 100, values: [item.name, item.sampleTypeName, item.collectionName] },
+    { weight: 100, priority: true, values: [item.name, item.sampleTypeName, item.collectionName] },
     { weight: 60, values: [(item.shortDescription ?? cardDescription(description)).split(/\s+/).slice(0, 5).join(' ')] },
     { weight: 30, values: [item.shortDescription ?? cardDescription(description)] },
-    { weight: 10, values: [...item.taxa, ...item.protocols, ...item.preservation, item.dataProducts] },
+    { weight: 10, priority: true, values: item.taxa },
+    { weight: 10, values: [...item.protocols, ...item.preservation, item.dataProducts] },
     { weight: 1, values: [item.shortDescription != null ? description : (samplingIndex < 0 ? '' : description.slice(samplingIndex))] },
-  ].map(({ weight, values }) => ({
-    weight,
+  ].map(({ weight, values, priority = false }) => ({
+    weight, priority,
     values: values.map((value) => (value || '').replace(/\s+/g, ' ').toLowerCase()),
   }));
+  let priorityMatches = false;
   const relevance = terms.reduce((score, term) => {
     let best = 0;
-    for (const { weight, values } of fields) {
+    for (const { weight, values, priority } of fields) {
       for (const value of values) {
         const tokens = value.match(/[\p{L}\p{N}]+/gu) || [];
         const singular = (word) => word.length > 3 && word.endsWith('s') && !word.endsWith('ss')
@@ -73,6 +75,7 @@ function searchScore(item, terms) {
         const wordIndex = tokens.findIndex((word) => singular(word) === singular(term));
         const wholeWord = !term.includes(' ') && wordIndex >= 0;
         if (!wholeWord && !value.includes(term)) continue;
+        if (priority) priorityMatches = true;
         // Keep field priority, but prefer complete title words and early title matches.
         const bonus = weight === 100 && wholeWord ? 20 + 10 / (wordIndex + 1) : 0;
         best = Math.max(best, weight + bonus);
@@ -80,8 +83,8 @@ function searchScore(item, terms) {
     }
     return score + best;
   }, 0);
-  // Live trapping leads the preferred collections; boosts require a search match.
-  return relevance > 0 && PRIORITY_COLLECTION_IDS.has(Number(item.id))
+  // Boost topical name or taxonomic matches, not incidental description or protocol mentions.
+  return priorityMatches && PRIORITY_COLLECTION_IDS.has(Number(item.id))
     ? relevance + (Number(item.id) === 28 ? 2000 : 1000) : relevance;
 }
 export function filterCatalog(items, filters, reference = {}) {
