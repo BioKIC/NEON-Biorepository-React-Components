@@ -285,7 +285,7 @@ function Facet({
         value={query}
         onChange={(event) => setQuery(event.target.value)}
       />
-      <Box sx={{ mt: 1, maxHeight: expanded || query ? 280 : 'none', overflowY: 'auto' }}>
+      <Box sx={{ mt: 1 }}>
         {visible.map((option) => (
           <FormControlLabel
             key={option.value}
