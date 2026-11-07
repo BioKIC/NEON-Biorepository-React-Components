@@ -663,9 +663,7 @@ function Catalog() {
               </Stack>
             </Stack>
             <Typography className="catalog-download-note" sx={{ mt: 1 }}>
-              Catalog downloads list physical sample types. Identification collections appear in
-              the explorer and are linked from the catalog’s “Bulk sample identifications” field,
-              rather than listed as separate rows.
+              Identification records are linked under “Bulk sample identifications” in the full catalog.
             </Typography>
           </Box>
           {exportError && <Alert severity="warning">{exportError}</Alert>}
