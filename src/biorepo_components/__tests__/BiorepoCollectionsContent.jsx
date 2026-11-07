@@ -326,20 +326,21 @@ test('outside repository collections have a labeled chip and working search link
 });
 
 
-test('repository checkboxes support either group, both groups, and reset', async () => {
+test('repository checkboxes support individual repositories, multiple selections, and reset', async () => {
   global.fetch.mockResolvedValue({ ok: true, json: async () => ({
-    ...data, items: [data.items[0], { ...data.items[1], outsideRepository: true }],
+    ...data, items: [data.items[0], { ...data.items[1], id: 97, outsideRepository: true }],
   }) });
   mount();
   await screen.findByRole('link', { name: 'Ear Punches' });
   const repositories = within(screen.getByRole('region', { name: 'Repository' }));
   expect(repositories.getByText('(none selected)')).toBeTruthy();
   expect(repositories.getAllByRole('checkbox')).toHaveLength(5);
-  fireEvent.click(repositories.getByRole('button', { name: 'View all (10)' }));
-  expect(repositories.getAllByRole('checkbox')).toHaveLength(10);
+  fireEvent.click(repositories.getByRole('button', { name: 'View all (9)' }));
+  expect(repositories.getAllByRole('checkbox')).toHaveLength(9);
   fireEvent.click(repositories.getByRole('button', { name: 'View fewer' }));
   expect(repositories.getAllByRole('checkbox')).toHaveLength(5);
-  const outside = screen.getByRole('checkbox', { name: 'Outside Repositories' });
+  expect(screen.queryByRole('checkbox', { name: 'Outside Repositories' })).toBeNull();
+  const outside = screen.getByRole('checkbox', { name: 'Bernice Pauahi Bishop Museum' });
   const asu = screen.getByRole('checkbox', { name: 'NEON Biorepository (Arizona State University)' });
   expect(outside.closest('label').querySelector('.catalog-facet-count').textContent).toBe('1');
   expect(asu.closest('label').querySelector('.catalog-facet-count').textContent).toBe('1');
@@ -347,7 +348,7 @@ test('repository checkboxes support either group, both groups, and reset', async
   expect(asu.closest('label').querySelector('.catalog-facet-count').textContent).toBe('1');
   expect(screen.queryByRole('link', { name: 'Ear Punches' })).toBeNull();
   expect(screen.getByRole('link', { name: 'Hearts' })).toBeTruthy();
-  expect(window.location.search).toContain('repository=outside');
+  expect(window.location.search).toContain('repository=bpbm');
   expect(repositories.getByText('(1 selected)')).toBeTruthy();
   fireEvent.click(asu);
   expect(screen.getByRole('link', { name: 'Hearts' })).toBeTruthy();
