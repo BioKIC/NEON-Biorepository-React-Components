@@ -714,7 +714,7 @@ function Catalog() {
       )}
       {catalog && (
         <>
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 1fr) minmax(15rem, 20rem)' }, gap: 3, alignItems: 'start', mb: 3 }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 30rem) minmax(15rem, 20rem)' }, gap: 3, alignItems: 'start', mb: 3 }}>
             <Box component="section" aria-label="Sample catalog summary">
               <Typography className="catalog-summary-title" component="h2" variant="h5">
                 All Sample Types
