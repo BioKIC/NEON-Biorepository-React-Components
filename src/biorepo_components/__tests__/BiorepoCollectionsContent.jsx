@@ -217,3 +217,37 @@ test('saving a map selection shows only selected entries and reset all restores 
   expect(sites.getByText('(none selected)')).toBeTruthy();
   expect(sites.getByRole('checkbox', { name: /BART/ })).toBeTruthy();
 });
+
+
+test('search analytics waits for typing to stop and ignores facet changes and empty searches', async () => {
+  mount();
+  await screen.findByRole('link', { name: 'Ear Punches' });
+  jest.useFakeTimers();
+  window.gtag = jest.fn();
+  try {
+    fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'Hea' } });
+    act(() => jest.advanceTimersByTime(500));
+    fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'Hearts' } });
+    act(() => jest.advanceTimersByTime(999));
+    expect(window.gtag).not.toHaveBeenCalled();
+    act(() => jest.advanceTimersByTime(1));
+    expect(window.gtag).toHaveBeenCalledWith('event', 'search', {
+      search_term: 'Hearts', search_source: 'sample_type_explorer', results_count: 1,
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Map SITES' }));
+    act(() => jest.advanceTimersByTime(1000));
+    expect(window.gtag).toHaveBeenCalledTimes(1);
+    fireEvent.change(screen.getByRole('searchbox'), { target: { value: '' } });
+    act(() => jest.advanceTimersByTime(1000));
+    expect(window.gtag).toHaveBeenCalledTimes(1);
+    fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'nonexistent' } });
+    act(() => jest.advanceTimersByTime(1000));
+    expect(window.gtag).toHaveBeenLastCalledWith('event', 'search', {
+      search_term: 'nonexistent', search_source: 'sample_type_explorer', results_count: 0,
+    });
+  } finally {
+    cleanup();
+    delete window.gtag;
+    jest.useRealTimers();
+  }
+});

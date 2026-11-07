@@ -386,6 +386,7 @@ function Catalog() {
   const [filters, setFilters] = useState(() => readFilters(window.location.search));
   const [limit, setLimit] = useState(10);
   const loadMoreRef = useRef(null);
+  const lastTrackedSearch = useRef('');
   const [sidebar, setSidebar] = useState(
     () => document.getElementById('biorepo-catalog-filters'),
   );
@@ -438,6 +439,28 @@ function Catalog() {
     }
   };
   const results = useMemo(() => filterCatalog(items, filters, sites), [items, filters, sites]);
+
+  useEffect(() => {
+    const term = filters.q.trim().replace(/\s+/g, ' ');
+    if (!term) {
+      lastTrackedSearch.current = '';
+      return undefined;
+    }
+    if (!catalog || lastTrackedSearch.current === term) return undefined;
+    const timer = window.setTimeout(() => {
+      const event = ['event', 'search', {
+        search_term: term,
+        search_source: 'sample_type_explorer',
+        results_count: results.length,
+      }];
+      if (typeof window.gtag === 'function') window.gtag(...event);
+      else if (Array.isArray(window.pendingGAEvents)) window.pendingGAEvents.push(event);
+      else return;
+      lastTrackedSearch.current = term;
+    }, 1000);
+    return () => window.clearTimeout(timer);
+  }, [filters.q, catalog, results.length]);
+
   const visibleLimit = window.IntersectionObserver ? limit : results.length;
   useEffect(() => {
     const target = loadMoreRef.current;
