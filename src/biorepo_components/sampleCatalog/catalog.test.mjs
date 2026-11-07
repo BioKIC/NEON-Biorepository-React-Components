@@ -105,7 +105,23 @@ test('mammal titles precede bycatch and live does not rank livers first', () => 
   const rank = (q) => filterCatalog(records, { ...emptyFilters(), q }, reference).map(({ id }) => id);
   assert.deepEqual(rank('mammal'), [28, 123, 70]);
   assert.deepEqual(rank('mammals'), [28, 123, 70]);
-  assert.deepEqual(rank('mammal livers'), [123, 28, 70]);
+  assert.deepEqual(rank('mammal livers'), [28, 123, 70]);
   assert.deepEqual(rank('mammal live'), [28, 123, 70]);
   assert.deepEqual(rank('mammals live'), [28, 123, 70]);
+});
+
+
+test('preferred collections get equal boosts only for matching searches', () => {
+  const base = { ...item, name: 'Matching samples', description: '', taxa: [], protocols: [], preservation: [] };
+  const ids = [57, 39, 29, 28, 19, 54, 20, 116];
+  const records = [
+    { ...base, id: 999 },
+    ...ids.map((id) => ({ ...base, id })),
+    { ...base, id: '57', name: 'Unrelated collection' },
+  ];
+  const rank = (q) => filterCatalog(records, { ...emptyFilters(), q }, reference).map(({ id }) => id);
+  assert.deepEqual(rank('matching'), [...ids, 999]);
+  assert.deepEqual(rank('nonexistent'), []);
+  assert.deepEqual(rank(''), [999, ...ids, '57']);
+  assert.deepEqual(rank('unrelated'), ['57']);
 });

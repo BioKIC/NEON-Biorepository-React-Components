@@ -47,6 +47,8 @@ export function matchingSites(item, filters, reference) {
       ),
     }));
 }
+const PRIORITY_COLLECTION_IDS = new Set([57, 39, 29, 28, 19, 54, 20, 116]);
+
 // Count each distinct term once, using the highest-priority field it matches.
 function searchScore(item, terms) {
   const description = item.description || '';
@@ -61,10 +63,7 @@ function searchScore(item, terms) {
     weight,
     values: values.map((value) => (value || '').replace(/\s+/g, ' ').toLowerCase()),
   }));
-  // Lead broad mammal searches with the live-trapping collection, before derived tissues.
-  const preferredOverview = Number(item.id) === 28
-    && terms.length > 0 && terms.every((term) => /^mammals?$/.test(term));
-  return terms.reduce((score, term) => {
+  const relevance = terms.reduce((score, term) => {
     let best = 0;
     for (const { weight, values } of fields) {
       for (const value of values) {
@@ -80,7 +79,10 @@ function searchScore(item, terms) {
       }
     }
     return score + best;
-  }, preferredOverview ? 1000 : 0);
+  }, 0);
+  // All preferred collections receive the same boost, only after a search matches.
+  return relevance > 0 && PRIORITY_COLLECTION_IDS.has(Number(item.id))
+    ? relevance + 1000 : relevance;
 }
 export function filterCatalog(items, filters, reference = {}) {
   if (filters.from && filters.to && filters.from > filters.to) return [];
