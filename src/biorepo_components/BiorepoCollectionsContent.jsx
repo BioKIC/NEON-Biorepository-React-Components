@@ -24,6 +24,9 @@ import {
   Divider,
   FormControlLabel,
   GlobalStyles,
+  IconButton,
+  Tooltip,
+  ClickAwayListener,
   Link,
   Stack,
   TextField,
@@ -214,6 +217,34 @@ const compactCatalogStyles = {
 const EMPTY_ITEMS = [];
 const EMPTY_SITES = {};
 const mapTypes = { sites: 'SITES', states: 'STATES', domains: 'DOMAINS' };
+
+function IdentificationHelp() {
+  const [open, setOpen] = useState(false);
+  return (
+    <ClickAwayListener onClickAway={() => setOpen(false)}>
+      <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+        <Tooltip
+          title="Taxonomic identification records for associated samples. These may describe organisms identified within a bulk sample rather than individually archived specimens."
+          open={open}
+          onOpen={() => setOpen(true)}
+          onClose={() => setOpen(false)}
+          describeChild
+          slotProps={{ tooltip: { sx: { fontSize: '0.625rem !important', lineHeight: 1.5, maxWidth: 280 } } }}
+        >
+          <IconButton
+            aria-label="About identification records"
+            size="small"
+            onClick={() => setOpen((value) => !value)}
+            onKeyDown={(event) => { if (event.key === 'Escape') setOpen(false); }}
+            sx={{ p: '2px', color: '#a4681b' }}
+          >
+            <Box component="span" aria-hidden="true" sx={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '0.75rem', height: '0.75rem', border: '1px solid currentColor', borderRadius: '50%', fontSize: '0.625rem !important', lineHeight: 1 }}>?</Box>
+          </IconButton>
+        </Tooltip>
+      </span>
+    </ClickAwayListener>
+  );
+}
 
 function Facet({
   name, options, selected, onChange, mapReady,
@@ -802,12 +833,15 @@ function Catalog() {
                         />
                       )}
                       {/\bidentifications?\b/i.test(item.sampleTypeName || item.name || '') && (
-                        <Chip
-                          className="catalog-code"
-                          label="Identification Records"
-                          size="small"
-                          sx={{ bgcolor: '#f5b23b', color: '#4b2d0b', border: '1px solid #a4681b' }}
-                        />
+                        <React.Fragment>
+                          <Chip
+                            className="catalog-code"
+                            label="Identification Records"
+                            size="small"
+                            sx={{ bgcolor: '#f5b23b', color: '#4b2d0b', border: '1px solid #a4681b' }}
+                          />
+                          <IdentificationHelp />
+                        </React.Fragment>
                       )}
                     </Stack>
                     {description && (
