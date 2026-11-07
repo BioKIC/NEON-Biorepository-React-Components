@@ -111,7 +111,7 @@ test('mammal titles precede bycatch and live does not rank livers first', () => 
 });
 
 
-test('preferred collections get equal boosts only for matching searches', () => {
+test('preferred collections are boosted only for matching searches, with live trapping first', () => {
   const base = { ...item, name: 'Matching samples', description: '', taxa: [], protocols: [], preservation: [] };
   const ids = [57, 39, 29, 28, 19, 54, 20, 116];
   const records = [
@@ -120,8 +120,21 @@ test('preferred collections get equal boosts only for matching searches', () => 
     { ...base, id: '57', name: 'Unrelated collection' },
   ];
   const rank = (q) => filterCatalog(records, { ...emptyFilters(), q }, reference).map(({ id }) => id);
-  assert.deepEqual(rank('matching'), [...ids, 999]);
+  assert.deepEqual(rank('matching'), [28, ...ids.filter((id) => id !== 28), 999]);
   assert.deepEqual(rank('nonexistent'), []);
   assert.deepEqual(rank(''), [999, ...ids, '57']);
   assert.deepEqual(rank('unrelated'), ['57']);
+});
+
+
+test('live trapping ranks above incidental mammals when both match', () => {
+  const base = { ...item, description: '', taxa: [], protocols: [], preservation: [] };
+  const records = [
+    { ...base, id: 19, name: 'Small Mammals - Incidental' },
+    { ...base, id: 28, name: 'Small Mammals - Live Trapping' },
+  ];
+  for (const q of ['mammal', 'mammals', 'small mammals', 'mammal live']) {
+    assert.deepEqual(filterCatalog(records, { ...emptyFilters(), q }, reference).map(({ id }) => id), [28, 19]);
+  }
+  assert.deepEqual(filterCatalog(records, { ...emptyFilters(), q: 'incidental' }, reference).map(({ id }) => id), [19]);
 });

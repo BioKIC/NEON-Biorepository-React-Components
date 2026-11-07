@@ -80,9 +80,9 @@ function searchScore(item, terms) {
     }
     return score + best;
   }, 0);
-  // All preferred collections receive the same boost, only after a search matches.
+  // Live trapping leads the preferred collections; boosts require a search match.
   return relevance > 0 && PRIORITY_COLLECTION_IDS.has(Number(item.id))
-    ? relevance + 1000 : relevance;
+    ? relevance + (Number(item.id) === 28 ? 2000 : 1000) : relevance;
 }
 export function filterCatalog(items, filters, reference = {}) {
   if (filters.from && filters.to && filters.from > filters.to) return [];
