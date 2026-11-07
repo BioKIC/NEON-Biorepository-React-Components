@@ -762,7 +762,7 @@ function Catalog() {
                 className="catalog-request-button"
                 variant="contained"
                 fullWidth
-                href="https://biorepo.neonscience.org/portal/misc/samplerequests.php"
+                href={`${root}/misc/samplerequests.php`}
               >
                 Request Samples &gt;
               </Button>
