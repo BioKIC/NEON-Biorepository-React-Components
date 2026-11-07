@@ -780,7 +780,7 @@ function Catalog() {
                       href={`${root}/neon/search/index.php?db=${item.id}`}
                       endIcon={<SearchIcon />}
                     >
-                      Search Samples
+                      Search for Samples
                     </Button>
                     <Button
                       variant="contained"
