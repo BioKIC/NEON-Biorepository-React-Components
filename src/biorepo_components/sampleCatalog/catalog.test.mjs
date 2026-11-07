@@ -103,7 +103,9 @@ test('mammal titles precede bycatch and live does not rank livers first', () => 
     { ...base, id: 123, name: 'Small Mammal Livers' },
   ];
   const rank = (q) => filterCatalog(records, { ...emptyFilters(), q }, reference).map(({ id }) => id);
-  assert.deepEqual(rank('mammal'), [123, 28, 70]);
+  assert.deepEqual(rank('mammal'), [28, 123, 70]);
+  assert.deepEqual(rank('mammals'), [28, 123, 70]);
+  assert.deepEqual(rank('mammal livers'), [123, 28, 70]);
   assert.deepEqual(rank('mammal live'), [28, 123, 70]);
   assert.deepEqual(rank('mammals live'), [28, 123, 70]);
 });

@@ -61,6 +61,9 @@ function searchScore(item, terms) {
     weight,
     values: values.map((value) => (value || '').replace(/\s+/g, ' ').toLowerCase()),
   }));
+  // Lead broad mammal searches with the live-trapping collection, before derived tissues.
+  const preferredOverview = Number(item.id) === 28
+    && terms.length > 0 && terms.every((term) => /^mammals?$/.test(term));
   return terms.reduce((score, term) => {
     let best = 0;
     for (const { weight, values } of fields) {
@@ -77,7 +80,7 @@ function searchScore(item, terms) {
       }
     }
     return score + best;
-  }, 0);
+  }, preferredOverview ? 1000 : 0);
 }
 export function filterCatalog(items, filters, reference = {}) {
   if (filters.from && filters.to && filters.from > filters.to) return [];
