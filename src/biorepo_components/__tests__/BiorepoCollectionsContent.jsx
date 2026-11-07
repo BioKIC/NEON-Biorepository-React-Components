@@ -264,11 +264,11 @@ test('identification cards show an Identification Records chip beside the collec
   const title = await screen.findByRole('link', { name: 'Diatom Slide Identifications' });
   const card = title.closest('.catalog-card');
   const chip = within(card).getByText('Identification Records').closest('.MuiChip-root');
-  expect(chip.previousElementSibling.textContent).toBe('COLL-1');
+  expect(chip.parentElement.previousElementSibling.textContent).toBe('COLL-1');
   expect(screen.getAllByText('Identification Records')).toHaveLength(1);
   const help = within(card).getByRole('button', { name: 'About identification records' });
   fireEvent.click(help);
-  expect((await screen.findByRole('tooltip')).textContent).toContain('Taxonomic identification records');
+  expect((await screen.findByRole('tooltip')).textContent).toContain('Taxonomic identification records describe organisms');
   fireEvent.keyDown(help, { key: 'Escape' });
   await waitFor(() => expect(screen.queryByRole('tooltip')).toBeNull());
 
@@ -319,6 +319,9 @@ test('outside repository collections have a labeled chip and working search link
   const card = title.closest('.catalog-card');
   expect(within(card).getByText('Outside Repository')).toBeTruthy();
   expect(screen.getAllByText('Outside Repository')).toHaveLength(1);
+  fireEvent.click(within(card).getByRole('button', { name: 'About outside repositories' }));
+  const tooltip = await screen.findByRole('tooltip');
+  expect(within(tooltip).getByRole('link', { name: 'Learn about NEON sample repositories' }).getAttribute('href')).toBe('https://www.neonscience.org/samples/sample-repositories');
   expect(within(card).getByRole('link', { name: 'Search for Samples' }).getAttribute('href')).toBe('/neon/search/index.php?db=1');
 });
 

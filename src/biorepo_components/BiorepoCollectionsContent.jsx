@@ -218,13 +218,13 @@ const EMPTY_ITEMS = [];
 const EMPTY_SITES = {};
 const mapTypes = { sites: 'SITES', states: 'STATES', domains: 'DOMAINS' };
 
-function IdentificationHelp() {
+function ChipHelp({ label, children, color, background }) {
   const [open, setOpen] = useState(false);
   return (
     <ClickAwayListener onClickAway={() => setOpen(false)}>
-      <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+      <span style={{ position: 'absolute', top: '-0.25rem', right: '-0.25rem', display: 'inline-flex' }}>
         <Tooltip
-          title="Taxonomic identification records for associated samples. These may describe organisms identified within a bulk sample rather than individually archived specimens."
+          title={children}
           open={open}
           onOpen={() => setOpen(true)}
           onClose={() => setOpen(false)}
@@ -232,11 +232,11 @@ function IdentificationHelp() {
           slotProps={{ tooltip: { sx: { fontSize: '0.625rem !important', lineHeight: 1.5, maxWidth: 280 } } }}
         >
           <IconButton
-            aria-label="About identification records"
+            aria-label={label}
             size="small"
             onClick={() => setOpen((value) => !value)}
             onKeyDown={(event) => { if (event.key === 'Escape') setOpen(false); }}
-            sx={{ p: '2px', color: '#a4681b' }}
+            sx={{ p: '2px', color, bgcolor: background, '&:hover': { bgcolor: background } }}
           >
             <Box component="span" aria-hidden="true" sx={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '0.75rem', height: '0.75rem', border: '1px solid currentColor', borderRadius: '50%', fontSize: '0.625rem !important', lineHeight: 1 }}>?</Box>
           </IconButton>
@@ -825,23 +825,31 @@ function Catalog() {
                         />
                       )}
                       {item.outsideRepository && (
-                        <Chip
-                          className="catalog-code"
-                          label="Outside Repository"
-                          size="small"
-                          sx={{ bgcolor: '#e8f5e9', color: '#1b5e20', border: '1px solid #388e3c' }}
-                        />
+                        <Box sx={{ position: 'relative', display: 'inline-flex' }}>
+                          <Chip
+                            className="catalog-code"
+                            label="Outside Repository"
+                            size="small"
+                            sx={{ bgcolor: '#e8f5e9', color: '#1b5e20', border: '1px solid #388e3c' }}
+                          />
+                          <ChipHelp label="About outside repositories" color="#1b5e20" background="#e8f5e9">
+                            Samples and specimens held at repositories outside the NEON Biorepository at ASU.{' '}
+                            <Link href="https://www.neonscience.org/samples/sample-repositories" target="_blank" rel="noopener noreferrer" color="inherit" underline="always">Learn about NEON sample repositories</Link>
+                          </ChipHelp>
+                        </Box>
                       )}
                       {/\bidentifications?\b/i.test(item.sampleTypeName || item.name || '') && (
-                        <React.Fragment>
+                        <Box sx={{ position: 'relative', display: 'inline-flex' }}>
                           <Chip
                             className="catalog-code"
                             label="Identification Records"
                             size="small"
                             sx={{ bgcolor: '#f5b23b', color: '#4b2d0b', border: '1px solid #a4681b' }}
                           />
-                          <IdentificationHelp />
-                        </React.Fragment>
+                          <ChipHelp label="About identification records" color="#a4681b" background="#f5b23b">
+                            Taxonomic identification records describe organisms identified within a bulk sample rather than individually archived specimens.
+                          </ChipHelp>
+                        </Box>
                       )}
                     </Stack>
                     {description && (
