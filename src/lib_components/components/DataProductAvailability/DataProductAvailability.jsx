@@ -17,6 +17,7 @@ const defaultProps = {
   sortMethod: null,
   sortDirection: 'ASC',
   disableSelection: false,
+  hideViewControls: false,
   delineateRelease: false,
   availabilityStatusType: null,
 };
@@ -47,6 +48,7 @@ DataProductAvailability.propTypes = {
   sortMethod: PropTypes.oneOf(['sites', 'states', 'domains']),
   sortDirection: PropTypes.oneOf(['ASC', 'DESC']),
   disableSelection: PropTypes.bool,
+  hideViewControls: PropTypes.bool,
   delineateRelease: PropTypes.bool,
   availabilityStatusType: PropTypes.oneOf(['available', 'tombstoned']),
 };

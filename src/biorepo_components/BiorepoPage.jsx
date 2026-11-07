@@ -4,10 +4,14 @@ import React, {
   useLayoutEffect,
 } from 'react';
 
+import GlobalStyles from '@mui/material/GlobalStyles';
+
 import NeonPage from '../lib_components/components/NeonPage/NeonPage';
 import StyleSeeds from './StyleSeeds';
 
 export default function BiorepoPage() {
+  const isSampleCatalog = window.location.pathname
+    .endsWith('/collections/misc/browsecollprofiles.php');
   const [config, setConfig] = useState(null);
   const [layoutReady, setLayoutReady] = useState(false);
 
@@ -111,9 +115,21 @@ export default function BiorepoPage() {
     <NeonPage
       breadcrumbs={breadcrumbs}
       breadcrumbHomeHref="https://www.neonscience.org/"
-      sidebarLinks={sidebarLinks}
-      sidebarTitle={sidebarTitle}
+      sidebarLinks={isSampleCatalog ? [] : sidebarLinks}
+      sidebarContent={isSampleCatalog ? <div id="biorepo-catalog-filters" /> : null}
+      sidebarContentResponsive={isSampleCatalog}
+      sidebarDisableMaxHeight={isSampleCatalog}
+      sidebarUnsticky={isSampleCatalog}
+      sidebarWidth={isSampleCatalog ? 340 : 300}
+      sidebarTitle={isSampleCatalog ? 'Filter' : sidebarTitle}
+      sidebarContainerClassName={isSampleCatalog ? 'catalog-sidebar' : undefined}
     >
+      {isSampleCatalog && (
+        <GlobalStyles styles={{
+          '#header': { position: 'relative !important', top: 'auto !important' },
+          '.catalog-sidebar > div > .MuiDivider-root': { display: 'none' },
+        }} />
+      )}
       <StyleSeeds />
     </NeonPage>
   );
