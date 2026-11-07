@@ -61,9 +61,23 @@ function searchScore(item, terms) {
     weight,
     values: values.map((value) => (value || '').replace(/\s+/g, ' ').toLowerCase()),
   }));
-  return terms.reduce((score, term) => score + (
-    fields.find(({ values }) => values.some((value) => value.includes(term)))?.weight || 0
-  ), 0);
+  return terms.reduce((score, term) => {
+    let best = 0;
+    for (const { weight, values } of fields) {
+      for (const value of values) {
+        const tokens = value.match(/[\p{L}\p{N}]+/gu) || [];
+        const singular = (word) => word.length > 3 && word.endsWith('s') && !word.endsWith('ss')
+          ? word.slice(0, -1) : word;
+        const wordIndex = tokens.findIndex((word) => singular(word) === singular(term));
+        const wholeWord = !term.includes(' ') && wordIndex >= 0;
+        if (!wholeWord && !value.includes(term)) continue;
+        // Keep field priority, but prefer complete title words and early title matches.
+        const bonus = weight === 100 && wholeWord ? 20 + 10 / (wordIndex + 1) : 0;
+        best = Math.max(best, weight + bonus);
+      }
+    }
+    return score + best;
+  }, 0);
 }
 export function filterCatalog(items, filters, reference = {}) {
   if (filters.from && filters.to && filters.from > filters.to) return [];

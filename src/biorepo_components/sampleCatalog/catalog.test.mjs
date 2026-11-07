@@ -93,3 +93,17 @@ test('sample type and collection names outrank the first five description words'
   assert.deepEqual(rank('frozen'), [3, 4, 5, 2, 1]);
   assert.deepEqual(rank('"frozen tissue"'), [1, 2]);
 });
+
+
+test('mammal titles precede bycatch and live does not rank livers first', () => {
+  const base = { ...item, taxa: [], protocols: [], preservation: [], description: '' };
+  const records = [
+    { ...base, id: 70, name: 'Reptile and Amphibian Bycatch - Fish and Mammal Sampling' },
+    { ...base, id: 28, name: 'Small Mammals - Live Trapping' },
+    { ...base, id: 123, name: 'Small Mammal Livers' },
+  ];
+  const rank = (q) => filterCatalog(records, { ...emptyFilters(), q }, reference).map(({ id }) => id);
+  assert.deepEqual(rank('mammal'), [123, 28, 70]);
+  assert.deepEqual(rank('mammal live'), [28, 123, 70]);
+  assert.deepEqual(rank('mammals live'), [28, 123, 70]);
+});
