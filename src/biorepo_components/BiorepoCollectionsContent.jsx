@@ -831,7 +831,7 @@ function Catalog() {
                 >
                   {Number(item.totalSamples).toLocaleString()}
                   {' '}
-                  public records in this
+                  records in this
                   collection. Coverage reflects collection dates of cataloged records; it does
                   not guarantee material is available for loan.
                 </Typography>
