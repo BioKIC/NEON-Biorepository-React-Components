@@ -714,7 +714,7 @@ function Catalog() {
       )}
       {catalog && (
         <>
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 1fr) minmax(13rem, 17rem)' }, gap: 3, alignItems: 'start', mb: 3 }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 1fr) minmax(15rem, 20rem)' }, gap: 3, alignItems: 'start', mb: 3 }}>
             <Box component="section" aria-label="Sample catalog summary">
               <Typography className="catalog-summary-title" component="h2" variant="h5">
                 All Sample Types
@@ -753,7 +753,7 @@ function Catalog() {
                 Identification records are linked under “Bulk sample identifications” in the full catalog.
               </Typography>
             </Box>
-            <Box component="aside" aria-label="Request samples" sx={{ bgcolor: '#f5f6f7', border: '1px solid #d5d9db', borderRadius: 1, p: 2.5 }}>
+            <Box component="aside" aria-label="Request samples" sx={{ bgcolor: '#f5f6f7', border: '1px solid #d5d9db', borderRadius: '0.375rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.22)', p: 2.5 }}>
               <Typography component="h2" className="catalog-request-heading">Interested in using samples?</Typography>
               <Typography className="catalog-request-description" sx={{ mt: 1, mb: 2 }}>
                 Learn how to request samples and specimens for your research.
