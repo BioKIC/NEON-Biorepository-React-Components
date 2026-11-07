@@ -788,7 +788,7 @@ function Catalog() {
                       href={`${root}/neon/search/index.php?db=${item.id}`}
                       endIcon={<FilterAltOutlinedIcon />}
                     >
-                      Filter Samples
+                      Search Sample Type
                     </Button>
                     <Button variant="outlined" href={details} endIcon={<InfoOutlinedIcon />}>
                       Sample type details

@@ -286,17 +286,17 @@ test('description links remain clickable without rendering unsafe stored HTML', 
 });
 
 
-test('Filter Samples opens the search form with the card collection selected', async () => {
+test('Search Sample Type opens the search form with the card collection selected', async () => {
   window.NEON_CLIENT_ROOT = '/neon';
   try {
     mount();
     const title = await screen.findByRole('link', { name: 'Ear Punches' });
     const card = title.closest('.catalog-card');
-    const filter = within(card).getByRole('link', { name: 'Filter Samples' });
+    const filter = within(card).getByRole('link', { name: 'Search Sample Type' });
     expect(filter.getAttribute('href')).toBe('/neon/neon/search/index.php?db=1');
     expect(filter.previousElementSibling.textContent).toContain('Browse all samples');
     const other = screen.getByRole('link', { name: 'Hearts' }).closest('.catalog-card');
-    expect(within(other).getByRole('link', { name: 'Filter Samples' }).getAttribute('href')).toBe('/neon/neon/search/index.php?db=2');
+    expect(within(other).getByRole('link', { name: 'Search Sample Type' }).getAttribute('href')).toBe('/neon/neon/search/index.php?db=2');
   } finally {
     delete window.NEON_CLIENT_ROOT;
   }
