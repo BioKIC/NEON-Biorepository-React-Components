@@ -238,7 +238,7 @@ function ChipHelp({ label, children, color }) {
             onKeyDown={(event) => { if (event.key === 'Escape') setOpen(false); }}
             sx={{ p: 0, color, bgcolor: 'transparent', '&:hover': { bgcolor: 'transparent' } }}
           >
-            <Box component="span" aria-hidden="true" sx={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '0.75rem', height: '0.75rem', border: '1px solid currentColor', borderRadius: '50%', fontSize: '0.625rem !important', lineHeight: 1 }}>?</Box>
+            <Box component="span" aria-hidden="true" sx={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '0.625rem', height: '0.625rem', border: '1px solid currentColor', borderRadius: '50%', fontSize: '0.5rem !important', lineHeight: 1 }}>?</Box>
           </IconButton>
         </Tooltip>
       </span>
