@@ -1,14 +1,14 @@
 export const REPOSITORIES = [
   { value: 'asu', label: 'NEON Biorepository (Arizona State University)' },
   { value: 'outside', label: 'Outside Repositories' },
+  { value: 'bpbm', label: 'Bernice Pauahi Bishop Museum', ids: [97] },
+  { value: 'cmnh', label: 'Carnegie Museum of Natural History', ids: [82] },
   { value: 'emec', label: 'Essig Museum of Entomology (University of California, Berkeley)', ids: [44] },
+  { value: 'gsu', label: 'Georgia Southern University', ids: [83] },
   { value: 'msb', label: 'Museum of Southwestern Biology (University of New Mexico)', ids: [74] },
+  { value: 'neon-domains', label: 'NEON Domain Offices', ids: [95, 115] },
   { value: 'neon-hq', label: 'NEON Headquarters', ids: [79] },
   { value: 'umbs', label: 'University of Michigan Biological Station', ids: [80] },
-  { value: 'cmnh', label: 'Carnegie Museum of Natural History', ids: [82] },
-  { value: 'gsu', label: 'Georgia Southern University', ids: [83] },
-  { value: 'neon-domains', label: 'NEON Domain Offices', ids: [95, 115] },
-  { value: 'bpbm', label: 'Bernice Pauahi Bishop Museum', ids: [97] },
 ];
 export function matchesRepository(item, value) {
   if (value === 'asu') return !item.outsideRepository;
