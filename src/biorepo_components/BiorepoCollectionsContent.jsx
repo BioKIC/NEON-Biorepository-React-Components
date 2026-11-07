@@ -9,6 +9,7 @@ import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import CatalogDateFilter from './sampleCatalog/CatalogDateFilter';
+import CatalogDescription from './sampleCatalog/CatalogDescription';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import { createTheme, ThemeProvider, useTheme } from '@mui/material/styles';
@@ -769,7 +770,7 @@ function Catalog() {
                     </Stack>
                     {description && (
                       <Typography sx={{ mt: 2 }}>
-                        {description}
+                        <CatalogDescription html={item.shortDescriptionHtml} text={description} />
                       </Typography>
                     )}
                   </Box>

@@ -267,3 +267,20 @@ test('identification cards show an Identification Records chip beside the collec
   expect(chip.previousElementSibling.textContent).toBe('COLL-1');
   expect(screen.getAllByText('Identification Records')).toHaveLength(1);
 });
+
+
+test('description links remain clickable without rendering unsafe stored HTML', async () => {
+  global.fetch.mockResolvedValue({ ok: true, json: async () => ({
+    ...data, items: [{
+      ...data.items[0],
+      shortDescription: 'Read the protocol and other details.',
+      shortDescriptionHtml: '<p>Read <a href="/protocol" onclick="alert(1)">the protocol</a> and <a href="javascript:alert(1)">other details</a>.</p><script>alert(1)</script>',
+    }],
+  }) });
+  mount();
+  const link = await screen.findByRole('link', { name: 'the protocol' });
+  expect(link.getAttribute('href')).toBe(new URL('/protocol', window.location.href).href);
+  expect(link.hasAttribute('onclick')).toBe(false);
+  expect(screen.queryByRole('link', { name: 'other details' })).toBeNull();
+  expect(link.closest('.catalog-card').querySelector('script')).toBeNull();
+});
