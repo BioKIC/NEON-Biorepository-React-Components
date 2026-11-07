@@ -761,11 +761,10 @@ function Catalog() {
               <Button
                 className="catalog-request-button"
                 variant="contained"
-                disableElevation
                 fullWidth
                 href="https://biorepo.neonscience.org/portal/misc/samplerequests.php"
               >
-                Request Samples
+                Request Samples &gt;
               </Button>
             </Box>
           </Box>
