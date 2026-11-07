@@ -49,6 +49,7 @@ import {
 } from './sampleCatalog/catalog';
 
 const labels = {
+  repository: 'Repository',
   taxa: 'Taxonomic Group',
   preservation: 'Preservation Method',
   protocols: 'Protocol',
@@ -310,7 +311,7 @@ function Facet({
       <Typography className="catalog-selection-count" aria-live="polite" sx={{ mb: 2 }}>
         {selected.length ? `(${selected.length} selected)` : '(none selected)'}
       </Typography>
-      <TextField
+      {name !== 'repository' && <TextField
         className="catalog-search-field"
         fullWidth
         size="small"
@@ -318,7 +319,7 @@ function Facet({
         slotProps={{ htmlInput: { 'aria-label': `Search ${labels[name].toLowerCase()}` } }}
         value={query}
         onChange={(event) => setQuery(event.target.value)}
-      />
+      />}
       <Box sx={{ mt: 1 }}>
         {visible.map((option) => (
           <FormControlLabel
@@ -349,7 +350,7 @@ function Facet({
                     <Box component="span" className="catalog-facet-subtitle">{option.subtitle}</Box>
                   )}
                 </Box>
-                <Box component="span" className="catalog-facet-count">{option.count}</Box>
+                <Box component="span" className="catalog-facet-count" aria-hidden={name === 'repository' ? true : undefined}>{option.count}</Box>
               </Box>
             )}
           />
@@ -648,34 +649,13 @@ function Catalog() {
       </Typography>
       <CatalogDateFilter items={items} from={filters.from} through={filters.to} onChange={update} />
       <Divider />
-      <Box component="section" sx={{ py: 2 }} aria-label="Repository">
-        <Typography component="h2" className="catalog-date-heading" sx={{ mb: 2 }}>
-          Repository
-        </Typography>
-        {REPOSITORIES.map(({ value, label }) => (
-          <FormControlLabel
-            key={value}
-            label={(
-              <Box component="span" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
-                <Box component="span">{label}</Box>
-                <Box component="span" className="catalog-facet-count" aria-hidden="true">{repositoryCounts[value]}</Box>
-              </Box>
-            )}
-            sx={{ display: 'flex', m: 0, py: 0.5, '& .MuiFormControlLabel-label': { flex: 1, minWidth: 0 } }}
-            control={(
-              <Checkbox
-                size="small"
-                checked={filters.repository.includes(value)}
-                onChange={(event) => update({
-                  repository: event.target.checked
-                    ? [...filters.repository, value]
-                    : filters.repository.filter((entry) => entry !== value),
-                })}
-              />
-            )}
-          />
-        ))}
-      </Box>
+      <Facet
+        name="repository"
+        options={REPOSITORIES.map((repository) => ({ ...repository, count: repositoryCounts[repository.value] }))}
+        selected={filters.repository}
+        onChange={(repository) => update({ repository })}
+        mapReady={false}
+      />
       <Divider />
       {FACETS.map((key) => (
         <React.Fragment key={key}>

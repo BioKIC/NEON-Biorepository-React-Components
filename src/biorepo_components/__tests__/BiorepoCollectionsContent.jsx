@@ -332,6 +332,13 @@ test('repository checkboxes support either group, both groups, and reset', async
   }) });
   mount();
   await screen.findByRole('link', { name: 'Ear Punches' });
+  const repositories = within(screen.getByRole('region', { name: 'Repository' }));
+  expect(repositories.getByText('(none selected)')).toBeTruthy();
+  expect(repositories.getAllByRole('checkbox')).toHaveLength(5);
+  fireEvent.click(repositories.getByRole('button', { name: 'View all (10)' }));
+  expect(repositories.getAllByRole('checkbox')).toHaveLength(10);
+  fireEvent.click(repositories.getByRole('button', { name: 'View fewer' }));
+  expect(repositories.getAllByRole('checkbox')).toHaveLength(5);
   const outside = screen.getByRole('checkbox', { name: 'Outside Repositories' });
   const asu = screen.getByRole('checkbox', { name: 'NEON Biorepository (Arizona State University)' });
   expect(outside.closest('label').querySelector('.catalog-facet-count').textContent).toBe('1');
@@ -341,6 +348,7 @@ test('repository checkboxes support either group, both groups, and reset', async
   expect(screen.queryByRole('link', { name: 'Ear Punches' })).toBeNull();
   expect(screen.getByRole('link', { name: 'Hearts' })).toBeTruthy();
   expect(window.location.search).toContain('repository=outside');
+  expect(repositories.getByText('(1 selected)')).toBeTruthy();
   fireEvent.click(asu);
   expect(screen.getByRole('link', { name: 'Hearts' })).toBeTruthy();
   expect(screen.getByRole('link', { name: 'Ear Punches' })).toBeTruthy();
