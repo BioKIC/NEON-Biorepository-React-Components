@@ -302,3 +302,16 @@ test('Search for Samples opens the search form with the card collection selected
     delete window.NEON_CLIENT_ROOT;
   }
 });
+
+
+test('outside repository collections have a labeled chip and working search links', async () => {
+  global.fetch.mockResolvedValue({ ok: true, json: async () => ({
+    ...data, items: [{ ...data.items[0], outsideRepository: true }, data.items[1]],
+  }) });
+  mount();
+  const title = await screen.findByRole('link', { name: 'Ear Punches' });
+  const card = title.closest('.catalog-card');
+  expect(within(card).getByText('Outside Repository')).toBeTruthy();
+  expect(screen.getAllByText('Outside Repository')).toHaveLength(1);
+  expect(within(card).getByRole('link', { name: 'Search for Samples' }).getAttribute('href')).toBe('/neon/search/index.php?db=1');
+});

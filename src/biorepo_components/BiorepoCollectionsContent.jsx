@@ -759,6 +759,14 @@ function Catalog() {
                           sx={{ bgcolor: '#e4e7e7', color: '#737d81', border: '1px solid #92999b' }}
                         />
                       )}
+                      {item.outsideRepository && (
+                        <Chip
+                          className="catalog-code"
+                          label="Outside Repository"
+                          size="small"
+                          sx={{ bgcolor: '#e6f2fb', color: '#004b76', border: '1px solid #0073cf' }}
+                        />
+                      )}
                       {/\bidentifications?\b/i.test(item.sampleTypeName || item.name || '') && (
                         <Chip
                           className="catalog-code"
