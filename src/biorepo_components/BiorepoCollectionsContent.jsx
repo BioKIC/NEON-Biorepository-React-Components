@@ -9,6 +9,7 @@ import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import CatalogDateFilter from './sampleCatalog/CatalogDateFilter';
+import CatalogDescription from './sampleCatalog/CatalogDescription';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import { createTheme, ThemeProvider, useTheme } from '@mui/material/styles';
@@ -23,6 +24,9 @@ import {
   Divider,
   FormControlLabel,
   GlobalStyles,
+  IconButton,
+  Tooltip,
+  ClickAwayListener,
   Link,
   Stack,
   TextField,
@@ -33,6 +37,8 @@ import DataProductAvailability from '../lib_components/components/DataProductAva
 import MapSelectionButton from '../lib_components/components/MapSelectionButton/MapSelectionButton';
 import {
   FACETS,
+  REPOSITORIES,
+  matchesRepository,
   cardDescription,
   emptyFilters,
   filterCatalog,
@@ -43,6 +49,7 @@ import {
 } from './sampleCatalog/catalog';
 
 const labels = {
+  repository: 'Repository',
   taxa: 'Taxonomic Group',
   preservation: 'Preservation Method',
   protocols: 'Protocol',
@@ -60,6 +67,14 @@ const compactCatalogStyles = {
     [catalogTextSelector]: {
       fontSize: '0.875rem !important',
     },
+    '& .catalog-request-heading.MuiTypography-root': { fontSize: '0.875rem !important', fontWeight: 500 },
+    '& .catalog-request-description.MuiTypography-root': { fontSize: '0.6875rem !important', lineHeight: 1.5, color: '#595d60' },
+    '& .catalog-request-button.MuiButton-root': {
+      fontSize: '0.625rem !important', fontWeight: 500, whiteSpace: 'nowrap',
+      padding: '0.5rem 1rem', backgroundColor: '#0073cf', color: '#fff',
+      '&:hover': { backgroundColor: '#005da8' },
+    },
+    '& .catalog-chip-help-glyph': { fontSize: '0.45rem !important', lineHeight: 1, fontWeight: 500 },
     '& h1.MuiTypography-root, & h1 a': { fontSize: '2rem !important' },
     '& h2.MuiTypography-root, & h2 a, & .MuiDialogTitle-root': { fontSize: '1.125rem !important' },
     [['h3', 'h4', 'h5', 'h6'].map((tag) => `& ${tag}.MuiTypography-root`).join(', ')]: {
@@ -214,6 +229,34 @@ const EMPTY_ITEMS = [];
 const EMPTY_SITES = {};
 const mapTypes = { sites: 'SITES', states: 'STATES', domains: 'DOMAINS' };
 
+function ChipHelp({ label, children, color }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <ClickAwayListener onClickAway={() => setOpen(false)}>
+      <span style={{ position: 'relative', top: '-0.25rem', display: 'inline-flex', flexShrink: 0 }}>
+        <Tooltip
+          title={children}
+          open={open}
+          onOpen={() => setOpen(true)}
+          onClose={() => setOpen(false)}
+          describeChild
+          slotProps={{ tooltip: { sx: { fontSize: '0.625rem !important', lineHeight: 1.5, maxWidth: 280 } } }}
+        >
+          <IconButton
+            aria-label={label}
+            size="small"
+            onClick={() => setOpen((value) => !value)}
+            onKeyDown={(event) => { if (event.key === 'Escape') setOpen(false); }}
+            sx={{ p: 0, color, bgcolor: 'transparent', '&:hover': { bgcolor: 'transparent' } }}
+          >
+            <Box component="span" className="catalog-chip-help-glyph" aria-hidden="true" sx={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '0.625rem', height: '0.625rem', border: '1px solid currentColor', borderRadius: '50%', fontSize: '0.45rem !important', lineHeight: 1 }}>?</Box>
+          </IconButton>
+        </Tooltip>
+      </span>
+    </ClickAwayListener>
+  );
+}
+
 function Facet({
   name, options, selected, onChange, mapReady,
 }) {
@@ -233,7 +276,7 @@ function Facet({
   return (
     <Box component="section" sx={{ py: 2 }} aria-label={labels[name]}>
       <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-        <Typography component="h3" variant="subtitle1" sx={{ fontWeight: 700 }}>
+        <Typography component="h2" className="catalog-date-heading">
           {labels[name]}
         </Typography>
         <Stack direction="row" sx={{ gap: 1, flexShrink: 0 }}>
@@ -276,7 +319,7 @@ function Facet({
       <Typography className="catalog-selection-count" aria-live="polite" sx={{ mb: 2 }}>
         {selected.length ? `(${selected.length} selected)` : '(none selected)'}
       </Typography>
-      <TextField
+      {name !== 'repository' && <TextField
         className="catalog-search-field"
         fullWidth
         size="small"
@@ -284,7 +327,7 @@ function Facet({
         slotProps={{ htmlInput: { 'aria-label': `Search ${labels[name].toLowerCase()}` } }}
         value={query}
         onChange={(event) => setQuery(event.target.value)}
-      />
+      />}
       <Box sx={{ mt: 1 }}>
         {visible.map((option) => (
           <FormControlLabel
@@ -315,7 +358,7 @@ function Facet({
                     <Box component="span" className="catalog-facet-subtitle">{option.subtitle}</Box>
                   )}
                 </Box>
-                <Box component="span" className="catalog-facet-count">{option.count}</Box>
+                <Box component="span" className="catalog-facet-count" aria-hidden={name === 'repository' ? true : undefined}>{option.count}</Box>
               </Box>
             )}
           />
@@ -439,6 +482,15 @@ function Catalog() {
     }
   };
   const results = useMemo(() => filterCatalog(items, filters, sites), [items, filters, sites]);
+  const repositoryCounts = useMemo(() => {
+    const counts = Object.fromEntries(REPOSITORIES.map(({ value }) => [value, 0]));
+    filterCatalog(items, { ...filters, repository: [] }, sites).forEach((item) => {
+      REPOSITORIES.forEach(({ value }) => {
+        if (matchesRepository(item, value)) counts[value] += 1;
+      });
+    });
+    return counts;
+  }, [items, filters, sites]);
 
   useEffect(() => {
     const term = filters.q.trim().replace(/\s+/g, ' ');
@@ -578,11 +630,12 @@ function Catalog() {
       >
         Reset all filters
       </Button>
+      <Divider sx={{ mt: 3 }} />
       <Typography
         id="catalog-search-heading"
         className="catalog-search-heading"
         component="h2"
-        sx={{ mt: 3, mb: 2 }}
+        sx={{ mt: 2, mb: 2 }}
       >
         Search
       </Typography>
@@ -605,6 +658,14 @@ function Catalog() {
       </Typography>
       <CatalogDateFilter items={items} from={filters.from} through={filters.to} onChange={update} />
       <Divider />
+      <Facet
+        name="repository"
+        options={REPOSITORIES.map((repository) => ({ ...repository, count: repositoryCounts[repository.value] }))}
+        selected={filters.repository}
+        onChange={(repository) => update({ repository })}
+        mapReady={false}
+      />
+      <Divider />
       {FACETS.map((key) => (
         <React.Fragment key={key}>
           <Facet
@@ -623,12 +684,14 @@ function Catalog() {
   return (
     <Box>
       {sidebar ? createPortal(filterPanel, sidebar) : null}
-      <Typography variant="h3" component="h1">
-        Explore Sample Types
-      </Typography>
-      <Typography sx={{ mt: 2, mb: 3 }}>
-        Discover samples and specimens held at the NEON Biorepository.
-      </Typography>
+      <Box sx={{ mb: 3 }}>
+        <Typography variant="h3" component="h1">
+          Explore Sample Types
+        </Typography>
+        <Typography sx={{ mt: 2 }}>
+          Discover samples and specimens collected by NEON
+        </Typography>
+      </Box>
       {error && (
         <Alert
           severity="error"
@@ -651,49 +714,72 @@ function Catalog() {
       )}
       {catalog && (
         <>
-          <Box component="section" aria-label="Sample catalog summary" sx={{ mb: 3 }}>
-            <Typography className="catalog-summary-title" component="h2" variant="h5">
-              All Sample Types
-            </Typography>
-            <Stack
-              direction="row"
-              sx={{
-                alignItems: 'center', gap: 0.75, mt: 2, mb: 1,
-              }}
-            >
-              <FormatListBulletedIcon
-                aria-hidden="true"
-                sx={{ fontSize: '0.75rem', color: '#595d60' }}
-              />
-              <Typography className="catalog-summary-count">
-                {`${items.length} sample types from ${siteCount} sites`}
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 30rem) minmax(15rem, 20rem)' }, gap: 3, alignItems: 'start', mb: 3 }}>
+            <Box component="section" aria-label="Sample catalog summary">
+              <Typography className="catalog-summary-title" component="h2" variant="h5">
+                All Sample Types
               </Typography>
-            </Stack>
-            <Stack direction="row" sx={{ alignItems: 'center', flexWrap: 'wrap', gap: 0.5 }}>
-              <Typography className="catalog-download-label">Download Full Catalog:</Typography>
-              <Stack direction="row">
-                {['csv', 'json', 'pdf'].map((format) => (
-                  <Button
-                    className="catalog-download-button"
-                    key={format}
-                    onClick={() => download(format)}
-                    disabled={Boolean(downloading)}
-                    aria-label={`Download full catalog ${format.toUpperCase()}`}
-                  >
-                    {downloading === format ? 'Downloading…' : format.toUpperCase()}
-                  </Button>
-                ))}
+              <Stack
+                direction="row"
+                sx={{
+                  alignItems: 'center', gap: 0.75, mt: 2, mb: 1,
+                }}
+              >
+                <FormatListBulletedIcon
+                  aria-hidden="true"
+                  sx={{ fontSize: '0.75rem', color: '#595d60' }}
+                />
+                <Typography className="catalog-summary-count">
+                  {`${items.length} sample types (including identification records) from ${siteCount} sites`}
+                </Typography>
               </Stack>
-            </Stack>
-            <Typography className="catalog-download-note" sx={{ mt: 1 }}>
-              Identification records are linked under “Bulk sample identifications” in the full catalog.
-            </Typography>
+              <Stack direction="row" sx={{ alignItems: 'center', flexWrap: 'wrap', gap: 0.5 }}>
+                <Typography className="catalog-download-label">Download Full Catalog:</Typography>
+                <Stack direction="row">
+                  {['csv', 'json', 'pdf'].map((format) => (
+                    <Button
+                      className="catalog-download-button"
+                      key={format}
+                      onClick={() => download(format)}
+                      disabled={Boolean(downloading)}
+                      aria-label={`Download full catalog ${format.toUpperCase()}`}
+                    >
+                      {downloading === format ? 'Downloading…' : format.toUpperCase()}
+                    </Button>
+                  ))}
+                </Stack>
+              </Stack>
+              <Typography className="catalog-download-note" sx={{ mt: 1 }}>
+                Identification records are linked under “Bulk sample identifications” in the full catalog.
+              </Typography>
+            </Box>
+            <Box component="aside" aria-label="Request samples" sx={{ mt: { xs: 0, md: '-3rem' }, bgcolor: '#f5f6f7', border: '1px solid #d5d9db', borderRadius: '0.375rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.22)', p: { xs: 3, md: 4 } }}>
+              <Typography component="h2" className="catalog-request-heading">Interested in using samples?</Typography>
+              <Typography className="catalog-request-description" sx={{ mt: 1, mb: 2 }}>
+                Learn how to request samples and specimens for your research.
+              </Typography>
+              <Button
+                className="catalog-request-button"
+                variant="contained"
+                fullWidth
+                href={`${root}/misc/samplerequests.php`}
+              >
+                Request Samples &gt;
+              </Button>
+            </Box>
           </Box>
           {exportError && <Alert severity="warning">{exportError}</Alert>}
           <Stack className="catalog-active-filters" direction="row" sx={{ gap: 1, flexWrap: 'wrap', mb: 2 }}>
             {filters.q && (
               <Chip label={`Search: ${filters.q}`} onDelete={() => update({ q: '' })} />
             )}
+            {filters.repository.map((repository) => (
+              <Chip
+                key={repository}
+                label={REPOSITORIES.find(({ value }) => value === repository)?.label || repository}
+                onDelete={() => update({ repository: filters.repository.filter((value) => value !== repository) })}
+              />
+            ))}
             {active.map(({ key, value, label }) => (
               <Chip
                 key={`${key}-${value}`}
@@ -758,28 +844,54 @@ function Catalog() {
                           sx={{ bgcolor: '#e4e7e7', color: '#737d81', border: '1px solid #92999b' }}
                         />
                       )}
+                      {item.outsideRepository && (
+                        <Box sx={{ display: 'inline-flex', alignItems: 'flex-start', gap: '0.125rem' }}>
+                          <Chip
+                            className="catalog-code"
+                            label="Outside Repository"
+                            size="small"
+                            sx={{ bgcolor: '#e8f5e9', color: '#1b5e20', border: '1px solid #388e3c' }}
+                          />
+                          <ChipHelp label="About outside repositories" color="#1b5e20">
+                            Samples and specimens held at repositories outside the NEON Biorepository at Arizona State University.{' '}
+                            <Link href="https://www.neonscience.org/samples/sample-repositories" target="_blank" rel="noopener noreferrer" color="inherit" underline="always">Learn about NEON sample repositories</Link>
+                          </ChipHelp>
+                        </Box>
+                      )}
                       {/\bidentifications?\b/i.test(item.sampleTypeName || item.name || '') && (
-                        <Chip
-                          className="catalog-code"
-                          label="Identification Records"
-                          size="small"
-                          sx={{ bgcolor: '#f5b23b', color: '#4b2d0b', border: '1px solid #a4681b' }}
-                        />
+                        <Box sx={{ display: 'inline-flex', alignItems: 'flex-start', gap: '0.125rem' }}>
+                          <Chip
+                            className="catalog-code"
+                            label="Identification Records"
+                            size="small"
+                            sx={{ bgcolor: '#f5b23b', color: '#4b2d0b', border: '1px solid #a4681b' }}
+                          />
+                          <ChipHelp label="About identification records" color="#a4681b">
+                            Taxonomic identification records describe organisms identified within a bulk sample rather than individually archived specimens.
+                          </ChipHelp>
+                        </Box>
                       )}
                     </Stack>
                     {description && (
                       <Typography sx={{ mt: 2 }}>
-                        {description}
+                        <CatalogDescription html={item.shortDescriptionHtml} text={description} />
                       </Typography>
                     )}
                   </Box>
                   <Stack sx={{ gap: 1.5, width: '100%', minWidth: 0 }}>
                     <Button
                       variant="contained"
+                      href={`${root}/neon/search/index.php?db=${item.id}`}
                       endIcon={<SearchIcon />}
+                    >
+                      Search for Samples
+                    </Button>
+                    <Button
+                      variant="contained"
+                      endIcon={<FormatListBulletedIcon />}
                       href={`${root}/collections/list.php?db=${item.id}`}
                     >
-                      Browse all samples
+                      Browse all records
                     </Button>
                     <Button variant="outlined" href={details} endIcon={<InfoOutlinedIcon />}>
                       Sample type details

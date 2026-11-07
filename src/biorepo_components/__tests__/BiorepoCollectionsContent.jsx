@@ -264,6 +264,100 @@ test('identification cards show an Identification Records chip beside the collec
   const title = await screen.findByRole('link', { name: 'Diatom Slide Identifications' });
   const card = title.closest('.catalog-card');
   const chip = within(card).getByText('Identification Records').closest('.MuiChip-root');
-  expect(chip.previousElementSibling.textContent).toBe('COLL-1');
+  expect(chip.parentElement.previousElementSibling.textContent).toBe('COLL-1');
   expect(screen.getAllByText('Identification Records')).toHaveLength(1);
+  const help = within(card).getByRole('button', { name: 'About identification records' });
+  fireEvent.click(help);
+  expect((await screen.findByRole('tooltip')).textContent).toContain('Taxonomic identification records describe organisms');
+  fireEvent.keyDown(help, { key: 'Escape' });
+  await waitFor(() => expect(screen.queryByRole('tooltip')).toBeNull());
+
+});
+
+
+test('description links remain clickable without rendering unsafe stored HTML', async () => {
+  global.fetch.mockResolvedValue({ ok: true, json: async () => ({
+    ...data, items: [{
+      ...data.items[0],
+      shortDescription: 'Read the protocol and other details.',
+      shortDescriptionHtml: '<p>Read <a href="/protocol" onclick="alert(1)">the protocol</a> and <a href="javascript:alert(1)">other details</a>.</p><script>alert(1)</script>',
+    }],
+  }) });
+  mount();
+  const link = await screen.findByRole('link', { name: 'the protocol' });
+  expect(link.getAttribute('href')).toBe(new URL('/protocol', window.location.href).href);
+  expect(link.hasAttribute('onclick')).toBe(false);
+  expect(screen.queryByRole('link', { name: 'other details' })).toBeNull();
+  expect(link.closest('.catalog-card').querySelector('script')).toBeNull();
+});
+
+
+test('Search for Samples opens the search form with the card collection selected', async () => {
+  window.NEON_CLIENT_ROOT = '/neon';
+  try {
+    mount();
+    const title = await screen.findByRole('link', { name: 'Ear Punches' });
+    const card = title.closest('.catalog-card');
+    const filter = within(card).getByRole('link', { name: 'Search for Samples' });
+    expect(filter.getAttribute('href')).toBe('/neon/neon/search/index.php?db=1');
+    expect(filter.previousElementSibling).toBeNull();
+    expect(filter.nextElementSibling.textContent).toContain('Browse all records');
+    const other = screen.getByRole('link', { name: 'Hearts' }).closest('.catalog-card');
+    expect(within(other).getByRole('link', { name: 'Search for Samples' }).getAttribute('href')).toBe('/neon/neon/search/index.php?db=2');
+  } finally {
+    delete window.NEON_CLIENT_ROOT;
+  }
+});
+
+
+test('outside repository collections have a labeled chip and working search links', async () => {
+  global.fetch.mockResolvedValue({ ok: true, json: async () => ({
+    ...data, items: [{ ...data.items[0], outsideRepository: true }, data.items[1]],
+  }) });
+  mount();
+  const title = await screen.findByRole('link', { name: 'Ear Punches' });
+  const card = title.closest('.catalog-card');
+  expect(within(card).getByText('Outside Repository')).toBeTruthy();
+  expect(screen.getAllByText('Outside Repository')).toHaveLength(1);
+  fireEvent.click(within(card).getByRole('button', { name: 'About outside repositories' }));
+  const tooltip = await screen.findByRole('tooltip');
+  expect(within(tooltip).getByRole('link', { name: 'Learn about NEON sample repositories' }).getAttribute('href')).toBe('https://www.neonscience.org/samples/sample-repositories');
+  expect(within(card).getByRole('link', { name: 'Search for Samples' }).getAttribute('href')).toBe('/neon/search/index.php?db=1');
+});
+
+
+test('repository checkboxes support individual repositories, multiple selections, and reset', async () => {
+  global.fetch.mockResolvedValue({ ok: true, json: async () => ({
+    ...data, items: [data.items[0], { ...data.items[1], id: 97, outsideRepository: true }],
+  }) });
+  mount();
+  await screen.findByRole('link', { name: 'Ear Punches' });
+  const repositories = within(screen.getByRole('region', { name: 'Repository' }));
+  expect(repositories.getByText('(none selected)')).toBeTruthy();
+  expect(repositories.getAllByRole('checkbox')).toHaveLength(5);
+  fireEvent.click(repositories.getByRole('button', { name: 'View all (9)' }));
+  expect(repositories.getAllByRole('checkbox')).toHaveLength(9);
+  fireEvent.click(repositories.getByRole('button', { name: 'View fewer' }));
+  expect(repositories.getAllByRole('checkbox')).toHaveLength(5);
+  expect(screen.queryByRole('checkbox', { name: 'Outside Repositories' })).toBeNull();
+  const outside = screen.getByRole('checkbox', { name: 'Bernice Pauahi Bishop Museum' });
+  const asu = screen.getByRole('checkbox', { name: 'NEON Biorepository (Arizona State University)' });
+  expect(outside.closest('label').querySelector('.catalog-facet-count').textContent).toBe('1');
+  expect(asu.closest('label').querySelector('.catalog-facet-count').textContent).toBe('1');
+  fireEvent.click(outside);
+  expect(asu.closest('label').querySelector('.catalog-facet-count').textContent).toBe('1');
+  expect(screen.queryByRole('link', { name: 'Ear Punches' })).toBeNull();
+  expect(screen.getByRole('link', { name: 'Hearts' })).toBeTruthy();
+  expect(window.location.search).toContain('repository=bpbm');
+  expect(repositories.getByText('(1 selected)')).toBeTruthy();
+  fireEvent.click(asu);
+  expect(screen.getByRole('link', { name: 'Hearts' })).toBeTruthy();
+  expect(screen.getByRole('link', { name: 'Ear Punches' })).toBeTruthy();
+  fireEvent.click(outside);
+  expect(screen.getByRole('link', { name: 'Ear Punches' })).toBeTruthy();
+  expect(screen.queryByRole('link', { name: 'Hearts' })).toBeNull();
+  fireEvent.click(screen.getByRole('button', { name: 'Reset all filters' }));
+  expect(outside.checked).toBe(false);
+  expect(asu.checked).toBe(false);
+  expect(screen.getByRole('link', { name: 'Hearts' })).toBeTruthy();
 });

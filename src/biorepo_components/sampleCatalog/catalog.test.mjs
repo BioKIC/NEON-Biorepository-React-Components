@@ -161,3 +161,13 @@ test('taxonomic groups boost pinned carabids for beetle searches without aliases
     assert.deepEqual(filterCatalog(records, { ...emptyFilters(), q }, reference).map(({ id }) => id), [39, 63]);
   }
 });
+
+test('individual repositories support combined selections and shared domain-office collections', () => {
+  const records = [item, ...[44, 74, 95, 115, 97].map((id) => ({ ...item, id, outsideRepository: true }))];
+  const selected = (repository) => filterCatalog(records, { ...emptyFilters(), repository }).map(({ id }) => id).sort((a, b) => a - b);
+  assert.deepEqual(selected(['emec']), [44]);
+  assert.deepEqual(selected(['neon-domains']), [95, 115]);
+  assert.deepEqual(selected(['asu', 'bpbm']), [1, 97]);
+  assert.deepEqual(selected(['outside', 'emec']), [44, 74, 95, 97, 115]);
+  assert.deepEqual(readFilters(writeFilters('', { ...emptyFilters(), repository: ['msb', 'neon-domains'] })).repository, ['msb', 'neon-domains']);
+});
