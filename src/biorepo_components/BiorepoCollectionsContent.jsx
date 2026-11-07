@@ -649,7 +649,7 @@ function Catalog() {
           Repository
         </Typography>
         {[
-          ['asu', 'NEON Biorepository (ASU)'],
+          ['asu', 'NEON Biorepository (Arizona State University)'],
           ['outside', 'Outside Repositories'],
         ].map(([value, label]) => (
           <FormControlLabel
@@ -768,7 +768,7 @@ function Catalog() {
             {filters.repository.map((repository) => (
               <Chip
                 key={repository}
-                label={repository === 'asu' ? 'NEON Biorepository (ASU)' : 'Outside Repositories'}
+                label={repository === 'asu' ? 'NEON Biorepository (Arizona State University)' : 'Outside Repositories'}
                 onDelete={() => update({ repository: filters.repository.filter((value) => value !== repository) })}
               />
             ))}
@@ -845,7 +845,7 @@ function Catalog() {
                             sx={{ bgcolor: '#e8f5e9', color: '#1b5e20', border: '1px solid #388e3c' }}
                           />
                           <ChipHelp label="About outside repositories" color="#1b5e20">
-                            Samples and specimens held at repositories outside the NEON Biorepository at ASU.{' '}
+                            Samples and specimens held at repositories outside the NEON Biorepository at Arizona State University.{' '}
                             <Link href="https://www.neonscience.org/samples/sample-repositories" target="_blank" rel="noopener noreferrer" color="inherit" underline="always">Learn about NEON sample repositories</Link>
                           </ChipHelp>
                         </Box>
