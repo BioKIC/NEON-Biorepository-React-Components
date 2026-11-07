@@ -4,7 +4,6 @@ import React, {
 import { createPortal } from 'react-dom';
 import PropTypes from 'prop-types';
 import SearchIcon from '@mui/icons-material/Search';
-import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import CloseIcon from '@mui/icons-material/Close';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
@@ -778,7 +777,7 @@ function Catalog() {
                   <Stack sx={{ gap: 1.5, width: '100%', minWidth: 0 }}>
                     <Button
                       variant="contained"
-                      endIcon={<SearchIcon />}
+                      endIcon={<FormatListBulletedIcon />}
                       href={`${root}/collections/list.php?db=${item.id}`}
                     >
                       Browse all samples
@@ -786,7 +785,7 @@ function Catalog() {
                     <Button
                       variant="contained"
                       href={`${root}/neon/search/index.php?db=${item.id}`}
-                      endIcon={<FilterAltOutlinedIcon />}
+                      endIcon={<SearchIcon />}
                     >
                       Search Sample Type
                     </Button>
