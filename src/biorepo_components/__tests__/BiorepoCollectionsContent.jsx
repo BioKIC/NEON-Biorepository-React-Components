@@ -317,21 +317,26 @@ test('outside repository collections have a labeled chip and working search link
 });
 
 
-test('repository selector filters collections, persists in URL, and resets', async () => {
+test('repository checkboxes support either group, both groups, and reset', async () => {
   global.fetch.mockResolvedValue({ ok: true, json: async () => ({
     ...data, items: [data.items[0], { ...data.items[1], outsideRepository: true }],
   }) });
   mount();
   await screen.findByRole('link', { name: 'Ear Punches' });
-  const select = screen.getByRole('combobox', { name: 'Repository' });
-  fireEvent.change(select, { target: { value: 'outside' } });
+  const outside = screen.getByRole('checkbox', { name: 'Outside Repositories' });
+  const asu = screen.getByRole('checkbox', { name: 'NEON Biorepository (ASU)' });
+  fireEvent.click(outside);
   expect(screen.queryByRole('link', { name: 'Ear Punches' })).toBeNull();
   expect(screen.getByRole('link', { name: 'Hearts' })).toBeTruthy();
   expect(window.location.search).toContain('repository=outside');
-  fireEvent.change(select, { target: { value: 'asu' } });
+  fireEvent.click(asu);
+  expect(screen.getByRole('link', { name: 'Hearts' })).toBeTruthy();
+  expect(screen.getByRole('link', { name: 'Ear Punches' })).toBeTruthy();
+  fireEvent.click(outside);
   expect(screen.getByRole('link', { name: 'Ear Punches' })).toBeTruthy();
   expect(screen.queryByRole('link', { name: 'Hearts' })).toBeNull();
   fireEvent.click(screen.getByRole('button', { name: 'Reset all filters' }));
-  expect(select.value).toBe('');
+  expect(outside.checked).toBe(false);
+  expect(asu.checked).toBe(false);
   expect(screen.getByRole('link', { name: 'Hearts' })).toBeTruthy();
 });

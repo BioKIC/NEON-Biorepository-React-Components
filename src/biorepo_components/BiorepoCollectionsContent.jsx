@@ -610,19 +610,27 @@ function Catalog() {
         <Typography component="h2" className="catalog-date-heading" sx={{ mb: 2 }}>
           Repository
         </Typography>
-        <TextField
-          select
-          fullWidth
-          size="small"
-          className="catalog-search-field"
-          value={filters.repository}
-          onChange={(event) => update({ repository: event.target.value })}
-          slotProps={{ select: { native: true }, htmlInput: { 'aria-label': 'Repository' } }}
-        >
-          <option value="">All Repositories</option>
-          <option value="asu">NEON Biorepository (ASU)</option>
-          <option value="outside">Outside Repositories</option>
-        </TextField>
+        {[
+          ['asu', 'NEON Biorepository (ASU)'],
+          ['outside', 'Outside Repositories'],
+        ].map(([value, label]) => (
+          <FormControlLabel
+            key={value}
+            label={label}
+            sx={{ display: 'flex', m: 0, py: 0.5 }}
+            control={(
+              <Checkbox
+                size="small"
+                checked={filters.repository.includes(value)}
+                onChange={(event) => update({
+                  repository: event.target.checked
+                    ? [...filters.repository, value]
+                    : filters.repository.filter((entry) => entry !== value),
+                })}
+              />
+            )}
+          />
+        ))}
       </Box>
       <Divider />
       {FACETS.map((key) => (
@@ -714,12 +722,13 @@ function Catalog() {
             {filters.q && (
               <Chip label={`Search: ${filters.q}`} onDelete={() => update({ q: '' })} />
             )}
-            {filters.repository && (
+            {filters.repository.map((repository) => (
               <Chip
-                label={filters.repository === 'asu' ? 'NEON Biorepository (ASU)' : 'Outside Repositories'}
-                onDelete={() => update({ repository: '' })}
+                key={repository}
+                label={repository === 'asu' ? 'NEON Biorepository (ASU)' : 'Outside Repositories'}
+                onDelete={() => update({ repository: filters.repository.filter((value) => value !== repository) })}
               />
-            )}
+            ))}
             {active.map(({ key, value, label }) => (
               <Chip
                 key={`${key}-${value}`}
