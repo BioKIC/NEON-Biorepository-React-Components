@@ -787,7 +787,7 @@ function Catalog() {
                       endIcon={<FormatListBulletedIcon />}
                       href={`${root}/collections/list.php?db=${item.id}`}
                     >
-                      Browse all samples
+                      Browse all records
                     </Button>
                     <Button variant="outlined" href={details} endIcon={<InfoOutlinedIcon />}>
                       Sample type details

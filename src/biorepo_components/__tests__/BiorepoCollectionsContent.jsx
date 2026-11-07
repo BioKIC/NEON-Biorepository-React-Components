@@ -295,7 +295,7 @@ test('Search for Samples opens the search form with the card collection selected
     const filter = within(card).getByRole('link', { name: 'Search for Samples' });
     expect(filter.getAttribute('href')).toBe('/neon/neon/search/index.php?db=1');
     expect(filter.previousElementSibling).toBeNull();
-    expect(filter.nextElementSibling.textContent).toContain('Browse all samples');
+    expect(filter.nextElementSibling.textContent).toContain('Browse all records');
     const other = screen.getByRole('link', { name: 'Hearts' }).closest('.catalog-card');
     expect(within(other).getByRole('link', { name: 'Search for Samples' }).getAttribute('href')).toBe('/neon/neon/search/index.php?db=2');
   } finally {
