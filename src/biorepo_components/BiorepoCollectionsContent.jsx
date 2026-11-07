@@ -67,6 +67,8 @@ const compactCatalogStyles = {
     [catalogTextSelector]: {
       fontSize: '0.875rem !important',
     },
+    '& .catalog-request-heading.MuiTypography-root': { fontSize: '0.875rem !important', fontWeight: 500 },
+    '& .catalog-request-description.MuiTypography-root': { fontSize: '0.6875rem !important', lineHeight: 1.5, color: '#595d60' },
     '& .catalog-request-button.MuiButton-root': {
       fontSize: '0.625rem !important', fontWeight: 500, whiteSpace: 'nowrap',
       padding: '0.5rem 1rem', backgroundColor: '#0073cf', color: '#fff',
@@ -682,23 +684,14 @@ function Catalog() {
   return (
     <Box>
       {sidebar ? createPortal(filterPanel, sidebar) : null}
-      <Stack direction={{ xs: 'column', md: 'row' }} sx={{ justifyContent: 'space-between', alignItems: { xs: 'flex-start', md: 'center' }, gap: 2, mb: 3 }}>
-        <Box>
-          <Typography variant="h3" component="h1">
-            Explore Sample Types
-          </Typography>
-          <Typography sx={{ mt: 2 }}>
-            Discover samples and specimens collected by NEON
-          </Typography>
-        </Box>
-        <Button
-          className="catalog-request-button"
-          variant="contained"
-          href="https://biorepo.neonscience.org/portal/misc/samplerequests.php"
-        >
-          Request Samples
-        </Button>
-      </Stack>
+      <Box sx={{ mb: 3 }}>
+        <Typography variant="h3" component="h1">
+          Explore Sample Types
+        </Typography>
+        <Typography sx={{ mt: 2 }}>
+          Discover samples and specimens collected by NEON
+        </Typography>
+      </Box>
       {error && (
         <Alert
           severity="error"
@@ -721,43 +714,60 @@ function Catalog() {
       )}
       {catalog && (
         <>
-          <Box component="section" aria-label="Sample catalog summary" sx={{ mb: 3 }}>
-            <Typography className="catalog-summary-title" component="h2" variant="h5">
-              All Sample Types
-            </Typography>
-            <Stack
-              direction="row"
-              sx={{
-                alignItems: 'center', gap: 0.75, mt: 2, mb: 1,
-              }}
-            >
-              <FormatListBulletedIcon
-                aria-hidden="true"
-                sx={{ fontSize: '0.75rem', color: '#595d60' }}
-              />
-              <Typography className="catalog-summary-count">
-                {`${items.length} sample types from ${siteCount} sites`}
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 1fr) minmax(13rem, 17rem)' }, gap: 3, alignItems: 'start', mb: 3 }}>
+            <Box component="section" aria-label="Sample catalog summary">
+              <Typography className="catalog-summary-title" component="h2" variant="h5">
+                All Sample Types
               </Typography>
-            </Stack>
-            <Stack direction="row" sx={{ alignItems: 'center', flexWrap: 'wrap', gap: 0.5 }}>
-              <Typography className="catalog-download-label">Download Full Catalog:</Typography>
-              <Stack direction="row">
-                {['csv', 'json', 'pdf'].map((format) => (
-                  <Button
-                    className="catalog-download-button"
-                    key={format}
-                    onClick={() => download(format)}
-                    disabled={Boolean(downloading)}
-                    aria-label={`Download full catalog ${format.toUpperCase()}`}
-                  >
-                    {downloading === format ? 'Downloading…' : format.toUpperCase()}
-                  </Button>
-                ))}
+              <Stack
+                direction="row"
+                sx={{
+                  alignItems: 'center', gap: 0.75, mt: 2, mb: 1,
+                }}
+              >
+                <FormatListBulletedIcon
+                  aria-hidden="true"
+                  sx={{ fontSize: '0.75rem', color: '#595d60' }}
+                />
+                <Typography className="catalog-summary-count">
+                  {`${items.length} sample types from ${siteCount} sites`}
+                </Typography>
               </Stack>
-            </Stack>
-            <Typography className="catalog-download-note" sx={{ mt: 1 }}>
-              Identification records are linked under “Bulk sample identifications” in the full catalog.
-            </Typography>
+              <Stack direction="row" sx={{ alignItems: 'center', flexWrap: 'wrap', gap: 0.5 }}>
+                <Typography className="catalog-download-label">Download Full Catalog:</Typography>
+                <Stack direction="row">
+                  {['csv', 'json', 'pdf'].map((format) => (
+                    <Button
+                      className="catalog-download-button"
+                      key={format}
+                      onClick={() => download(format)}
+                      disabled={Boolean(downloading)}
+                      aria-label={`Download full catalog ${format.toUpperCase()}`}
+                    >
+                      {downloading === format ? 'Downloading…' : format.toUpperCase()}
+                    </Button>
+                  ))}
+                </Stack>
+              </Stack>
+              <Typography className="catalog-download-note" sx={{ mt: 1 }}>
+                Identification records are linked under “Bulk sample identifications” in the full catalog.
+              </Typography>
+            </Box>
+            <Box component="aside" aria-label="Request samples" sx={{ bgcolor: '#f5f6f7', border: '1px solid #d5d9db', borderRadius: 1, p: 2.5 }}>
+              <Typography component="h2" className="catalog-request-heading">Interested in using samples?</Typography>
+              <Typography className="catalog-request-description" sx={{ mt: 1, mb: 2 }}>
+                Learn how to request samples and specimens for your research.
+              </Typography>
+              <Button
+                className="catalog-request-button"
+                variant="contained"
+                disableElevation
+                fullWidth
+                href="https://biorepo.neonscience.org/portal/misc/samplerequests.php"
+              >
+                Request Samples
+              </Button>
+            </Box>
           </Box>
           {exportError && <Alert severity="warning">{exportError}</Alert>}
           <Stack className="catalog-active-filters" direction="row" sx={{ gap: 1, flexWrap: 'wrap', mb: 2 }}>
