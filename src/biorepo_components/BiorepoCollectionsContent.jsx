@@ -730,7 +730,7 @@ function Catalog() {
                   sx={{ fontSize: '0.75rem', color: '#595d60' }}
                 />
                 <Typography className="catalog-summary-count">
-                  {`${items.length} sample types from ${siteCount} sites`}
+                  {`${items.length} sample types (including identification records) from ${siteCount} sites`}
                 </Typography>
               </Stack>
               <Stack direction="row" sx={{ alignItems: 'center', flexWrap: 'wrap', gap: 0.5 }}>
