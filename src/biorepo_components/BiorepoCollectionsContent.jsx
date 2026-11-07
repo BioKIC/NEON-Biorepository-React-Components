@@ -168,6 +168,9 @@ const compactCatalogStyles = {
     '& .catalog-summary-count.MuiTypography-root': {
       fontSize: '0.75rem !important', color: '#595d60',
     },
+    '& .catalog-download-note.MuiTypography-root': {
+      fontSize: '0.625rem !important', color: '#808080', lineHeight: 1.5,
+    },
     '& .catalog-download-label.MuiTypography-root': {
       fontSize: '0.625rem !important', color: '#808080',
     },
@@ -659,6 +662,11 @@ function Catalog() {
                 ))}
               </Stack>
             </Stack>
+            <Typography className="catalog-download-note" sx={{ mt: 1 }}>
+              Catalog downloads list physical sample types. Identification collections appear in
+              the explorer and are linked from the catalog’s “Bulk sample identifications” field,
+              rather than listed as separate rows.
+            </Typography>
           </Box>
           {exportError && <Alert severity="warning">{exportError}</Alert>}
           <Stack className="catalog-active-filters" direction="row" sx={{ gap: 1, flexWrap: 'wrap', mb: 2 }}>
