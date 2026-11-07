@@ -622,11 +622,12 @@ function Catalog() {
       >
         Reset all filters
       </Button>
+      <Divider sx={{ mt: 3 }} />
       <Typography
         id="catalog-search-heading"
         className="catalog-search-heading"
         component="h2"
-        sx={{ mt: 3, mb: 2 }}
+        sx={{ mt: 2, mb: 2 }}
       >
         Search
       </Typography>
