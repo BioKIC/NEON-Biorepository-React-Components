@@ -234,7 +234,7 @@ function Facet({
   return (
     <Box component="section" sx={{ py: 2 }} aria-label={labels[name]}>
       <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-        <Typography component="h3" variant="subtitle1" sx={{ fontWeight: 700 }}>
+        <Typography component="h2" className="catalog-date-heading">
           {labels[name]}
         </Typography>
         <Stack direction="row" sx={{ gap: 1, flexShrink: 0 }}>
@@ -606,6 +606,25 @@ function Catalog() {
       </Typography>
       <CatalogDateFilter items={items} from={filters.from} through={filters.to} onChange={update} />
       <Divider />
+      <Box component="section" sx={{ py: 2 }} aria-label="Repository">
+        <Typography component="h2" className="catalog-date-heading" sx={{ mb: 2 }}>
+          Repository
+        </Typography>
+        <TextField
+          select
+          fullWidth
+          size="small"
+          className="catalog-search-field"
+          value={filters.repository}
+          onChange={(event) => update({ repository: event.target.value })}
+          slotProps={{ select: { native: true }, htmlInput: { 'aria-label': 'Repository' } }}
+        >
+          <option value="">All Repositories</option>
+          <option value="asu">NEON Biorepository (ASU)</option>
+          <option value="outside">Outside Repositories</option>
+        </TextField>
+      </Box>
+      <Divider />
       {FACETS.map((key) => (
         <React.Fragment key={key}>
           <Facet
@@ -628,7 +647,7 @@ function Catalog() {
         Explore Sample Types
       </Typography>
       <Typography sx={{ mt: 2, mb: 3 }}>
-        Discover samples and specimens held at the NEON Biorepository.
+        Discover samples and specimens collected by NEON
       </Typography>
       {error && (
         <Alert
@@ -694,6 +713,12 @@ function Catalog() {
           <Stack className="catalog-active-filters" direction="row" sx={{ gap: 1, flexWrap: 'wrap', mb: 2 }}>
             {filters.q && (
               <Chip label={`Search: ${filters.q}`} onDelete={() => update({ q: '' })} />
+            )}
+            {filters.repository && (
+              <Chip
+                label={filters.repository === 'asu' ? 'NEON Biorepository (ASU)' : 'Outside Repositories'}
+                onDelete={() => update({ repository: '' })}
+              />
             )}
             {active.map(({ key, value, label }) => (
               <Chip

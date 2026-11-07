@@ -1,6 +1,7 @@
 export const FACETS = ['taxa', 'preservation', 'protocols', 'sites', 'states', 'domains'];
 export const emptyFilters = () => ({
   q: '',
+  repository: '',
   from: '',
   to: '',
   ...Object.fromEntries(FACETS.map((key) => [key, []])),
@@ -10,6 +11,7 @@ export function readFilters(search) {
   const params = new URLSearchParams(search);
   const result = emptyFilters();
   result.q = params.get('q') || '';
+  result.repository = ['asu', 'outside'].includes(params.get('repository')) ? params.get('repository') : '';
   ['from', 'to'].forEach((key) => {
     const value = params.get(key);
     result[key] = monthPattern.test(value || '') ? value : '';
@@ -95,6 +97,8 @@ export function filterCatalog(items, filters, reference = {}) {
     .map((item) => ({ item, score: terms.length ? searchScore(item, terms) : 0 }))
     .filter(({ item, score }) => {
       if (terms.length && score === 0) return false;
+      if (filters.repository === 'asu' && item.outsideRepository) return false;
+      if (filters.repository === 'outside' && !item.outsideRepository) return false;
       if (
         ['taxa', 'preservation', 'protocols'].some(
           (key) => filters[key].length && !filters[key].some((value) => item[key].includes(value)),

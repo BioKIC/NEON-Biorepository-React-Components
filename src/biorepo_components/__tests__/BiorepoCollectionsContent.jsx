@@ -315,3 +315,23 @@ test('outside repository collections have a labeled chip and working search link
   expect(screen.getAllByText('Outside Repository')).toHaveLength(1);
   expect(within(card).getByRole('link', { name: 'Search for Samples' }).getAttribute('href')).toBe('/neon/search/index.php?db=1');
 });
+
+
+test('repository selector filters collections, persists in URL, and resets', async () => {
+  global.fetch.mockResolvedValue({ ok: true, json: async () => ({
+    ...data, items: [data.items[0], { ...data.items[1], outsideRepository: true }],
+  }) });
+  mount();
+  await screen.findByRole('link', { name: 'Ear Punches' });
+  const select = screen.getByRole('combobox', { name: 'Repository' });
+  fireEvent.change(select, { target: { value: 'outside' } });
+  expect(screen.queryByRole('link', { name: 'Ear Punches' })).toBeNull();
+  expect(screen.getByRole('link', { name: 'Hearts' })).toBeTruthy();
+  expect(window.location.search).toContain('repository=outside');
+  fireEvent.change(select, { target: { value: 'asu' } });
+  expect(screen.getByRole('link', { name: 'Ear Punches' })).toBeTruthy();
+  expect(screen.queryByRole('link', { name: 'Hearts' })).toBeNull();
+  fireEvent.click(screen.getByRole('button', { name: 'Reset all filters' }));
+  expect(select.value).toBe('');
+  expect(screen.getByRole('link', { name: 'Hearts' })).toBeTruthy();
+});
