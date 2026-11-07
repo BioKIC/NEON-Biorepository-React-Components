@@ -761,7 +761,7 @@ function Catalog() {
                       {/\bidentifications?\b/i.test(item.sampleTypeName || item.name || '') && (
                         <Chip
                           className="catalog-code"
-                          label="Identifications"
+                          label="Identification Records"
                           size="small"
                           sx={{ bgcolor: '#f5b23b', color: '#4b2d0b', border: '1px solid #a4681b' }}
                         />
