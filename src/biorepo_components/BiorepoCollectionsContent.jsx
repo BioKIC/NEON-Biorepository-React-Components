@@ -67,6 +67,11 @@ const compactCatalogStyles = {
     [catalogTextSelector]: {
       fontSize: '0.875rem !important',
     },
+    '& .catalog-request-button.MuiButton-root': {
+      fontSize: '0.625rem !important', fontWeight: 500, whiteSpace: 'nowrap',
+      padding: '0.5rem 1rem', backgroundColor: '#0073cf', color: '#fff',
+      '&:hover': { backgroundColor: '#005da8' },
+    },
     '& .catalog-chip-help-glyph': { fontSize: '0.45rem !important', lineHeight: 1, fontWeight: 500 },
     '& h1.MuiTypography-root, & h1 a': { fontSize: '2rem !important' },
     '& h2.MuiTypography-root, & h2 a, & .MuiDialogTitle-root': { fontSize: '1.125rem !important' },
@@ -677,12 +682,23 @@ function Catalog() {
   return (
     <Box>
       {sidebar ? createPortal(filterPanel, sidebar) : null}
-      <Typography variant="h3" component="h1">
-        Explore Sample Types
-      </Typography>
-      <Typography sx={{ mt: 2, mb: 3 }}>
-        Discover samples and specimens collected by NEON
-      </Typography>
+      <Stack direction={{ xs: 'column', md: 'row' }} sx={{ justifyContent: 'space-between', alignItems: { xs: 'flex-start', md: 'center' }, gap: 2, mb: 3 }}>
+        <Box>
+          <Typography variant="h3" component="h1">
+            Explore Sample Types
+          </Typography>
+          <Typography sx={{ mt: 2 }}>
+            Discover samples and specimens collected by NEON
+          </Typography>
+        </Box>
+        <Button
+          className="catalog-request-button"
+          variant="contained"
+          href="https://biorepo.neonscience.org/portal/misc/samplerequests.php"
+        >
+          Request Samples
+        </Button>
+      </Stack>
       {error && (
         <Alert
           severity="error"
