@@ -37,6 +37,8 @@ import DataProductAvailability from '../lib_components/components/DataProductAva
 import MapSelectionButton from '../lib_components/components/MapSelectionButton/MapSelectionButton';
 import {
   FACETS,
+  REPOSITORIES,
+  matchesRepository,
   cardDescription,
   emptyFilters,
   filterCatalog,
@@ -472,9 +474,11 @@ function Catalog() {
   };
   const results = useMemo(() => filterCatalog(items, filters, sites), [items, filters, sites]);
   const repositoryCounts = useMemo(() => {
-    const counts = { asu: 0, outside: 0 };
+    const counts = Object.fromEntries(REPOSITORIES.map(({ value }) => [value, 0]));
     filterCatalog(items, { ...filters, repository: [] }, sites).forEach((item) => {
-      counts[item.outsideRepository ? 'outside' : 'asu'] += 1;
+      REPOSITORIES.forEach(({ value }) => {
+        if (matchesRepository(item, value)) counts[value] += 1;
+      });
     });
     return counts;
   }, [items, filters, sites]);
@@ -648,10 +652,7 @@ function Catalog() {
         <Typography component="h2" className="catalog-date-heading" sx={{ mb: 2 }}>
           Repository
         </Typography>
-        {[
-          ['asu', 'NEON Biorepository (Arizona State University)'],
-          ['outside', 'Outside Repositories'],
-        ].map(([value, label]) => (
+        {REPOSITORIES.map(({ value, label }) => (
           <FormControlLabel
             key={value}
             label={(
@@ -768,7 +769,7 @@ function Catalog() {
             {filters.repository.map((repository) => (
               <Chip
                 key={repository}
-                label={repository === 'asu' ? 'NEON Biorepository (Arizona State University)' : 'Outside Repositories'}
+                label={REPOSITORIES.find(({ value }) => value === repository)?.label || repository}
                 onDelete={() => update({ repository: filters.repository.filter((value) => value !== repository) })}
               />
             ))}

@@ -1,3 +1,21 @@
+export const REPOSITORIES = [
+  { value: 'asu', label: 'NEON Biorepository (Arizona State University)' },
+  { value: 'outside', label: 'Outside Repositories' },
+  { value: 'emec', label: 'Essig Museum of Entomology (University of California, Berkeley)', ids: [44] },
+  { value: 'msb', label: 'Museum of Southwestern Biology (University of New Mexico)', ids: [74] },
+  { value: 'neon-hq', label: 'NEON Headquarters', ids: [79] },
+  { value: 'umbs', label: 'University of Michigan Biological Station', ids: [80] },
+  { value: 'cmnh', label: 'Carnegie Museum of Natural History', ids: [82] },
+  { value: 'gsu', label: 'Georgia Southern University', ids: [83] },
+  { value: 'neon-domains', label: 'NEON Domain Offices', ids: [95, 115] },
+  { value: 'bpbm', label: 'Bernice Pauahi Bishop Museum', ids: [97] },
+];
+export function matchesRepository(item, value) {
+  if (value === 'asu') return !item.outsideRepository;
+  if (value === 'outside') return Boolean(item.outsideRepository);
+  return Boolean(item.outsideRepository && REPOSITORIES.find((repository) => repository.value === value)?.ids?.includes(Number(item.id)));
+}
+
 export const FACETS = ['taxa', 'preservation', 'protocols', 'sites', 'states', 'domains'];
 export const emptyFilters = () => ({
   q: '',
@@ -11,7 +29,7 @@ export function readFilters(search) {
   const params = new URLSearchParams(search);
   const result = emptyFilters();
   result.q = params.get('q') || '';
-  result.repository = [...new Set(params.getAll('repository').filter((value) => ['asu', 'outside'].includes(value)))];
+  result.repository = [...new Set(params.getAll('repository').filter((value) => REPOSITORIES.some((repository) => repository.value === value)))];
   ['from', 'to'].forEach((key) => {
     const value = params.get(key);
     result[key] = monthPattern.test(value || '') ? value : '';
@@ -97,7 +115,7 @@ export function filterCatalog(items, filters, reference = {}) {
     .map((item) => ({ item, score: terms.length ? searchScore(item, terms) : 0 }))
     .filter(({ item, score }) => {
       if (terms.length && score === 0) return false;
-      if (filters.repository?.length && !filters.repository.includes(item.outsideRepository ? 'outside' : 'asu')) return false;
+      if (filters.repository?.length && !filters.repository.some((value) => matchesRepository(item, value))) return false;
       if (
         ['taxa', 'preservation', 'protocols'].some(
           (key) => filters[key].length && !filters[key].some((value) => item[key].includes(value)),
