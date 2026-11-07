@@ -764,7 +764,7 @@ function Catalog() {
                           className="catalog-code"
                           label="Outside Repository"
                           size="small"
-                          sx={{ bgcolor: '#e6f2fb', color: '#004b76', border: '1px solid #0073cf' }}
+                          sx={{ bgcolor: '#e8f5e9', color: '#1b5e20', border: '1px solid #388e3c' }}
                         />
                       )}
                       {/\bidentifications?\b/i.test(item.sampleTypeName || item.name || '') && (
