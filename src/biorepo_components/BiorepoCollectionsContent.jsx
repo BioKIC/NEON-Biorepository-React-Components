@@ -471,6 +471,13 @@ function Catalog() {
     }
   };
   const results = useMemo(() => filterCatalog(items, filters, sites), [items, filters, sites]);
+  const repositoryCounts = useMemo(() => {
+    const counts = { asu: 0, outside: 0 };
+    filterCatalog(items, { ...filters, repository: [] }, sites).forEach((item) => {
+      counts[item.outsideRepository ? 'outside' : 'asu'] += 1;
+    });
+    return counts;
+  }, [items, filters, sites]);
 
   useEffect(() => {
     const term = filters.q.trim().replace(/\s+/g, ' ');
@@ -647,8 +654,13 @@ function Catalog() {
         ].map(([value, label]) => (
           <FormControlLabel
             key={value}
-            label={label}
-            sx={{ display: 'flex', m: 0, py: 0.5 }}
+            label={(
+              <Box component="span" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
+                <Box component="span">{label}</Box>
+                <Box component="span" className="catalog-facet-count" aria-hidden="true">{repositoryCounts[value]}</Box>
+              </Box>
+            )}
+            sx={{ display: 'flex', m: 0, py: 0.5, '& .MuiFormControlLabel-label': { flex: 1, minWidth: 0 } }}
             control={(
               <Checkbox
                 size="small"

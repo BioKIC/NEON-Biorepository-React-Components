@@ -334,7 +334,10 @@ test('repository checkboxes support either group, both groups, and reset', async
   await screen.findByRole('link', { name: 'Ear Punches' });
   const outside = screen.getByRole('checkbox', { name: 'Outside Repositories' });
   const asu = screen.getByRole('checkbox', { name: 'NEON Biorepository (ASU)' });
+  expect(outside.closest('label').querySelector('.catalog-facet-count').textContent).toBe('1');
+  expect(asu.closest('label').querySelector('.catalog-facet-count').textContent).toBe('1');
   fireEvent.click(outside);
+  expect(asu.closest('label').querySelector('.catalog-facet-count').textContent).toBe('1');
   expect(screen.queryByRole('link', { name: 'Ear Punches' })).toBeNull();
   expect(screen.getByRole('link', { name: 'Hearts' })).toBeTruthy();
   expect(window.location.search).toContain('repository=outside');
