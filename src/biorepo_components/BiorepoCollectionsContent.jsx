@@ -229,7 +229,7 @@ function Facet({
   ));
   const visible = showingSelected
     ? matches.filter((option) => selected.includes(option.value))
-    : (expanded || query ? matches : matches.slice(0, 5));
+    : (name === 'preservation' || expanded || query ? matches : matches.slice(0, 5));
   return (
     <Box component="section" sx={{ py: 2 }} aria-label={labels[name]}>
       <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
@@ -327,7 +327,7 @@ function Facet({
         )}
       </Box>
       <Stack direction="row" sx={{ gap: 1, flexWrap: 'wrap' }}>
-        {(showingSelected || (!query && matches.length > 5)) && (
+        {name !== 'preservation' && (showingSelected || (!query && matches.length > 5)) && (
           <Button
             className="catalog-view-all"
             variant="outlined"
@@ -345,7 +345,7 @@ function Facet({
             {expanded && !showingSelected ? 'View fewer' : `View all (${options.length})`}
           </Button>
         )}
-        {selected.length > 0 && !showingSelected && (
+        {name !== 'preservation' && selected.length > 0 && !showingSelected && (
           <Button
             className="catalog-view-all"
             variant="outlined"
