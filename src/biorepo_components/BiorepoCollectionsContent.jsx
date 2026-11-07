@@ -777,17 +777,17 @@ function Catalog() {
                   <Stack sx={{ gap: 1.5, width: '100%', minWidth: 0 }}>
                     <Button
                       variant="contained"
+                      href={`${root}/neon/search/index.php?db=${item.id}`}
+                      endIcon={<SearchIcon />}
+                    >
+                      Search Samples
+                    </Button>
+                    <Button
+                      variant="contained"
                       endIcon={<FormatListBulletedIcon />}
                       href={`${root}/collections/list.php?db=${item.id}`}
                     >
                       Browse all samples
-                    </Button>
-                    <Button
-                      variant="contained"
-                      href={`${root}/neon/search/index.php?db=${item.id}`}
-                      endIcon={<SearchIcon />}
-                    >
-                      Search Sample Type
                     </Button>
                     <Button variant="outlined" href={details} endIcon={<InfoOutlinedIcon />}>
                       Sample type details
