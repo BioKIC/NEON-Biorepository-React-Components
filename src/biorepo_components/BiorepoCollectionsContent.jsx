@@ -448,7 +448,7 @@ function Catalog() {
     }
     if (!catalog || lastTrackedSearch.current === term) return undefined;
     const timer = window.setTimeout(() => {
-      const event = ['event', 'search', {
+      const event = ['event', 'sample_type_search', {
         search_term: term,
         search_source: 'sample_type_explorer',
         results_count: results.length,

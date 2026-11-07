@@ -231,7 +231,7 @@ test('search analytics waits for typing to stop and ignores facet changes and em
     act(() => jest.advanceTimersByTime(999));
     expect(window.gtag).not.toHaveBeenCalled();
     act(() => jest.advanceTimersByTime(1));
-    expect(window.gtag).toHaveBeenCalledWith('event', 'search', {
+    expect(window.gtag).toHaveBeenCalledWith('event', 'sample_type_search', {
       search_term: 'Hearts', search_source: 'sample_type_explorer', results_count: 1,
     });
     fireEvent.click(screen.getByRole('button', { name: 'Map SITES' }));
@@ -242,7 +242,7 @@ test('search analytics waits for typing to stop and ignores facet changes and em
     expect(window.gtag).toHaveBeenCalledTimes(1);
     fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'nonexistent' } });
     act(() => jest.advanceTimersByTime(1000));
-    expect(window.gtag).toHaveBeenLastCalledWith('event', 'search', {
+    expect(window.gtag).toHaveBeenLastCalledWith('event', 'sample_type_search', {
       search_term: 'nonexistent', search_source: 'sample_type_explorer', results_count: 0,
     });
   } finally {
