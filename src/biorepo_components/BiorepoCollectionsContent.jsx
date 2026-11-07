@@ -749,16 +749,24 @@ function Catalog() {
                     <Typography className="catalog-sample-title" component="h2" variant="h5">
                       <Link href={details}>{item.name}</Link>
                     </Typography>
-                    {item.collectionCode && (
-                      <Chip
-                        className="catalog-code"
-                        label={item.collectionCode}
-                        size="small"
-                        sx={{
-                          mt: 1, bgcolor: '#e4e7e7', color: '#737d81', border: '1px solid #92999b',
-                        }}
-                      />
-                    )}
+                    <Stack direction="row" sx={{ mt: 1, gap: 1, flexWrap: 'wrap' }}>
+                      {item.collectionCode && (
+                        <Chip
+                          className="catalog-code"
+                          label={item.collectionCode}
+                          size="small"
+                          sx={{ bgcolor: '#e4e7e7', color: '#737d81', border: '1px solid #92999b' }}
+                        />
+                      )}
+                      {/\bidentifications?\b/i.test(item.sampleTypeName || item.name || '') && (
+                        <Chip
+                          className="catalog-code"
+                          label="Identification Records"
+                          size="small"
+                          sx={{ bgcolor: '#f5b23b', color: '#4b2d0b', border: '1px solid #a4681b' }}
+                        />
+                      )}
+                    </Stack>
                     {description && (
                       <Typography sx={{ mt: 2 }}>
                         {description}

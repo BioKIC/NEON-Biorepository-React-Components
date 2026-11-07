@@ -251,3 +251,19 @@ test('search analytics waits for typing to stop and ignores facet changes and em
     jest.useRealTimers();
   }
 });
+
+
+test('identification cards show an Identification Records chip beside the collection code', async () => {
+  global.fetch.mockResolvedValue({ ok: true, json: async () => ({
+    ...data, items: [
+      { ...data.items[0], name: 'Diatom Slide Identifications', sampleTypeName: 'Slide Sample Identifications' },
+      data.items[1],
+    ],
+  }) });
+  mount();
+  const title = await screen.findByRole('link', { name: 'Diatom Slide Identifications' });
+  const card = title.closest('.catalog-card');
+  const chip = within(card).getByText('Identification Records').closest('.MuiChip-root');
+  expect(chip.previousElementSibling.textContent).toBe('COLL-1');
+  expect(screen.getAllByText('Identification Records')).toHaveLength(1);
+});
