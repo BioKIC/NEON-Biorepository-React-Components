@@ -67,6 +67,7 @@ const compactCatalogStyles = {
     [catalogTextSelector]: {
       fontSize: '0.875rem !important',
     },
+    '& .catalog-chip-help-glyph': { fontSize: '0.45rem !important', lineHeight: 1, fontWeight: 500 },
     '& h1.MuiTypography-root, & h1 a': { fontSize: '2rem !important' },
     '& h2.MuiTypography-root, & h2 a, & .MuiDialogTitle-root': { fontSize: '1.125rem !important' },
     [['h3', 'h4', 'h5', 'h6'].map((tag) => `& ${tag}.MuiTypography-root`).join(', ')]: {
@@ -241,7 +242,7 @@ function ChipHelp({ label, children, color }) {
             onKeyDown={(event) => { if (event.key === 'Escape') setOpen(false); }}
             sx={{ p: 0, color, bgcolor: 'transparent', '&:hover': { bgcolor: 'transparent' } }}
           >
-            <Box component="span" aria-hidden="true" sx={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '0.625rem', height: '0.625rem', border: '1px solid currentColor', borderRadius: '50%', fontSize: '0.5rem !important', lineHeight: 1 }}>?</Box>
+            <Box component="span" className="catalog-chip-help-glyph" aria-hidden="true" sx={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '0.625rem', height: '0.625rem', border: '1px solid currentColor', borderRadius: '50%', fontSize: '0.45rem !important', lineHeight: 1 }}>?</Box>
           </IconButton>
         </Tooltip>
       </span>
