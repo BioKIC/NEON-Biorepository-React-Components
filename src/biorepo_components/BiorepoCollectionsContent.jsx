@@ -703,7 +703,7 @@ function Catalog() {
               ...new Set(coverage.flatMap((site) => site.availableMonths)),
             ].sort();
             const details = `${root}/collections/misc/neoncollprofiles.php?collid=${item.id}`;
-            const description = cardDescription(item.description || '');
+            const description = item.shortDescription ?? cardDescription(item.description || '');
             return (
               <Card
                 key={item.id}

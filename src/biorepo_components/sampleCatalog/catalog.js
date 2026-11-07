@@ -53,10 +53,10 @@ function searchScore(item, terms) {
   const samplingIndex = description.search(/\bSampling\b/);
   const fields = [
     { weight: 100, values: [item.name, item.sampleTypeName, item.collectionName] },
-    { weight: 60, values: [cardDescription(description).split(/\s+/).slice(0, 5).join(' ')] },
-    { weight: 30, values: [cardDescription(description)] },
+    { weight: 60, values: [(item.shortDescription ?? cardDescription(description)).split(/\s+/).slice(0, 5).join(' ')] },
+    { weight: 30, values: [item.shortDescription ?? cardDescription(description)] },
     { weight: 10, values: [...item.taxa, ...item.protocols, ...item.preservation, item.dataProducts] },
-    { weight: 1, values: [samplingIndex < 0 ? '' : description.slice(samplingIndex)] },
+    { weight: 1, values: [item.shortDescription != null ? description : (samplingIndex < 0 ? '' : description.slice(samplingIndex))] },
   ].map(({ weight, values }) => ({
     weight,
     values: values.map((value) => (value || '').replace(/\s+/g, ' ').toLowerCase()),
