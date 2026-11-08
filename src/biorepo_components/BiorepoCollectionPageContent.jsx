@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import parse from "html-react-parser";
 import { createPortal } from "react-dom";
+import LocalOfferIcon from "@mui/icons-material/LocalOffer";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import DocumentListItem from "../lib_components/components/Documents/DocumentListItem";
 import DataProductAvailability from "../lib_components/components/DataProductAvailability/DataProductAvailability";
 import { citationFile, safeUrl } from "./collectionProfile/profile";
@@ -456,6 +458,43 @@ export function CollectionProfile({
           </div>
           <DatasetBadges datasetKey={profile.datasetKey} />
         </header>
+        {!!profile.identificationCollectionId && (
+          <aside
+            className={styles.notice}
+            role="note"
+            aria-labelledby="identification-notice-title"
+          >
+            <div className={styles.noticeHeader}>
+              <LocalOfferIcon
+                className={styles.noticeIcon}
+                aria-hidden="true"
+              />
+              <h2
+                id="identification-notice-title"
+                className={styles.noticeTitle}
+              >
+                Taxonomic Identifications
+              </h2>
+              <InfoOutlinedIcon
+                className={styles.noticeInfo}
+                aria-hidden="true"
+              />
+            </div>
+            <p className={styles.noticeLead}>Looking for a specific taxon?</p>
+            <p>
+              Taxonomic identifications derived from these samples are available
+              through a related sample type.
+            </p>
+            <div className={styles.noticeActions}>
+              <Link
+                button
+                href={profileUrl(profile.identificationCollectionId)}
+              >
+                Browse identifications
+              </Link>
+            </div>
+          </aside>
+        )}
         <section
           id="about"
           className={styles.about}
@@ -470,18 +509,6 @@ export function CollectionProfile({
             images={description.images}
             title={profile.title}
           >
-            {!!profile.identificationCollectionId && (
-              <div className={styles.notice}>
-                <strong>Looking for a specific taxon?</strong>
-                <p>
-                  Taxonomic identifications derived from these samples are
-                  available through a related sample type.
-                </p>
-                <Link href={profileUrl(profile.identificationCollectionId)}>
-                  Browse identifications
-                </Link>
-              </div>
-            )}
             <Description html={description.html} />
           </CollectionDetails>
           <CollectionStatistics

@@ -177,13 +177,54 @@
   height: 24px;
 }
 .notice {
-  border-left: 4px solid var(--profile-blue);
-  background: #f0f7fb;
-  padding: 20px;
+  border: 1px solid #b7dafa;
+  border-radius: 4px;
+  background: #f2f8fd;
+  padding: 24px;
   margin-bottom: 24px;
 }
-.notice p {
-  margin: 6px 0;
+.noticeHeader {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 18px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #d9dfe3;
+}
+.profile.profile .notice .noticeTitle {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  color: #1a1a1a;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.notice .noticeIcon {
+  flex-shrink: 0;
+  color: #1a1a1a;
+  font-size: 20px;
+}
+.notice .noticeInfo {
+  flex-shrink: 0;
+  color: #8fc6f2;
+  font-size: 30px;
+}
+.profile.profile .notice .noticeLead {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 600;
+}
+.noticeActions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+.profile .notice .button {
+  max-width: 100%;
+  color: #0073cf;
+  border-color: #0073cf;
+  text-align: center;
 }
 .description {
   overflow-wrap: anywhere;
@@ -257,6 +298,9 @@
     gap: 12px;
   }
   .citation {
+    padding: 16px;
+  }
+  .notice {
     padding: 16px;
   }
   .main > section {

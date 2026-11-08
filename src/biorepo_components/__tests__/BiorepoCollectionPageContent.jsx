@@ -78,6 +78,15 @@ test("profile preserves collection IDs, description images, and site availabilit
       .getByRole("link", { name: "Browse identifications" })
       .getAttribute("href"),
   ).toContain("collid=8");
+  const notice = screen.getByRole("note", {
+    name: "Taxonomic Identifications",
+  });
+  const about = screen.getByRole("region", { name: "About" });
+  expect(notice.nextElementSibling).toBe(about);
+  expect(within(about).queryByRole("note")).toBeNull();
+  expect(
+    within(notice).getByRole("link", { name: "Browse identifications" }),
+  ).toBeTruthy();
   expect(screen.getByTestId("availability").textContent).toContain("2024-01");
   expect(document.title).toBe("NEON | Ticks");
   expect(document.querySelector("script")).toBeNull();
@@ -258,12 +267,22 @@ test("partial protocol failures preserve successful protocols and deduplicate pr
 });
 test("empty availability and zero counts do not invent sites or percentages", async () => {
   render(
-    <CollectionProfile profile={{ ...profile, stats: {}, siteCodes: [] }} />,
+    <CollectionProfile
+      profile={{
+        ...profile,
+        stats: {},
+        siteCodes: [],
+        identificationCollectionId: 0,
+      }}
+    />,
   );
   await screen.findByText(
     "No site availability information is currently available.",
   );
   expect(screen.queryByTestId("availability")).toBeNull();
+  expect(
+    screen.queryByRole("note", { name: "Taxonomic Identifications" }),
+  ).toBeNull();
   expect(statistics({}, { SpecimensCountID: 1 }).flat().join(" ")).not.toMatch(
     /NaN|Infinity/,
   );
