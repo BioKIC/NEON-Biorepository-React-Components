@@ -362,13 +362,10 @@
 .profile .relatedItem:nth-child(even) {
   background: #f5f6f7;
 }
-.profile .relatedItem:hover,
-.profile .relatedItem:focus-within {
-  background: #edf4fa;
-}
 .relatedItem .relatedIcon {
   color: #7c7f80;
-  font-size: 24px;
+  width: 24px;
+  height: 24px;
 }
 .relatedLabel {
   min-width: 0;

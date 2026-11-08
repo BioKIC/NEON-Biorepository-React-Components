@@ -11,7 +11,8 @@ import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import ScienceIcon from "@mui/icons-material/Science";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFlask } from "@fortawesome/free-solid-svg-icons";
 import DocumentListItem from "../lib_components/components/Documents/DocumentListItem";
 import DataProductAvailability from "../lib_components/components/DataProductAvailability/DataProductAvailability";
 import { citationFile, safeUrl } from "./collectionProfile/profile";
@@ -568,7 +569,7 @@ export function CollectionProfile({
             <ul className={styles.relatedList}>
               {Object.entries(profile.related).map(([id, title]) => (
                 <li key={id} className={styles.relatedItem}>
-                  <ScienceIcon className={styles.relatedIcon} aria-hidden="true" />
+                  <FontAwesomeIcon icon={faFlask} className={styles.relatedIcon} aria-hidden="true" />
                   <div className={styles.relatedLabel}>
                     <h3>{title}</h3>
                     {profile.relatedCodes?.[id] && (
