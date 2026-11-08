@@ -77,14 +77,25 @@ test("header embeds the GBIF count chip for the current dataset before its actio
   expect(widget.getAttribute("src")).toBe(
     "https://www.gbif.org/api/widgets/literature/button?gbifDatasetKey=dataset-one",
   );
+  const citationLink = within(header).getByRole("link", {
+    name: "View GBIF citations for this dataset (opens in a new tab)",
+  });
+  expect(citationLink.getAttribute("href")).toBe(
+    "https://www.gbif.org/resource/search?contentType=literature&gbifDatasetKey=dataset-one",
+  );
+  expect(citationLink.getAttribute("target")).toBe("_blank");
+  expect(citationLink.getAttribute("rel")).toBe("noopener noreferrer");
+  expect(widget.parentElement).toBe(citationLink.parentElement);
+  expect(widget.getAttribute("tabindex")).toBe("-1");
+  expect(widget.getAttribute("aria-hidden")).toBe("true");
   expect(header.firstElementChild.nextElementSibling.firstElementChild).toBe(
-    widget.parentElement,
+    widget.parentElement.parentElement,
   );
   const browse = within(header).getByRole("link", { name: "Browse records" });
   const search = within(header).getByRole("link", {
     name: "Search this sample type",
   });
-  expect(widget.parentElement.nextElementSibling).toBe(browse.parentElement);
+  expect(widget.parentElement.parentElement.nextElementSibling).toBe(browse.parentElement);
   expect(search.getAttribute("href")).toBe("/portal/neon/search/index.php?db=7");
   for (const action of [browse, search]) {
     expect(action.classList.contains("MuiButton-contained")).toBe(true);
@@ -101,6 +112,9 @@ test("header embeds the GBIF count chip for the current dataset before its actio
     />,
   );
   expect(widget.getAttribute("src")).toContain("gbifDatasetKey=dataset-two");
+  expect(citationLink.getAttribute("href")).toBe(
+    "https://www.gbif.org/resource/search?contentType=literature&gbifDatasetKey=dataset-two",
+  );
   expect(within(header).getByAltText("Bionomia dataset").getAttribute("src"))
     .toContain("/dataset/dataset-two/badge.svg");
 });

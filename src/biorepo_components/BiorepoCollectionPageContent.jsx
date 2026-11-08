@@ -182,13 +182,26 @@ function DatasetBadges({ datasetKey }) {
   if (!datasetKey) return null;
   return (
     <div className={styles.badges}>
-      <iframe
-        title="GBIF citation count"
-        src={`https://www.gbif.org/api/widgets/literature/button?gbifDatasetKey=${encodeURIComponent(datasetKey)}`}
-        scrolling="no"
-        frameBorder="0"
-        style={{ width: 140, height: 24, border: 0 }}
-      />
+      <div className={styles.gbifBadge}>
+        <iframe
+          title="GBIF citation count"
+          src={`https://www.gbif.org/api/widgets/literature/button?gbifDatasetKey=${encodeURIComponent(datasetKey)}`}
+          scrolling="no"
+          frameBorder="0"
+          tabIndex={-1}
+          aria-hidden="true"
+          style={{ width: 140, height: 24, border: 0 }}
+        />
+        {/* Keep the official chip, but preserve the dataset filter on its link. */}
+        <Link
+          href={`https://www.gbif.org/resource/search?contentType=literature&gbifDatasetKey=${encodeURIComponent(datasetKey)}`}
+          external
+        >
+          <span className={styles.srOnly}>
+            View GBIF citations for this dataset (opens in a new tab)
+          </span>
+        </Link>
+      </div>
       <Link
         href={`https://bionomia.net/dataset/${encodeURIComponent(datasetKey)}`}
         external

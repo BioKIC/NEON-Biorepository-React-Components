@@ -163,6 +163,18 @@
   width: auto;
   height: 24px;
 }
+.gbifBadge {
+  position: relative;
+  flex-shrink: 0;
+}
+.gbifBadge iframe {
+  display: block;
+  pointer-events: none;
+}
+.gbifBadge > a {
+  position: absolute;
+  inset: 0;
+}
 .actions {
   margin-left: auto;
   justify-content: flex-end;
