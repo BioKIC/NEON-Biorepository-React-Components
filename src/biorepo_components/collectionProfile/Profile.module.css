@@ -359,7 +359,8 @@
   background: #fff;
   list-style: none;
 }
-.profile .relatedItem:nth-child(even) {
+.profile .relatedItem:nth-child(even),
+.profile .documentationItem:nth-child(even) {
   background: #f5f6f7;
 }
 .relatedItem .relatedIcon {
@@ -389,6 +390,38 @@
   color: #0073cf;
   text-decoration: none;
   white-space: nowrap;
+}
+.profile .documentationItem {
+  margin: 0;
+  padding: 16px 20px;
+  background: #fff;
+  list-style: none;
+}
+.profile .documentationItem :global(.MuiListItem-root) {
+  padding: 0;
+  min-height: 40px;
+}
+.profile .documentationItem :global(.MuiListItemIcon-root) {
+  min-width: 24px;
+  margin-right: 20px;
+  color: #7c7f80;
+}
+.profile .documentationItem :global(.MuiListItemText-root) {
+  min-width: 0;
+  margin: 0;
+  padding: 0 20px 0 0;
+}
+.profile .documentationItem :global(.MuiListItemText-primary) {
+  color: #1a1a1a;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.4;
+}
+.profile.profile .documentationItem :global(.MuiListItemText-secondary) {
+  color: #7c7f80;
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 4px 0 0;
 }
 .resource {
   display: flex;
@@ -444,6 +477,12 @@
   }
   .profile .relatedItem .relatedAction {
     grid-column: 2;
+  }
+  .profile .documentationItem {
+    padding: 16px;
+  }
+  .profile .documentationItem :global(.MuiListItemIcon-root) {
+    margin-right: 12px;
   }
   .resource {
     align-items: flex-start;

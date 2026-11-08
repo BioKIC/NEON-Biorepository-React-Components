@@ -8,6 +8,8 @@ import {
   within,
 } from "@testing-library/react";
 import { CollectionProfile } from "../BiorepoCollectionPageContent";
+import DocumentListItem from "../../lib_components/components/Documents/DocumentListItem";
+import { selectDocumentation } from "../collectionProfile/documentation";
 import {
   citationFile,
   statistics,
@@ -15,7 +17,7 @@ import {
 } from "../collectionProfile/profile";
 jest.mock("../../lib_components/components/Documents/DocumentListItem", () => ({
   __esModule: true,
-  default: ({ document }) => <div>{document.name}</div>,
+  default: jest.fn(({ document }) => <div>{document.name}</div>),
 }));
 jest.mock(
   "../../lib_components/components/DataProductAvailability/DataProductAvailability",
@@ -68,7 +70,7 @@ test("header embeds the GBIF count chip for the current dataset before its actio
     />,
   );
   await waitFor(() =>
-    expect(screen.queryByText("Loading protocols…")).toBeNull(),
+    expect(screen.queryByText("Loading documentation…")).toBeNull(),
   );
   const header = screen.getByRole("heading", { name: "Ticks", level: 1 })
     .closest("header");
@@ -121,7 +123,7 @@ test("header embeds the GBIF count chip for the current dataset before its actio
 test("omits dataset chips when the collection has no GBIF dataset", async () => {
   render(<CollectionProfile profile={profile} />);
   await waitFor(() =>
-    expect(screen.queryByText("Loading protocols…")).toBeNull(),
+    expect(screen.queryByText("Loading documentation…")).toBeNull(),
   );
   expect(screen.queryByTitle("GBIF citation count")).toBeNull();
   expect(screen.queryByAltText("Bionomia dataset")).toBeNull();
@@ -131,7 +133,7 @@ test("profile preserves collection IDs, description images, and site availabilit
   const titleFromPhp = document.title;
   render(<CollectionProfile profile={profile} clientRoot="/portal" />);
   await waitFor(() =>
-    expect(screen.queryByText("Loading protocols…")).toBeNull(),
+    expect(screen.queryByText("Loading documentation…")).toBeNull(),
   );
   expect(
     screen.getByRole("link", { name: "Browse records" }).getAttribute("href"),
@@ -186,7 +188,7 @@ test("linked sample type subtitles match collection IDs and omit unavailable cod
     />,
   );
   await waitFor(() =>
-    expect(screen.queryByText("Loading protocols…")).toBeNull(),
+    expect(screen.queryByText("Loading documentation…")).toBeNull(),
   );
   const section = screen.getByRole("region", { name: "Related Sample Types" });
   const rows = within(section).getAllByRole("listitem");
@@ -218,7 +220,7 @@ test("moves multiple photos and captions into details while preserving links and
     />,
   );
   await waitFor(() =>
-    expect(screen.queryByText("Loading protocols…")).toBeNull(),
+    expect(screen.queryByText("Loading documentation…")).toBeNull(),
   );
   const details = screen.getByRole("complementary", {
     name: "Sample type details",
@@ -247,7 +249,7 @@ test.each([
   async (description) => {
     render(<CollectionProfile profile={{ ...profile, description }} />);
     await waitFor(() =>
-      expect(screen.queryByText("Loading protocols…")).toBeNull(),
+      expect(screen.queryByText("Loading documentation…")).toBeNull(),
     );
     const details = screen.getByRole("complementary", {
       name: "Sample type details",
@@ -278,7 +280,7 @@ test("clipboard reports failure and copies canonical citation on success", async
 test("citation displays the guidance and keeps the canonical citation text", async () => {
   render(<CollectionProfile profile={profile} clientRoot="/portal" />);
   await waitFor(() =>
-    expect(screen.queryByText("Loading protocols…")).toBeNull(),
+    expect(screen.queryByText("Loading documentation…")).toBeNull(),
   );
   const guidance = screen.getByRole("link", {
     name: "Acknowledging and Citing the Biorepository",
@@ -300,7 +302,7 @@ test.each([
 ])("shows the data-product style help popup for %s", async (name, help) => {
   render(<CollectionProfile profile={profile} />);
   await waitFor(() =>
-    expect(screen.queryByText("Loading protocols…")).toBeNull(),
+    expect(screen.queryByText("Loading documentation…")).toBeNull(),
   );
   const button = screen.getByRole("button", { name });
   jest.spyOn(button, "getBoundingClientRect").mockReturnValue({
@@ -326,7 +328,7 @@ test("citation downloads use a compact BibTeX note and preserve the full RIS not
     />,
   );
   await waitFor(() =>
-    expect(screen.queryByText("Loading protocols…")).toBeNull(),
+    expect(screen.queryByText("Loading documentation…")).toBeNull(),
   );
   const originalCreate = URL.createObjectURL;
   const originalRevoke = URL.revokeObjectURL;
@@ -406,7 +408,7 @@ test("About includes all collection statistics in their groups and supports old 
     />,
   );
   await waitFor(() =>
-    expect(screen.queryByText("Loading protocols…")).toBeNull(),
+    expect(screen.queryByText("Loading documentation…")).toBeNull(),
   );
   const about = screen.getByRole("region", { name: "About" });
   const stats = within(about).getByRole("region", {
@@ -433,7 +435,7 @@ test("About includes all collection statistics in their groups and supports old 
   expect(stats.id).toBe("statistics");
   window.history.replaceState(null, "", "/");
 });
-test("partial protocol failures preserve successful protocols and deduplicate products", async () => {
+test("partial documentation failures preserve successful documents and deduplicate products", async () => {
   global.fetch.mockImplementation(async (url) => {
     if (url.endsWith("sample-catalog.php"))
       return { ok: true, json: async () => ({ items: [] }) };
@@ -466,10 +468,105 @@ test("partial protocol failures preserve successful protocols and deduplicate pr
     />,
   );
   await screen.findByText("PROTO-1");
-  expect(screen.getByText(/Some protocols could not be loaded/)).toBeTruthy();
+  expect(screen.getByText(/Some documentation could not be loaded/)).toBeTruthy();
   expect(
     global.fetch.mock.calls.filter(([url]) => url.includes("api/v0/products")),
   ).toHaveLength(2);
+});
+test("separates related data products from all eligible documentation", async () => {
+  const protocol = {
+    specNumber: "NEON.DOC.014050vN",
+    specDescription: "TOS Protocol and Procedure: BET – Ground Beetle Sampling",
+    specType: "application/pdf",
+    specSize: 5090560,
+  };
+  const records = {
+    "DP1.10022.001": [
+      protocol,
+      { specNumber: "CMNH_Receiving_SOP", specDescription: "Processing shipments of specimens for NEON at CMNH" },
+      { specNumber: "NEON.DOC.000909vC", specDescription: "TOS Science Design for Ground Beetle Abundance and Diversity" },
+      { specNumber: "NEON_beetle_userGuide_vG", specDescription: "NEON User Guide to Ground Beetles Sampled from Pitfall Traps" },
+      { specNumber: "NEON.DOC.005424vA", specDescription: "NEON Algorithm Theoretical Basis Document (ATBD): OS Data Quality Control" },
+    ],
+    "DP1.10020.001": [
+      protocol,
+      { specNumber: "LAB_SOP", specDescription: "Laboratory standard operating procedure", specType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", specSize: 1024 },
+      { specNumber: "NEON.QSG.DP1.10020.001v2", specDescription: "Quick Start Guide for Ground beetle sequences DNA barcode" },
+    ],
+  };
+  global.fetch.mockImplementation(async (url) => ({
+    ok: true,
+    json: async () => url.includes("api/v0/products/")
+      ? { data: { specs: records[url.split("/").pop()] } }
+      : { items: [] },
+  }));
+  render(<CollectionProfile profile={{
+    ...profile,
+    resources: [
+      { url: "https://data.neonscience.org/data-products/DP1.10022.001", title: { en: "Ground beetles sampled from pitfall traps" } },
+      { url: "https://data.neonscience.org/data-products/DP1.10020.001", title: { en: "Ground beetle sequences DNA barcode" } },
+      { url: "https://data.neonscience.org/data-products/DP1.10022.001", title: { en: "Ground beetles sampled from pitfall traps" } },
+      { url: "https://example.org/field-resources", title: { en: "Field resources" } },
+    ],
+  }} />);
+  await screen.findByText(protocol.specNumber);
+  const products = screen.getByRole("region", { name: "Related Data Products" });
+  const documentation = screen.getByRole("region", { name: "Documentation" });
+  const productRows = within(products).getAllByRole("listitem");
+  expect(productRows.map((row) => within(row).getByRole("heading").textContent))
+    .toEqual(["Ground beetle sequences DNA barcode", "Ground beetles sampled from pitfall traps"]);
+  expect(within(productRows[0]).getByText("DP1.10020.001")).toBeTruthy();
+  expect(within(productRows[0]).getByRole("link").getAttribute("href"))
+    .toBe("https://data.neonscience.org/data-products/DP1.10020.001");
+  expect(within(documentation).getAllByRole("listitem").map((row) => row.textContent))
+    .toEqual(["LAB_SOP", "CMNH_Receiving_SOP", protocol.specNumber, "NEON.DOC.000909vC"]);
+  expect(within(documentation).getAllByText(protocol.specNumber)).toHaveLength(1);
+  expect(within(products).queryByText(protocol.specNumber)).toBeNull();
+  expect(within(products).queryByText("Field resources")).toBeNull();
+  expect(document.getElementById("resources").textContent).toContain("Field resources");
+  const nav = screen.getByRole("navigation", { name: "Sample type sections" });
+  expect(within(nav).getByRole("link", { name: "Related Data Products" }).getAttribute("href"))
+    .toBe(`#${products.id}`);
+  expect(within(nav).getByRole("link", { name: "Documentation" }).getAttribute("href"))
+    .toBe(`#${documentation.id}`);
+  expect(DocumentListItem).toHaveBeenCalledWith(expect.objectContaining({
+    document: { name: protocol.specNumber, description: protocol.specDescription, type: protocol.specType, size: protocol.specSize },
+    enableDownloadButton: true,
+    makeDownloadableLink: false,
+  }), undefined);
+  expect(DocumentListItem).toHaveBeenCalledWith(expect.objectContaining({
+    document: expect.objectContaining({ name: "LAB_SOP", type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", size: 1024 }),
+  }), undefined);
+});
+test("documentation exclusions recognize titles and filenames while keeping other guides", () => {
+  const specs = [
+    { specNumber: "neon_beetle_userGuide_vG" },
+    { specNumber: "NEON.QSG.DP1.10022.001v2.pdf" },
+    { specNumber: "NEON_ATBD_v1" },
+    { specNumber: "USER", specDescription: "NEON USER GUIDES to samples" },
+    { specNumber: "QUICK", specDescription: "Quick-Start Guides to samples" },
+    { specNumber: "ALGORITHM", specDescription: "NEON Algorithm Theoretical Basis Document: Quality control" },
+    { specNumber: "FIELD", specDescription: "Field identification guide" },
+    { specNumber: "LAB", specDescription: "External laboratory user guide" },
+    { specNumber: "NEON.DOC.999999" },
+    null,
+    { specDescription: "Missing download identifier" },
+  ];
+  expect(selectDocumentation(specs).map((spec) => spec.specNumber))
+    .toEqual(["LAB", "FIELD", "NEON.DOC.999999"]);
+});
+test("documentation handles empty and invalid responses without claiming success on failures", async () => {
+  const { rerender } = render(<CollectionProfile profile={profile} />);
+  await screen.findByText("No documentation is currently available for this sample type.");
+  expect(global.fetch.mock.calls.filter(([url]) => url.includes("api/v0/products")))
+    .toHaveLength(0);
+  global.fetch.mockResolvedValue({ ok: true, json: async () => ({ data: { specs: {} } }) });
+  rerender(<CollectionProfile profile={{
+    ...profile,
+    resources: [{ url: "https://data.neonscience.org/data-products/DP1.10022.001" }],
+  }} />);
+  await screen.findByText(/Some documentation could not be loaded/);
+  expect(screen.queryByText("No documentation is currently available for this sample type.")).toBeNull();
 });
 test("empty availability and zero counts do not invent sites or percentages", async () => {
   render(
@@ -511,7 +608,7 @@ test("uses the shared page sidebar without duplicating navigation", async () => 
     <CollectionProfile profile={profile} />,
   );
   await waitFor(() =>
-    expect(screen.queryByText("Loading protocols…")).toBeNull(),
+    expect(screen.queryByText("Loading documentation…")).toBeNull(),
   );
   expect(host.querySelector("nav")).not.toBeNull();
   expect(
@@ -540,7 +637,7 @@ test("distribution drilldown keeps the selected collection and encodes geographi
     />,
   );
   await waitFor(() =>
-    expect(screen.queryByText("Loading protocols…")).toBeNull(),
+    expect(screen.queryByText("Loading documentation…")).toBeNull(),
   );
   const href = screen
     .getByRole("link", { name: "New York" })
@@ -557,7 +654,7 @@ test("sidebar selects clicked sections and keeps one link per list item", async 
   window.history.replaceState(null, "", "/");
   render(<CollectionProfile profile={profile} />);
   await waitFor(() =>
-    expect(screen.queryByText("Loading protocols…")).toBeNull(),
+    expect(screen.queryByText("Loading documentation…")).toBeNull(),
   );
   const nav = screen.getByRole("navigation", { name: "Sample type sections" });
   const about = nav.querySelector('a[href="#about"]');
@@ -580,7 +677,7 @@ test("sidebar follows direct section links and back/forward hash changes", async
   window.history.replaceState(null, "", "/#resources");
   render(<CollectionProfile profile={profile} />);
   await waitFor(() =>
-    expect(screen.queryByText("Loading protocols…")).toBeNull(),
+    expect(screen.queryByText("Loading documentation…")).toBeNull(),
   );
   const nav = screen.getByRole("navigation", { name: "Sample type sections" });
   expect(

@@ -9,6 +9,7 @@ import DownloadIcon from "@mui/icons-material/SaveAlt";
 import SearchIcon from "@mui/icons-material/Search";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import LinkIcon from "@mui/icons-material/Link";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -16,6 +17,7 @@ import { faFlask } from "@fortawesome/free-solid-svg-icons";
 import DocumentListItem from "../lib_components/components/Documents/DocumentListItem";
 import DataProductAvailability from "../lib_components/components/DataProductAvailability/DataProductAvailability";
 import { citationFile, safeUrl } from "./collectionProfile/profile";
+import { dataProductCode, selectDocumentation } from "./collectionProfile/documentation";
 import styles from "./collectionProfile/Profile.module.css";
 import CollectionDetails from "./collectionProfile/CollectionDetails";
 import CollectionStatistics from "./collectionProfile/CollectionStatistics";
@@ -49,7 +51,7 @@ function Resource({ title, description, url, action = "Explore" }) {
   );
 }
 
-function Protocols({ resources }) {
+function Documentation({ resources }) {
   const [result, setResult] = useState({
     specs: [],
     loading: true,
@@ -57,10 +59,11 @@ function Protocols({ resources }) {
   });
   useEffect(() => {
     const controller = new AbortController();
+    setResult({ specs: [], loading: true, failed: false });
     const ids = [
       ...new Set(
         resources
-          .map((item) => item.url.match(/DP\d\.\d{5}\.\d{3}/)?.[0])
+          .map((item) => dataProductCode(item.url))
           .filter(Boolean),
       ),
     ];
@@ -71,22 +74,21 @@ function Protocols({ resources }) {
             `https://data.neonscience.org/api/v0/products/${id}`,
             { signal: controller.signal },
           );
-          if (!response.ok) throw new Error("Unable to retrieve protocols");
-          return response.json();
+          if (!response.ok) throw new Error("Unable to retrieve documentation");
+          const body = await response.json();
+          const specs = body.data?.specs || [];
+          if (!Array.isArray(specs)) throw new Error("Invalid documentation response");
+          return specs;
         }),
       );
       if (controller.signal.aborted) return;
       const specs = responses.flatMap((response) =>
         response.status === "fulfilled"
-          ? (response.value.data?.specs || []).filter((spec) =>
-              spec.specDescription?.includes("Protocol and Procedure"),
-            )
+          ? response.value
           : [],
       );
       setResult({
-        specs: [
-          ...new Map(specs.map((spec) => [spec.specNumber, spec])).values(),
-        ],
+        specs: selectDocumentation(specs),
         loading: false,
         failed: responses.some((response) => response.status === "rejected"),
       });
@@ -96,26 +98,35 @@ function Protocols({ resources }) {
   }, [resources]);
   return (
     <>
-      {result.loading && <p role="status">Loading protocols…</p>}
+      {result.loading && <p role="status">Loading documentation…</p>}
       {result.failed && (
         <p role="status">
-          Some protocols could not be loaded. Use the data product links above
+          Some documentation could not be loaded. Use the data product links above
           to view their documentation.
         </p>
       )}
-      {result.specs.map((spec) => (
-        <DocumentListItem
-          key={spec.specNumber}
-          document={{
-            name: spec.specNumber,
-            type: spec.specType || "application/pdf",
-            size: spec.specSize || 0,
-            description: spec.specDescription,
-          }}
-          containerComponent="div"
-          enableDownloadButton
-        />
-      ))}
+      {!result.loading && !result.failed && !result.specs.length && (
+        <p>No documentation is currently available for this sample type.</p>
+      )}
+      {!!result.specs.length && (
+        <ul className={styles.relatedList}>
+          {result.specs.map((spec) => (
+            <li key={spec.specNumber} className={styles.documentationItem}>
+              <DocumentListItem
+                document={{
+                  name: spec.specNumber,
+                  type: spec.specType || "application/pdf",
+                  size: spec.specSize || 0,
+                  description: spec.specDescription || spec.specNumber,
+                }}
+                containerComponent="div"
+                makeDownloadableLink={false}
+                enableDownloadButton
+              />
+            </li>
+          ))}
+        </ul>
+      )}
     </>
   );
 }
@@ -410,14 +421,32 @@ export function CollectionProfile({
     ([, firstTitle], [, secondTitle]) =>
       firstTitle.localeCompare(secondTitle, "en", { sensitivity: "base" }),
   );
+  const resourceTitle = (resource) =>
+    typeof resource.title === "string"
+      ? resource.title
+      : resource.title?.[language] || resource.title?.en || dataProductCode(resource.url) || "Linked resource";
+  const dataProducts = [...new Map(
+    profile.resources
+      .filter((resource) => dataProductCode(resource.url) && safeUrl(resource.url))
+      .map((resource) => [dataProductCode(resource.url), resource]),
+  ).values()].sort((first, second) =>
+    resourceTitle(first).localeCompare(resourceTitle(second), "en", { sensitivity: "base" }),
+  );
+  const additionalResources = [
+    ...profile.resources
+      .filter((resource) => !dataProductCode(resource.url))
+      .map((resource) => ({ ...resource, title: resourceTitle(resource) })),
+    ...profile.additionalResources,
+  ];
   const sections = [
     ["about", "About"],
     ["citation", "Citation"],
     ...(relatedSamples.length
       ? [["related-sample-types", "Related Sample Types"]]
       : []),
-    ["documentation", "Data Products and Protocols"],
-    ["availability", "Sample Availability"],
+    ["related-data-products", "Related Data Products"],
+    ["documentation", "Documentation"],
+    ["availability", "Availability"],
     ["resources", "Additional Resources"],
     ["contact", "Contact"],
   ];
@@ -596,24 +625,41 @@ export function CollectionProfile({
             </ul>
           </section>
         )}
-        <section id="documentation">
-          <h2>Data Products and Protocols</h2>
-          {profile.resources.map((resource, index) => (
-            <Resource
-              key={`${resource.url}-${index}`}
-              title={
-                resource.title?.[language] ||
-                resource.title?.en ||
-                "Linked resource"
-              }
-              description={resource.url.split("/").pop()}
-              url={resource.url}
-            />
-          ))}
-          <Protocols resources={profile.resources} />
+        <section id="related-data-products" aria-labelledby="related-data-products-heading">
+          <h2 id="related-data-products-heading">Related Data Products</h2>
+          {dataProducts.length ? (
+            <ul className={styles.relatedList}>
+              {dataProducts.map((resource) => (
+                <li key={dataProductCode(resource.url)} className={styles.relatedItem}>
+                  <LinkIcon className={styles.relatedIcon} aria-hidden="true" />
+                  <div className={styles.relatedLabel}>
+                    <h3>{resourceTitle(resource)}</h3>
+                    <p className={styles.relatedCode}>{dataProductCode(resource.url)}</p>
+                  </div>
+                  <Button
+                    className={styles.relatedAction}
+                    variant="outlined"
+                    endIcon={<ChevronRightIcon />}
+                    href={resource.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Explore
+                    <span className={styles.srOnly}> {resourceTitle(resource)} (opens in a new tab)</span>
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No related data products are currently available.</p>
+          )}
+        </section>
+        <section id="documentation" aria-labelledby="documentation-heading">
+          <h2 id="documentation-heading">Documentation</h2>
+          <Documentation resources={profile.resources} />
         </section>
         <section id="availability">
-          <h2>Sample Availability</h2>
+          <h2>Availability</h2>
           {profile.siteCodes?.length ? (
             <DataProductAvailability
               siteCodes={profile.siteCodes}
@@ -625,7 +671,7 @@ export function CollectionProfile({
         </section>
         <section id="resources">
           <h2>Additional Resources</h2>
-          {profile.additionalResources.map((resource) => (
+          {additionalResources.map((resource) => (
             <Resource key={resource.url} {...resource} />
           ))}
         </section>
