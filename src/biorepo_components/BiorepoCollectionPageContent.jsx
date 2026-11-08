@@ -17,6 +17,7 @@ import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFlask } from "@fortawesome/free-solid-svg-icons";
 import DocumentListItem from "../lib_components/components/Documents/DocumentListItem";
+import DocumentService from "../lib_components/service/DocumentService";
 import InfoMessageCard from "../lib_components/components/Card/InfoMessageCard";
 import DataProductAvailability from "../lib_components/components/DataProductAvailability/DataProductAvailability";
 import { citationFile, safeUrl } from "./collectionProfile/profile";
@@ -41,9 +42,6 @@ function Link({ href, children, button = false, external = false }) {
 }
 
 function DataDownloads({ resources, profile, clientRoot }) {
-  const isLoggedIn = profile.isLoggedIn === true;
-  const returnUrl = `${clientRoot}/collections/misc/neoncollprofiles.php?collid=${profile.id}#data-downloads`;
-  const loginUrl = `${clientRoot}/profile/index.php?refurl=${encodeURIComponent(returnUrl)}`;
   const rows = [
     {
       key: "browse",
@@ -69,19 +67,22 @@ function DataDownloads({ resources, profile, clientRoot }) {
         key: resource.kind,
         title: isArchive ? "Full Data Download" : "Metadata",
         description: isArchive ? "Darwin Core Archive (DwC-A)" : "Ecological Metadata Language (EML) File",
-        filename: isArchive ? archiveFilename(resource.url) : "",
+        filename: isArchive ? resource.filename ?? archiveFilename(resource.url) : "",
+        size: isArchive && Number.isInteger(resource.sizeBytes) && resource.sizeBytes >= 0
+          ? (resource.sizeBytes === 0 ? "0 B" : DocumentService.formatBytes(resource.sizeBytes))
+          : "",
         Icon: isArchive ? DescriptionOutlinedIcon : LinkIcon,
-        action: isArchive ? (isLoggedIn ? "Download" : "Log in to download") : "View",
-        href: isArchive && !isLoggedIn ? loginUrl : resource.url,
-        startIcon: isArchive ? (isLoggedIn ? <DownloadIcon /> : <LockOutlinedIcon />) : undefined,
+        action: resource.action || (isArchive ? "Download" : "View"),
+        href: resource.url,
+        startIcon: isArchive ? (resource.actionIcon === "lock" ? <LockOutlinedIcon /> : <DownloadIcon />) : undefined,
         endIcon: isArchive ? undefined : <ChevronRightIcon />,
-        external: !isArchive || isLoggedIn,
+        external: resource.openInNewTab ?? true,
       };
     }),
   ];
   return (
     <ul className={styles.relatedList}>
-      {rows.map(({ key, title, description, filename, Icon, action, href, startIcon, endIcon, external }) => {
+      {rows.map(({ key, title, description, filename, size, Icon, action, href, startIcon, endIcon, external }) => {
         return (
           <li key={key} className={styles.relatedItem}>
             <Icon className={styles.relatedIcon} aria-hidden="true" />
@@ -89,6 +90,12 @@ function DataDownloads({ resources, profile, clientRoot }) {
               <h3>{title}</h3>
               <p className={styles.relatedCode}>
                 {description}
+                {size && (
+                  <>
+                    <span className={styles.resourceSeparator} aria-hidden="true">|</span>
+                    <span>{size}</span>
+                  </>
+                )}
                 {filename && (
                   <>
                     <span className={styles.resourceSeparator} aria-hidden="true">|</span>

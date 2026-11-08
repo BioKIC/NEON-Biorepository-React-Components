@@ -24,8 +24,8 @@ export function statistics(stats = {}, extra = {}) {
   if (extra.imgcnt) {
     const parts = String(extra.imgcnt).split(":");
     const records = parts.length > 1 ? parts[1] : parts[0];
-    rows.push(["Records with images", count(records) + percent(records)]);
-    if (parts.length > 1) rows.push(["Images", count(parts[0])]);
+    if (Number(records) > 0) rows.push(["Records with images", count(records) + percent(records)]);
+    if (parts.length > 1 && Number(parts[0]) > 0) rows.push(["Images", count(parts[0])]);
   }
   [
     ["Families", "familycnt"],

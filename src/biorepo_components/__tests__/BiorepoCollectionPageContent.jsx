@@ -640,11 +640,10 @@ test("data downloads combine browse and search rows with the full archive and me
   ];
   render(<CollectionProfile clientRoot="/portal" profile={{
     ...profile,
-    isLoggedIn: true,
     additionalResources: [
       ...external,
       { kind: "eml", title: "Collection metadata", url: emlUrl },
-      { kind: "dwca", title: "Darwin Core Archive", url: archiveUrl },
+      { kind: "dwca", title: "Full Data Download", url: archiveUrl, filename: "NEON-TICKS_DwC-A.zip", sizeBytes: 3491758, action: "Download", actionIcon: "download", openInNewTab: true },
     ],
   }} />);
   await waitFor(() => expect(screen.queryByText("Loading documentation…")).toBeNull());
@@ -654,6 +653,7 @@ test("data downloads combine browse and search rows with the full archive and me
     .toEqual(["Browse Records", "Search Records", "Full Data Download", "Metadata"]);
   expect(within(downloads).getByText("Darwin Core Archive (DwC-A)")).toBeTruthy();
   expect(within(downloads).getByText("NEON-TICKS_DwC-A.zip")).toBeTruthy();
+  expect(within(downloads).getByText("3.33 MB")).toBeTruthy();
   expect(within(downloads).getByText("Ecological Metadata Language (EML) File")).toBeTruthy();
   expect(within(downloads).getByRole("link", { name: /Download Full Data Download/ }).getAttribute("href"))
     .toBe(archiveUrl);
@@ -694,12 +694,23 @@ test("missing archives and external datasets do not create empty rows or externa
   expect(screen.queryByRole("region", { name: "Externally Hosted Data" })).toBeNull();
   expect(screen.queryByRole("link", { name: "Externally Hosted Data" })).toBeNull();
 });
-test("the full download button requires login while other download rows remain available", async () => {
+test("the full download button renders the PHP action without deciding login status in React", async () => {
+  const loginUrl = "/portal/profile/index.php?refurl=%2Fportal%2Fcollections%2Fmisc%2Fneoncollprofiles.php%3Fcollid%3D7%23data-downloads";
+  const archive = {
+    kind: "dwca",
+    filename: "public-archive.zip",
+    sizeBytes: 126976,
+    url: loginUrl,
+    action: "Log in to download",
+    actionIcon: "lock",
+    openInNewTab: false,
+  };
   const downloadProfile = {
     ...profile,
-    isLoggedIn: false,
+    // Stale client flags must not override the action PHP supplied.
+    isLoggedIn: true,
     additionalResources: [
-      { kind: "dwca", url: "https://example.org/public-archive.zip" },
+      archive,
       ...profile.additionalResources,
     ],
   };
@@ -708,9 +719,10 @@ test("the full download button requires login while other download rows remain a
   const downloads = screen.getByRole("region", { name: "Data Downloads" });
   const login = within(downloads).getByRole("link", { name: "Log in to download Full Data Download" });
   expect(login.getAttribute("href"))
-    .toBe("/portal/profile/index.php?refurl=%2Fportal%2Fcollections%2Fmisc%2Fneoncollprofiles.php%3Fcollid%3D7%23data-downloads");
+    .toBe(loginUrl);
   expect(login.getAttribute("target")).toBeNull();
   expect(within(downloads).getByText("public-archive.zip")).toBeTruthy();
+  expect(within(downloads).getByText("124 KB")).toBeTruthy();
   expect(document.querySelector('a[href="https://example.org/public-archive.zip"]')).toBeNull();
   expect(within(downloads).getByRole("link", { name: /View Metadata/ }).getAttribute("href"))
     .toBe("../datasets/emlhandler.php?collid=7");
@@ -718,11 +730,29 @@ test("the full download button requires login while other download rows remain a
     .toBe("/portal/collections/list.php?db=7");
   expect(within(downloads).getByRole("link", { name: "Search Search Records" }).getAttribute("href"))
     .toBe("/portal/neon/search/index.php?db=7");
-  rerender(<CollectionProfile clientRoot="/portal" profile={{ ...downloadProfile, isLoggedIn: true }} />);
+  rerender(<CollectionProfile clientRoot="/portal" profile={{
+    ...downloadProfile,
+    isLoggedIn: false,
+    additionalResources: [
+      { ...archive, url: "https://example.org/public-archive.zip", action: "Download", actionIcon: "download", openInNewTab: true },
+      ...profile.additionalResources,
+    ],
+  }} />);
   const download = within(downloads).getByRole("link", { name: /Download Full Data Download/ });
   expect(download.getAttribute("href"))
     .toBe("https://example.org/public-archive.zip");
   expect(within(downloads).queryByText("Log in to download")).toBeNull();
+  expect(download.getAttribute("target")).toBe("_blank");
+});
+test.each([null, -1, 0])("archive size handles unavailable and empty files (%s)", async (sizeBytes) => {
+  render(<CollectionProfile profile={{
+    ...profile,
+    additionalResources: [{ kind: "dwca", url: "https://example.org/archive.zip", sizeBytes }],
+  }} />);
+  await waitFor(() => expect(screen.queryByText("Loading documentation…")).toBeNull());
+  const downloads = screen.getByRole("region", { name: "Data Downloads" });
+  expect(downloads.textContent).not.toMatch(/NaN|Infinity|undefined/);
+  expect(Boolean(within(downloads).queryByText("0 B"))).toBe(sizeBytes === 0);
 });
 test("resource grouping supports existing PHP profiles and preserves safe destinations", () => {
   const archive = { title: "Darwin Core Archive", url: "https://example.org/Sample%20Archive.zip?download=1#file" };
