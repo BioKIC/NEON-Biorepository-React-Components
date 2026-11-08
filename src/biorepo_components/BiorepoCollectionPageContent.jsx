@@ -425,18 +425,19 @@ export function CollectionProfile({
     typeof resource.title === "string"
       ? resource.title
       : resource.title?.[language] || resource.title?.en || dataProductCode(resource.url) || "Linked resource";
+  const resources = useMemo(() => profile.resources || [], [profile.resources]);
   const dataProducts = [...new Map(
-    profile.resources
+    resources
       .filter((resource) => dataProductCode(resource.url) && safeUrl(resource.url))
       .map((resource) => [dataProductCode(resource.url), resource]),
   ).values()].sort((first, second) =>
     resourceTitle(first).localeCompare(resourceTitle(second), "en", { sensitivity: "base" }),
   );
   const additionalResources = [
-    ...profile.resources
+    ...resources
       .filter((resource) => !dataProductCode(resource.url))
       .map((resource) => ({ ...resource, title: resourceTitle(resource) })),
-    ...profile.additionalResources,
+    ...(profile.additionalResources || []),
   ];
   const sections = [
     ["about", "About"],
@@ -448,7 +449,6 @@ export function CollectionProfile({
     ["documentation", "Documentation"],
     ["availability", "Availability"],
     ["resources", "Additional Resources"],
-    ["contact", "Contact"],
   ];
   const [activeSection, setActiveSection] = useState(() => {
     const hash = window.location.hash.slice(1);
@@ -486,6 +486,17 @@ export function CollectionProfile({
           ))}
         </ul>
       </nav>
+      <div className={styles.sidebarContact}>
+        <p className={styles.sidebarContactText}>
+          Have questions about samples, data, or access?
+        </p>
+        <Link
+          external
+          href="https://www.neonscience.org/about/contact-neon-biorepository"
+        >
+          Contact the Biorepository
+        </Link>
+      </div>
     </aside>
   );
   if (!profile.id)
@@ -656,7 +667,7 @@ export function CollectionProfile({
         </section>
         <section id="documentation" aria-labelledby="documentation-heading">
           <h2 id="documentation-heading">Documentation</h2>
-          <Documentation resources={profile.resources} />
+          <Documentation resources={resources} />
         </section>
         <section id="availability">
           <h2>Availability</h2>
@@ -674,36 +685,6 @@ export function CollectionProfile({
           {additionalResources.map((resource) => (
             <Resource key={resource.url} {...resource} />
           ))}
-        </section>
-        <section id="contact">
-          <h2>Contact</h2>
-          {profile.contacts
-            .filter((contact) => contact && typeof contact === "object")
-            .map((contact, index) => (
-              <p key={index}>
-                {contact.role ? `${contact.role}: ` : ""}
-                {[contact.firstName, contact.lastName]
-                  .filter(Boolean)
-                  .join(" ")}
-                {contact.orcid && (
-                  <>
-                    {" "}
-                    (
-                    <Link href={`https://orcid.org/${contact.orcid}`} external>
-                      ORCID: {contact.orcid}
-                    </Link>
-                    )
-                  </>
-                )}
-              </p>
-            ))}
-          <Link
-            button
-            external
-            href="https://www.neonscience.org/about/contact-neon-biorepository"
-          >
-            Contact the Biorepository
-          </Link>
         </section>
         <Distribution
           distribution={profile.distribution}

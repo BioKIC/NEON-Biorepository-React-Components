@@ -95,6 +95,30 @@
   outline: 3px solid #0073cf;
   outline-offset: 4px;
 }
+.sidebar .sidebarContact {
+  padding-top: 24px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.sidebar .sidebarContact .sidebarContactText {
+  color: #565a5c;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+  margin: 0 0 12px;
+}
+.sidebar .sidebarContact a {
+  color: #0073cf;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.sidebar .sidebarContact a:hover {
+  color: #005a9f;
+}
+.sidebar .sidebarContact a:focus-visible {
+  outline: 3px solid #0073cf;
+  outline-offset: 4px;
+}
 .main {
   flex: 1;
   min-width: 0;

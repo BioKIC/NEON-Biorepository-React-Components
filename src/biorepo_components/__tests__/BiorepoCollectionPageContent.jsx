@@ -617,8 +617,25 @@ test("uses the shared page sidebar without duplicating navigation", async () => 
   expect(
     screen.getAllByRole("navigation", { name: "Sample type sections" }),
   ).toHaveLength(1);
+  const contact = within(host).getByRole("link", { name: "Contact the Biorepository" });
+  expect(contact.getAttribute("href"))
+    .toBe("https://www.neonscience.org/about/contact-neon-biorepository");
+  expect(contact.parentElement.previousElementSibling).toBe(host.querySelector("nav"));
+  expect(contact.parentElement.textContent).toContain("Have questions about samples, data, or access?");
+  expect(container.querySelector("#contact")).toBeNull();
+  expect(host.querySelector('a[href="#contact"]')).toBeNull();
   unmount();
   host.remove();
+});
+
+test("collection directory does not require product or documentation metadata", () => {
+  render(<CollectionProfile clientRoot="/portal" profile={{
+    collections: [{ id: 39, title: "Pinned Carabids", code: "CARC-PV" }],
+  }} />);
+  expect(screen.getByRole("link", { name: "Pinned Carabids" }).getAttribute("href"))
+    .toBe("/portal/collections/misc/neoncollprofiles.php?collid=39");
+  expect(screen.getByText("CARC-PV")).toBeTruthy();
+  expect(global.fetch).not.toHaveBeenCalled();
 });
 
 test("distribution drilldown keeps the selected collection and encodes geographic names", async () => {
