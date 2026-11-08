@@ -40,7 +40,8 @@ export function statistics(stats = {}, extra = {}) {
     ["GenBank references", "gencnt"],
     ["BOLD references", "boldcnt"],
     ["Other genetic references", "geneticcnt"],
-    ["Publication references", "refcnt"],
+    ["Research projects", "researchProjectCount"],
+    ["Specimens used", "researchSpecimenCount"],
   ].forEach(([label, key]) => {
     if (Number(extra[key])) rows.push([label, count(extra[key])]);
   });

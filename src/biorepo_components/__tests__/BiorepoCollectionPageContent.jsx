@@ -406,6 +406,8 @@ test("About includes all collection statistics in their groups and supports old 
           SpecimensCountID: 1920,
           boldcnt: 60,
           refcnt: 141,
+          researchProjectCount: 7,
+          researchSpecimenCount: 123,
           gencnt: 12,
           geneticcnt: 4,
         },
@@ -422,7 +424,7 @@ test("About includes all collection statistics in their groups and supports old 
   const groups = [
     ["Records", ["1,967", "1,967 (100%)", "1,843 (93.7%)", "6,418"]],
     ["Taxonomy", ["10", "36", "99", "98", "1,920"]],
-    ["References", ["12", "60", "4", "141"]],
+    ["Research & References", ["12", "60", "4", "7", "123"]],
   ];
   for (const [title, expected] of groups) {
     const group = within(stats).getByRole("heading", {
@@ -438,6 +440,11 @@ test("About includes all collection statistics in their groups and supports old 
   ).toBe("#about");
   expect(nav.querySelector('a[href="#statistics"]')).toBeNull();
   expect(stats.id).toBe("statistics");
+  expect(within(stats).getByText("Research projects")).toBeTruthy();
+  expect(within(stats).getByText("Specimens used")).toBeTruthy();
+  expect(within(stats).getByText("Public projects with linked specimens")).toBeTruthy();
+  expect(within(stats).queryByText("Publication references")).toBeNull();
+  expect(within(stats).queryByText("141")).toBeNull();
   window.history.replaceState(null, "", "/");
 });
 test("partial documentation failures preserve successful documents and deduplicate products", async () => {

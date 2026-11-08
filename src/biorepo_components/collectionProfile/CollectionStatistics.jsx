@@ -23,12 +23,13 @@ const groups = [
     ],
   ],
   [
-    "References",
+    "Research & References",
     [
       "GenBank references",
       "BOLD references",
       "Other genetic references",
-      "Publication references",
+      "Research projects",
+      "Specimens used",
     ],
   ],
 ];
@@ -57,6 +58,16 @@ export default function CollectionStatistics({ stats, extraStats }) {
                         <>
                           Total taxa
                           <small>Includes subspecies and varieties</small>
+                        </>
+                      ) : label === "Research projects" ? (
+                        <>
+                          Research projects
+                          <small>Public projects with linked specimens</small>
+                        </>
+                      ) : label === "Specimens used" ? (
+                        <>
+                          Specimens used
+                          <small>Distinct specimens linked to public projects</small>
                         </>
                       ) : (
                         label
