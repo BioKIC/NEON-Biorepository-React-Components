@@ -506,13 +506,13 @@ export function CollectionProfile({
   const sections = [
     ["about", "About"],
     ["citation", "Citation"],
+    ["data-downloads", "Data Downloads"],
     ...(relatedSamples.length
       ? [["related-sample-types", "Related Sample Types"]]
       : []),
     ["related-data-products", "Related Data Products"],
     ["documentation", "Documentation"],
     ["availability", "Availability"],
-    ["data-downloads", "Data Downloads"],
     ...(externalResources.length
       ? [["externally-hosted-data", "Externally Hosted Data"]]
       : []),
@@ -674,6 +674,10 @@ export function CollectionProfile({
           <h2>Citation</h2>
           <Citation profile={profile} clientRoot={clientRoot} />
         </section>
+        <section id="data-downloads" aria-labelledby="data-downloads-heading">
+          <h2 id="data-downloads-heading">Data Downloads</h2>
+          <DataDownloads resources={downloads} profile={profile} clientRoot={clientRoot} />
+        </section>
         {!!relatedSamples.length && (
           <section id="related-sample-types" aria-labelledby="related-sample-types-heading">
             <h2 id="related-sample-types-heading">Related Sample Types</h2>
@@ -746,10 +750,6 @@ export function CollectionProfile({
           ) : (
             <p>No site availability information is currently available.</p>
           )}
-        </section>
-        <section id="data-downloads" aria-labelledby="data-downloads-heading">
-          <h2 id="data-downloads-heading">Data Downloads</h2>
-          <DataDownloads resources={downloads} profile={profile} clientRoot={clientRoot} />
         </section>
         {!!externalResources.length && (
           <section
