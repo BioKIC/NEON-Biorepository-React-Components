@@ -133,6 +133,10 @@ const compactCatalogStyles = {
     '& .catalog-search-help.MuiTypography-root': {
       fontSize: '0.625rem !important', color: '#808080', lineHeight: 1.5,
     },
+    '& .catalog-search-help .MuiLink-root': {
+      fontSize: 'inherit !important', lineHeight: 'inherit',
+      display: 'inline', verticalAlign: 'baseline',
+    },
     '& .catalog-selection-count.MuiTypography-root': {
       fontSize: '0.625rem !important', color: '#808080',
     },

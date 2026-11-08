@@ -15,7 +15,7 @@ export default function CatalogKeywordBrowser({ items, query, onChange, resultCo
         type="button"
         aria-haspopup="dialog"
         onClick={() => setOpen(true)}
-        sx={{ fontSize: 'inherit !important', verticalAlign: 'baseline', color: '#0073cf', textDecoration: 'underline' }}
+        sx={{ color: '#0073cf', textDecoration: 'underline' }}
       >
         Browse keywords
       </Link>{' '}for ideas.
@@ -28,12 +28,22 @@ export default function CatalogKeywordBrowser({ items, query, onChange, resultCo
         aria-describedby="catalog-keywords-help"
         slotProps={{ paper: { className: 'biorepo-catalog-dialog' } }}
         sx={{
-          '& .keyword-description, & .keyword-result-count': { fontSize: '0.75rem !important', lineHeight: 1.5 },
-          '& .keyword-letter': { fontSize: '0.875rem !important', fontWeight: 500 },
-          '& .keyword-chip, & .keyword-chip .MuiChip-label': { fontSize: '0.75rem !important', fontWeight: 500 },
-          '& .keyword-chip': { height: 'auto', minHeight: 28, maxWidth: '100%' },
-          '& .keyword-chip .MuiChip-label': { whiteSpace: 'normal', overflowWrap: 'anywhere', py: 0.5 },
-          '& .keyword-chip .MuiChip-icon': { fontSize: '1rem' },
+          // The portal header and utility bar use layers up to 2920.
+          zIndex: 3000,
+          '& .biorepo-catalog-dialog': {
+            fontSize: '0.625rem !important',
+            // Outrank the catalog-wide typography rules, including form and chip text.
+            '& .MuiTypography-root, & .MuiInputBase-root, & input, & label, & legend, & span, & button': {
+              fontSize: 'inherit !important',
+            },
+            '& .MuiDialogTitle-root': { fontSize: '0.875rem !important' },
+            '& .keyword-description, & .keyword-result-count': { lineHeight: 1.5 },
+            '& h3.keyword-letter': { fontSize: '0.75rem !important', fontWeight: 500 },
+            '& .keyword-chip': { fontWeight: 500, height: 'auto', minHeight: 28, maxWidth: '100%' },
+            '& .keyword-chip .MuiChip-label': { whiteSpace: 'normal', overflowWrap: 'anywhere', py: 0.5 },
+            '& .keyword-chip .MuiChip-icon': { fontSize: '0.875rem' },
+            '& .MuiIconButton-root .MuiSvgIcon-root': { fontSize: '1rem' },
+          },
         }}
       >
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr auto', md: '1fr 1fr auto' }, gap: 2, alignItems: 'start', p: 3, pb: 2 }}>
