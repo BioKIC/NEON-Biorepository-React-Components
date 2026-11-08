@@ -113,34 +113,6 @@ export default function BiorepoPage() {
     }
   }, [layoutReady]);
 
-  useLayoutEffect(() => {
-    if (!layoutReady || !isCollectionProfile) return undefined;
-    const content = document.querySelector('[data-selenium="neon-page.content"]');
-    if (!content) return undefined;
-
-    // The centered page has an extra outer margin once it reaches its max width.
-    // Measure that space without widening the text or including the scrollbar.
-    const updateRightMargin = () => {
-      const margin = Math.max(
-        0,
-        document.documentElement.clientWidth - content.getBoundingClientRect().right,
-      );
-      content.style.setProperty('--profile-right-margin', `${margin}px`);
-    };
-    updateRightMargin();
-    const observer = typeof ResizeObserver === 'function'
-      ? new ResizeObserver(updateRightMargin)
-      : null;
-    observer?.observe(content);
-    observer?.observe(document.documentElement);
-    window.addEventListener('resize', updateRightMargin);
-    return () => {
-      observer?.disconnect();
-      window.removeEventListener('resize', updateRightMargin);
-      content.style.removeProperty('--profile-right-margin');
-    };
-  }, [layoutReady, isCollectionProfile]);
-
   return (
     <NeonPage
       breadcrumbs={breadcrumbs}

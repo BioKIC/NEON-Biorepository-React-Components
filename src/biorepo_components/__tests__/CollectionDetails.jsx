@@ -19,6 +19,67 @@ const soil = {
   siteCodes: [{ availableMonths: ["2025-10", "2014-01", "2020-08"] }],
 };
 afterEach(cleanup);
+test("the gray band includes wrapper insets and tracks the usable viewport on resize", async () => {
+  const originalObserver = global.ResizeObserver;
+  const viewportDescriptor = Object.getOwnPropertyDescriptor(
+    document.documentElement,
+    "clientWidth",
+  );
+  let viewportWidth = 2048;
+  Object.defineProperty(document.documentElement, "clientWidth", {
+    configurable: true,
+    get: () => viewportWidth,
+  });
+  let notifyResize;
+  const disconnect = jest.fn();
+  global.ResizeObserver = class {
+    constructor(callback) {
+      notifyResize = callback;
+    }
+    observe() {}
+    disconnect() {
+      disconnect();
+    }
+  };
+  const section = document.createElement("section");
+  document.body.appendChild(section);
+  let sectionRight = 1840;
+  section.getBoundingClientRect = () => ({ right: sectionRight });
+  global.fetch = jest
+    .fn()
+    .mockResolvedValue({ ok: true, json: async () => ({ items: [] }) });
+  let view;
+  try {
+    view = render(<CollectionDetails id={7} />, { container: section });
+    await screen.findByText(
+      "Additional details are not available for this sample type.",
+    );
+    const band = screen.getByRole("group", {
+      name: "Preservation and storage details",
+    });
+    expect(band.style.getPropertyValue("--details-right-bleed")).toBe("208px");
+    viewportWidth = 1440;
+    sectionRight = 1328;
+    act(() => notifyResize());
+    expect(band.style.getPropertyValue("--details-right-bleed")).toBe("112px");
+    sectionRight = viewportWidth;
+    fireEvent(window, new Event("resize"));
+    expect(band.style.getPropertyValue("--details-right-bleed")).toBe("0px");
+    view.unmount();
+    expect(disconnect).toHaveBeenCalled();
+  } finally {
+    view?.unmount();
+    section.remove();
+    global.ResizeObserver = originalObserver;
+    if (viewportDescriptor)
+      Object.defineProperty(
+        document.documentElement,
+        "clientWidth",
+        viewportDescriptor,
+      );
+    else delete document.documentElement.clientWidth;
+  }
+});
 test("loads the selected collection details and full catalog date range without hardcoding soil metadata", async () => {
   global.fetch = jest.fn().mockImplementation(async (url) => ({
     ok: true,
@@ -50,7 +111,7 @@ test("loads the selected collection details and full catalog date range without 
     name: "Preservation and storage details",
   });
   expect(within(details).getByText("250 mL glass jar")).toBeTruthy();
-  expect(within(details).getByText("Storage & container")).toBeTruthy();
+  expect(within(details).getByText("Storage & Container")).toBeTruthy();
   const media = screen.getByRole("complementary", {
     name: "Sample type details",
   });
@@ -103,7 +164,7 @@ test("missing metadata does not fabricate values or keywords", async () => {
   await screen.findByText("Preservation");
   expect(screen.getAllByText("Not specified")).toHaveLength(4);
   expect(screen.getByText("No dated site records")).toBeTruthy();
-  expect(screen.queryByText("Scientific keywords")).toBeNull();
+  expect(screen.queryByText("Scientific Keywords")).toBeNull();
 });
 test.each(["http", "json"])(
   "a keyword %s failure leaves the other details available",
@@ -120,7 +181,7 @@ test.each(["http", "json"])(
     );
     render(<CollectionDetails id={7} />);
     await screen.findByText("250 mL glass jar");
-    expect(screen.queryByText("Scientific keywords")).toBeNull();
+    expect(screen.queryByText("Scientific Keywords")).toBeNull();
     expect(
       screen.queryByText("Sample details could not be loaded."),
     ).toBeNull();

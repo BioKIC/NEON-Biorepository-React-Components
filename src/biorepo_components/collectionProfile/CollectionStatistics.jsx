@@ -41,7 +41,7 @@ export default function CollectionStatistics({ stats, extraStats }) {
       className={styles.statistics}
       aria-labelledby="statistics-heading"
     >
-      <h3 id="statistics-heading">Collection statistics</h3>
+      <h3 id="statistics-heading">Collection Statistics</h3>
       <div className={styles.statGroups}>
         {groups.map(([title, labels]) => {
           const rows = labels.filter((label) => values.has(label));

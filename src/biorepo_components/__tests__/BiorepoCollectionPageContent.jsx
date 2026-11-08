@@ -79,6 +79,7 @@ test("profile preserves collection IDs, description images, and site availabilit
       .getAttribute("href"),
   ).toContain("collid=8");
   expect(screen.getByTestId("availability").textContent).toContain("2024-01");
+  expect(document.title).toBe("NEON | Ticks");
   expect(document.querySelector("script")).toBeNull();
   expect(screen.getByText("unsafe").getAttribute("href")).toBeNull();
   const details = screen.getByRole("complementary", {
@@ -194,7 +195,7 @@ test("About includes all collection statistics in their groups and supports old 
   );
   const about = screen.getByRole("region", { name: "About" });
   const stats = within(about).getByRole("region", {
-    name: "Collection statistics",
+    name: "Collection Statistics",
   });
   const groups = [
     ["Records", ["1,967", "1,967 (100%)", "1,843 (93.7%)", "6,418"]],

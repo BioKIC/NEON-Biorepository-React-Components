@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import SampleTypeChip from "../SampleTypeChip";
 import styles from "./Profile.module.css";
 
@@ -44,6 +44,35 @@ export default function CollectionDetails({
   title = "Sample type",
   children,
 }) {
+  const bandRef = useRef(null);
+  useLayoutEffect(() => {
+    const band = bandRef.current;
+    const section = band?.parentElement;
+    if (!section) return undefined;
+
+    // Measure the actual About column, including all legacy wrapper insets,
+    // rather than assuming that it fills the outer NeonPage content pane.
+    const updateBleed = () => {
+      const gap = Math.max(
+        0,
+        document.documentElement.clientWidth -
+          section.getBoundingClientRect().right,
+      );
+      band.style.setProperty("--details-right-bleed", `${gap}px`);
+    };
+    updateBleed();
+    const observer =
+      typeof ResizeObserver === "function"
+        ? new ResizeObserver(updateBleed)
+        : null;
+    observer?.observe(section);
+    observer?.observe(document.documentElement);
+    window.addEventListener("resize", updateBleed);
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener("resize", updateBleed);
+    };
+  }, []);
   const [result, setResult] = useState({
     id,
     loading: true,
@@ -156,7 +185,7 @@ export default function CollectionDetails({
           )}
           {keywordTerms.length > 0 && (
             <div className={styles.detail}>
-              <h3 className={styles.keywordHeading}>Scientific keywords</h3>
+              <h3 className={styles.keywordHeading}>Scientific Keywords</h3>
               <ul className={styles.keywords}>
                 {keywordTerms.map((keyword) => (
                   <li key={keyword} className={styles.keyword}>
@@ -169,6 +198,7 @@ export default function CollectionDetails({
         </aside>
       </div>
       <div
+        ref={bandRef}
         className={styles.detailsBand}
         role="group"
         aria-label="Preservation and storage details"
@@ -210,7 +240,7 @@ export default function CollectionDetails({
           ))}
           {item && (
             <div className={styles.detail}>
-              <dt>Storage &amp; container</dt>
+              <dt>Storage &amp; Container</dt>
               <dd>
                 <span className={styles.storageValue}>
                   {typeof item.storageConditions === "string" &&
@@ -228,7 +258,7 @@ export default function CollectionDetails({
             </div>
           )}
           <div className={styles.detail}>
-            <dt>Available dates</dt>
+            <dt>Available Dates</dt>
             <dd>{availableDates(coverage)}</dd>
           </div>
         </dl>

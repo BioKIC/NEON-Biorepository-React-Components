@@ -220,7 +220,7 @@ function Distribution({ distribution, profileUrl, recordsUrl }) {
   const geo = distribution.type === "geography";
   return (
     <section id={geo ? "geographystats" : "taxonomystats"}>
-      <h2>{geo ? "Geographic distribution" : "Taxonomic distribution"}</h2>
+      <h2>{geo ? "Geographic Distribution" : "Taxonomic Distribution"}</h2>
       <ul>
         {Object.entries(distribution.rows || {}).map(([term, row]) => {
           const country = distribution.country || term;
@@ -358,6 +358,13 @@ export function CollectionProfile({
   clientRoot = "",
   language = "en",
 }) {
+  useEffect(() => {
+    const previousTitle = document.title;
+    document.title = `NEON | ${profile.title || "Sample Types"}`;
+    return () => {
+      document.title = previousTitle;
+    };
+  }, [profile.title]);
   const description = useMemo(
     () => splitDescription(profile.description),
     [profile.description],
@@ -369,11 +376,11 @@ export function CollectionProfile({
     ["about", "About"],
     ["citation", "Citation"],
     ...(Object.keys(profile.related || {}).length
-      ? [["related", "Related sample types"]]
+      ? [["related", "Related Sample Types"]]
       : []),
-    ["documentation", "Data products and protocols"],
-    ["availability", "Sample availability"],
-    ["resources", "Additional resources"],
+    ["documentation", "Data Products and Protocols"],
+    ["availability", "Sample Availability"],
+    ["resources", "Additional Resources"],
     ["contact", "Contact"],
   ];
   const [activeSection, setActiveSection] = useState(() => {
@@ -417,7 +424,7 @@ export function CollectionProfile({
   if (!profile.id)
     return (
       <div className={`${styles.profile} ${styles.directory}`}>
-        <h1>Sample types</h1>
+        <h1>Sample Types</h1>
         {(profile.collections || []).map((collection) => (
           <div className={styles.resource} key={collection.id}>
             <Link href={profileUrl(collection.id)}>{collection.title}</Link>
@@ -488,14 +495,14 @@ export function CollectionProfile({
         </section>
         {!!Object.keys(profile.related || {}).length && (
           <section id="related">
-            <h2>Related sample types</h2>
+            <h2>Related Sample Types</h2>
             {Object.entries(profile.related).map(([id, title]) => (
               <Resource key={id} title={title} url={profileUrl(id)} />
             ))}
           </section>
         )}
         <section id="documentation">
-          <h2>Data products and protocols</h2>
+          <h2>Data Products and Protocols</h2>
           {profile.resources.map((resource, index) => (
             <Resource
               key={`${resource.url}-${index}`}
@@ -511,7 +518,7 @@ export function CollectionProfile({
           <Protocols resources={profile.resources} />
         </section>
         <section id="availability">
-          <h2>Sample availability</h2>
+          <h2>Sample Availability</h2>
           {profile.siteCodes?.length ? (
             <DataProductAvailability
               siteCodes={profile.siteCodes}
@@ -522,7 +529,7 @@ export function CollectionProfile({
           )}
         </section>
         <section id="resources">
-          <h2>Additional resources</h2>
+          <h2>Additional Resources</h2>
           {profile.additionalResources.map((resource) => (
             <Resource key={resource.url} {...resource} />
           ))}
