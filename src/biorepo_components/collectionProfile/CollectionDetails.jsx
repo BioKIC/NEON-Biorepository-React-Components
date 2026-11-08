@@ -30,6 +30,7 @@ const terms = (values) =>
 
 export default function CollectionDetails({
   id,
+  code = "",
   clientRoot,
   siteCodes = [],
   keywords = [],
@@ -70,6 +71,7 @@ export default function CollectionDetails({
   const item = result.id === id ? result.item : null;
   const loading = result.id !== id || result.loading;
   const keywordTerms = terms(keywords);
+  const identifier = code || item?.collectionCode;
   const rows = item
     ? [
         ["Preservation", terms(item.preservation).join(", ")],
@@ -83,6 +85,12 @@ export default function CollectionDetails({
     item && Array.isArray(item.siteCodes) ? item.siteCodes : siteCodes;
   return (
     <aside className={styles.details} aria-label="Sample type details">
+      {identifier && (
+        <div className={styles.detail}>
+          <h3 className={styles.keywordHeading}>Sample Type ID</h3>
+          <span className={styles.identifierChip}>{identifier}</span>
+        </div>
+      )}
       {loading && (
         <p className={styles.detailsStatus} role="status">
           Loading sample details…

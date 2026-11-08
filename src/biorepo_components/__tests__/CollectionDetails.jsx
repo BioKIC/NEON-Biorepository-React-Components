@@ -13,23 +13,24 @@ const soil = {
 };
 afterEach(cleanup);
 test("loads the selected collection details and full catalog date range without hardcoding soil metadata", async () => {
-  global.fetch = jest
-    .fn()
-    .mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        items: [{ ...soil, id: 8, storageContainer: "Wrong jar" }, soil],
-      }),
-    });
+  global.fetch = jest.fn().mockResolvedValue({
+    ok: true,
+    json: async () => ({
+      items: [{ ...soil, id: 8, storageContainer: "Wrong jar" }, soil],
+    }),
+  });
   render(
     <CollectionDetails
       id={7}
+      code="SOIC-DP"
       clientRoot="/portal"
       siteCodes={[]}
       keywords={["soil", "microbial ecology", "soil", ""]}
     />,
   );
   await screen.findByText("250 mL glass jar");
+  expect(screen.getByText("Sample Type ID")).toBeTruthy();
+  expect(screen.getByText("SOIC-DP")).toBeTruthy();
   expect(screen.queryByText("Wrong jar")).toBeNull();
   expect(screen.getByText("Dry Samples")).toBeTruthy();
   expect(screen.getByText(soil.protocols[0])).toBeTruthy();
@@ -60,12 +61,10 @@ test("failed metadata requests keep known dates and can be retried", async () =>
   expect(screen.queryByText("Sample details could not be loaded.")).toBeNull();
 });
 test("missing metadata does not fabricate values or keywords", async () => {
-  global.fetch = jest
-    .fn()
-    .mockResolvedValue({
-      ok: true,
-      json: async () => ({ items: [{ id: 7 }] }),
-    });
+  global.fetch = jest.fn().mockResolvedValue({
+    ok: true,
+    json: async () => ({ items: [{ id: 7 }] }),
+  });
   render(<CollectionDetails id={7} clientRoot="" />);
   await screen.findByText("Preservation");
   expect(screen.getAllByText("Not specified")).toHaveLength(4);

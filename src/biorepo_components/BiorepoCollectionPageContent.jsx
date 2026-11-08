@@ -429,6 +429,7 @@ export function CollectionProfile({
             </div>
             <CollectionDetails
               id={profile.id}
+              code={profile.code}
               clientRoot={clientRoot}
               siteCodes={profile.siteCodes}
               keywords={keywordsByCollection[String(profile.id)] || []}
