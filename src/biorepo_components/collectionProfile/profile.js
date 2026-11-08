@@ -27,6 +27,9 @@ export function statistics(stats = {}, extra = {}) {
     if (Number(records) > 0) rows.push(["Records with images", count(records) + percent(records)]);
     if (parts.length > 1 && Number(parts[0]) > 0) rows.push(["Images", count(parts[0])]);
   }
+  if (Number(extra.sequencedRecordCount) > 0) {
+    rows.push(["Sequenced records", count(extra.sequencedRecordCount)]);
+  }
   [
     ["Families", "familycnt"],
     ["Genera", "genuscnt"],
@@ -37,11 +40,10 @@ export function statistics(stats = {}, extra = {}) {
   [
     ["Total taxa (including subspecies and varieties)", "TotalTaxaCount"],
     ["Identified to species", "SpecimensCountID"],
-    ["GenBank references", "gencnt"],
-    ["BOLD references", "boldcnt"],
-    ["Other genetic references", "geneticcnt"],
     ["Research projects", "researchProjectCount"],
     ["Specimens used", "researchSpecimenCount"],
+    ["Publications", "publicationCount"],
+    ["Samples in publications", "publicationSpecimenCount"],
   ].forEach(([label, key]) => {
     if (Number(extra[key])) rows.push([label, count(extra[key])]);
   });

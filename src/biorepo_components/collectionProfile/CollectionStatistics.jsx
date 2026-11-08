@@ -10,6 +10,7 @@ const groups = [
       "Georeferenced records",
       "Records with images",
       "Images",
+      "Sequenced records",
     ],
   ],
   [
@@ -23,13 +24,12 @@ const groups = [
     ],
   ],
   [
-    "Research & References",
+    "Research",
     [
-      "GenBank references",
-      "BOLD references",
-      "Other genetic references",
       "Research projects",
       "Specimens used",
+      "Publications",
+      "Samples in publications",
     ],
   ],
 ];

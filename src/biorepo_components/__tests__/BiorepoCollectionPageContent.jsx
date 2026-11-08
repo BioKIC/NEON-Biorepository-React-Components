@@ -408,6 +408,9 @@ test("About includes all collection statistics in their groups and supports old 
           refcnt: 141,
           researchProjectCount: 7,
           researchSpecimenCount: 123,
+          publicationCount: 3,
+          publicationSpecimenCount: 100,
+          sequencedRecordCount: 65,
           gencnt: 12,
           geneticcnt: 4,
         },
@@ -422,9 +425,9 @@ test("About includes all collection statistics in their groups and supports old 
     name: "Collection Statistics",
   });
   const groups = [
-    ["Records", ["1,967", "1,967 (100%)", "1,843 (93.7%)", "6,418"]],
+    ["Records", ["1,967", "1,967 (100%)", "1,843 (93.7%)", "6,418", "65"]],
     ["Taxonomy", ["10", "36", "99", "98", "1,920"]],
-    ["Research & References", ["12", "60", "4", "7", "123"]],
+    ["Research", ["7", "123", "3", "100"]],
   ];
   for (const [title, expected] of groups) {
     const group = within(stats).getByRole("heading", {
@@ -442,6 +445,12 @@ test("About includes all collection statistics in their groups and supports old 
   expect(stats.id).toBe("statistics");
   expect(within(stats).getByText("Research projects")).toBeTruthy();
   expect(within(stats).getByText("Specimens used")).toBeTruthy();
+  expect(within(stats).getByText("Publications")).toBeTruthy();
+  expect(within(stats).getByText("Samples in publications")).toBeTruthy();
+  expect(within(stats).getByText("Sequenced records")).toBeTruthy();
+  expect(within(stats).queryByText("GenBank references")).toBeNull();
+  expect(within(stats).queryByText("BOLD references")).toBeNull();
+  expect(within(stats).queryByText("Other genetic references")).toBeNull();
   expect(within(stats).getByText("Public projects with linked specimens")).toBeTruthy();
   expect(within(stats).queryByText("Publication references")).toBeNull();
   expect(within(stats).queryByText("141")).toBeNull();
