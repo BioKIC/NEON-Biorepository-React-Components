@@ -630,7 +630,7 @@ test("documentation handles empty and invalid responses without claiming success
   await screen.findByText(/Some documentation could not be loaded/);
   expect(screen.queryByText("No documentation is currently available for this sample type.")).toBeNull();
 });
-test("data downloads contain only DwC-A and EML while external datasets use the host panel", async () => {
+test("data downloads combine browse and search rows with the full archive and metadata", async () => {
   const archiveUrl = "https://biorepo.neonscience.org/portal/content/dwca/NEON-TICKS_DwC-A.zip?download=1";
   const emlUrl = "../datasets/emlhandler.php?collid=7";
   const external = [
@@ -638,8 +638,9 @@ test("data downloads contain only DwC-A and EML while external datasets use the 
     { title: "EDI dataset", url: "https://doi.org/10.6073/pasta/example" },
     { title: "iDigBio dataset", url: "https://www.idigbio.org/portal/recordsets/recordset-seven" },
   ];
-  render(<CollectionProfile profile={{
+  render(<CollectionProfile clientRoot="/portal" profile={{
     ...profile,
+    isLoggedIn: true,
     additionalResources: [
       ...external,
       { kind: "eml", title: "Collection metadata", url: emlUrl },
@@ -647,19 +648,26 @@ test("data downloads contain only DwC-A and EML while external datasets use the 
     ],
   }} />);
   await waitFor(() => expect(screen.queryByText("Loading documentation…")).toBeNull());
-  const downloads = screen.getByRole("region", { name: "Data Downloads and Metadata" });
+  const downloads = screen.getByRole("region", { name: "Data Downloads" });
   const rows = within(downloads).getAllByRole("listitem");
   expect(rows.map((row) => within(row).getByRole("heading").textContent))
-    .toEqual(["DwC-Archive", "Metadata"]);
+    .toEqual(["Browse Records", "Search Records", "Full Data Download", "Metadata"]);
   expect(within(downloads).getByText("Darwin Core Archive (DwC-A)")).toBeTruthy();
   expect(within(downloads).getByText("NEON-TICKS_DwC-A.zip")).toBeTruthy();
   expect(within(downloads).getByText("Ecological Metadata Language (EML) File")).toBeTruthy();
-  expect(within(downloads).getByRole("link", { name: /Download DwC-Archive/ }).getAttribute("href"))
+  expect(within(downloads).getByRole("link", { name: /Download Full Data Download/ }).getAttribute("href"))
     .toBe(archiveUrl);
+  expect(within(rows[0]).getByRole("link").getAttribute("href"))
+    .toBe("/portal/collections/list.php?db=7");
+  expect(within(rows[1]).getByRole("link").getAttribute("href"))
+    .toBe("/portal/neon/search/index.php?db=7");
   expect(within(downloads).getByRole("link", { name: /View Metadata/ }).getAttribute("href"))
     .toBe(emlUrl);
   for (const action of within(downloads).getAllByRole("link")) {
     expect(action.classList.contains("MuiButton-outlined")).toBe(true);
+  }
+  for (const row of rows.slice(2)) {
+    const action = within(row).getByRole("link");
     expect(action.getAttribute("target")).toBe("_blank");
     expect(action.getAttribute("rel")).toBe("noopener noreferrer");
   }
@@ -671,7 +679,7 @@ test("data downloads contain only DwC-A and EML while external datasets use the 
     expect(within(downloads).queryByText(resource.title)).toBeNull();
   }
   const nav = screen.getByRole("navigation", { name: "Sample type sections" });
-  expect(within(nav).getByRole("link", { name: "Data Downloads and Metadata" }).getAttribute("href"))
+  expect(within(nav).getByRole("link", { name: "Data Downloads" }).getAttribute("href"))
     .toBe(`#${downloads.id}`);
   expect(within(nav).getByRole("link", { name: "Externally Hosted Data" }).getAttribute("href"))
     .toBe(`#${hosts.id}`);
@@ -680,11 +688,41 @@ test("data downloads contain only DwC-A and EML while external datasets use the 
 test("missing archives and external datasets do not create empty rows or external sections", async () => {
   render(<CollectionProfile profile={profile} />);
   await waitFor(() => expect(screen.queryByText("Loading documentation…")).toBeNull());
-  const downloads = screen.getByRole("region", { name: "Data Downloads and Metadata" });
-  expect(within(downloads).getAllByRole("listitem")).toHaveLength(1);
-  expect(within(downloads).queryByText("DwC-Archive")).toBeNull();
+  const downloads = screen.getByRole("region", { name: "Data Downloads" });
+  expect(within(downloads).getAllByRole("listitem")).toHaveLength(3);
+  expect(within(downloads).queryByText("Full Data Download")).toBeNull();
   expect(screen.queryByRole("region", { name: "Externally Hosted Data" })).toBeNull();
   expect(screen.queryByRole("link", { name: "Externally Hosted Data" })).toBeNull();
+});
+test("the full download button requires login while other download rows remain available", async () => {
+  const downloadProfile = {
+    ...profile,
+    isLoggedIn: false,
+    additionalResources: [
+      { kind: "dwca", url: "https://example.org/public-archive.zip" },
+      ...profile.additionalResources,
+    ],
+  };
+  const { rerender } = render(<CollectionProfile clientRoot="/portal" profile={downloadProfile} />);
+  await waitFor(() => expect(screen.queryByText("Loading documentation…")).toBeNull());
+  const downloads = screen.getByRole("region", { name: "Data Downloads" });
+  const login = within(downloads).getByRole("link", { name: "Log in to download Full Data Download" });
+  expect(login.getAttribute("href"))
+    .toBe("/portal/profile/index.php?refurl=%2Fportal%2Fcollections%2Fmisc%2Fneoncollprofiles.php%3Fcollid%3D7%23data-downloads");
+  expect(login.getAttribute("target")).toBeNull();
+  expect(within(downloads).getByText("public-archive.zip")).toBeTruthy();
+  expect(document.querySelector('a[href="https://example.org/public-archive.zip"]')).toBeNull();
+  expect(within(downloads).getByRole("link", { name: /View Metadata/ }).getAttribute("href"))
+    .toBe("../datasets/emlhandler.php?collid=7");
+  expect(within(downloads).getByRole("link", { name: "Browse Browse Records" }).getAttribute("href"))
+    .toBe("/portal/collections/list.php?db=7");
+  expect(within(downloads).getByRole("link", { name: "Search Search Records" }).getAttribute("href"))
+    .toBe("/portal/neon/search/index.php?db=7");
+  rerender(<CollectionProfile clientRoot="/portal" profile={{ ...downloadProfile, isLoggedIn: true }} />);
+  const download = within(downloads).getByRole("link", { name: /Download Full Data Download/ });
+  expect(download.getAttribute("href"))
+    .toBe("https://example.org/public-archive.zip");
+  expect(within(downloads).queryByText("Log in to download")).toBeNull();
 });
 test("resource grouping supports existing PHP profiles and preserves safe destinations", () => {
   const archive = { title: "Darwin Core Archive", url: "https://example.org/Sample%20Archive.zip?download=1#file" };
@@ -818,7 +856,7 @@ test("sidebar selects clicked sections and keeps one link per list item", async 
 });
 
 test("sidebar follows direct section links and back/forward hash changes", async () => {
-  window.history.replaceState(null, "", "/#data-downloads-and-metadata");
+  window.history.replaceState(null, "", "/#data-downloads");
   render(<CollectionProfile profile={profile} />);
   await waitFor(() =>
     expect(screen.queryByText("Loading documentation…")).toBeNull(),
@@ -826,7 +864,7 @@ test("sidebar follows direct section links and back/forward hash changes", async
   const nav = screen.getByRole("navigation", { name: "Sample type sections" });
   expect(
     nav.querySelector('[aria-current="location"]').getAttribute("href"),
-  ).toBe("#data-downloads-and-metadata");
+  ).toBe("#data-downloads");
   window.history.replaceState(null, "", "/#documentation");
   fireEvent(window, new HashChangeEvent("hashchange"));
   expect(

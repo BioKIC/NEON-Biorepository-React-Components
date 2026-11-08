@@ -11,6 +11,7 @@ import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import LinkIcon from "@mui/icons-material/Link";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -39,21 +40,55 @@ function Link({ href, children, button = false, external = false }) {
   );
 }
 
-function DataDownloads({ resources }) {
+function DataDownloads({ resources, profile, clientRoot }) {
+  const isLoggedIn = profile.isLoggedIn === true;
+  const returnUrl = `${clientRoot}/collections/misc/neoncollprofiles.php?collid=${profile.id}#data-downloads`;
+  const loginUrl = `${clientRoot}/profile/index.php?refurl=${encodeURIComponent(returnUrl)}`;
+  const rows = [
+    {
+      key: "browse",
+      title: "Browse Records",
+      description: "Browse all records for this sample type.",
+      Icon: FormatListBulletedIcon,
+      action: "Browse",
+      href: `${clientRoot}/collections/list.php?db=${profile.id}`,
+      endIcon: <ChevronRightIcon />,
+    },
+    {
+      key: "search",
+      title: "Search Records",
+      description: "Filter records to find and download a subset.",
+      Icon: SearchIcon,
+      action: "Search",
+      href: `${clientRoot}/neon/search/index.php?db=${profile.id}`,
+      endIcon: <ChevronRightIcon />,
+    },
+    ...resources.map((resource) => {
+      const isArchive = resource.kind === "dwca";
+      return {
+        key: resource.kind,
+        title: isArchive ? "Full Data Download" : "Metadata",
+        description: isArchive ? "Darwin Core Archive (DwC-A)" : "Ecological Metadata Language (EML) File",
+        filename: isArchive ? archiveFilename(resource.url) : "",
+        Icon: isArchive ? DescriptionOutlinedIcon : LinkIcon,
+        action: isArchive ? (isLoggedIn ? "Download" : "Log in to download") : "View",
+        href: isArchive && !isLoggedIn ? loginUrl : resource.url,
+        startIcon: isArchive ? (isLoggedIn ? <DownloadIcon /> : <LockOutlinedIcon />) : undefined,
+        endIcon: isArchive ? undefined : <ChevronRightIcon />,
+        external: !isArchive || isLoggedIn,
+      };
+    }),
+  ];
   return (
     <ul className={styles.relatedList}>
-      {resources.map((resource) => {
-        const isArchive = resource.kind === "dwca";
-        const title = isArchive ? "DwC-Archive" : "Metadata";
-        const Icon = isArchive ? DescriptionOutlinedIcon : LinkIcon;
-        const filename = isArchive ? archiveFilename(resource.url) : "";
+      {rows.map(({ key, title, description, filename, Icon, action, href, startIcon, endIcon, external }) => {
         return (
-          <li key={resource.kind} className={styles.relatedItem}>
+          <li key={key} className={styles.relatedItem}>
             <Icon className={styles.relatedIcon} aria-hidden="true" />
             <div className={styles.relatedLabel}>
               <h3>{title}</h3>
               <p className={styles.relatedCode}>
-                {isArchive ? "Darwin Core Archive (DwC-A)" : "Ecological Metadata Language (EML) File"}
+                {description}
                 {filename && (
                   <>
                     <span className={styles.resourceSeparator} aria-hidden="true">|</span>
@@ -65,14 +100,13 @@ function DataDownloads({ resources }) {
             <Button
               className={styles.relatedAction}
               variant="outlined"
-              startIcon={isArchive ? <DownloadIcon /> : undefined}
-              endIcon={isArchive ? undefined : <ChevronRightIcon />}
-              href={resource.url}
-              target="_blank"
-              rel="noopener noreferrer"
+              startIcon={startIcon}
+              endIcon={endIcon}
+              href={href}
+              {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
             >
-              {isArchive ? "Download" : "View"}
-              <span className={styles.srOnly}> {title} (opens in a new tab)</span>
+              {action}
+              <span className={styles.srOnly}> {title}{external ? " (opens in a new tab)" : ""}</span>
             </Button>
           </li>
         );
@@ -478,7 +512,7 @@ export function CollectionProfile({
     ["related-data-products", "Related Data Products"],
     ["documentation", "Documentation"],
     ["availability", "Availability"],
-    ["data-downloads-and-metadata", "Data Downloads and Metadata"],
+    ["data-downloads", "Data Downloads"],
     ...(externalResources.length
       ? [["externally-hosted-data", "Externally Hosted Data"]]
       : []),
@@ -713,13 +747,9 @@ export function CollectionProfile({
             <p>No site availability information is currently available.</p>
           )}
         </section>
-        <section id="data-downloads-and-metadata" aria-labelledby="data-downloads-heading">
-          <h2 id="data-downloads-heading">Data Downloads and Metadata</h2>
-          {downloads.length ? (
-            <DataDownloads resources={downloads} />
-          ) : (
-            <p>No full data download or metadata file is currently available.</p>
-          )}
+        <section id="data-downloads" aria-labelledby="data-downloads-heading">
+          <h2 id="data-downloads-heading">Data Downloads</h2>
+          <DataDownloads resources={downloads} profile={profile} clientRoot={clientRoot} />
         </section>
         {!!externalResources.length && (
           <section
