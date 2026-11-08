@@ -488,7 +488,7 @@ export function CollectionProfile({
       </nav>
       <div className={styles.sidebarContact}>
         <p className={styles.sidebarContactText}>
-          Have questions about samples, data, or access?
+          Have questions about samples?
         </p>
         <Link
           external

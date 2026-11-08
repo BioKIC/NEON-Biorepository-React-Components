@@ -621,7 +621,7 @@ test("uses the shared page sidebar without duplicating navigation", async () => 
   expect(contact.getAttribute("href"))
     .toBe("https://www.neonscience.org/about/contact-neon-biorepository");
   expect(contact.parentElement.previousElementSibling).toBe(host.querySelector("nav"));
-  expect(contact.parentElement.textContent).toContain("Have questions about samples, data, or access?");
+  expect(contact.parentElement.textContent).toContain("Have questions about samples?");
   expect(container.querySelector("#contact")).toBeNull();
   expect(host.querySelector('a[href="#contact"]')).toBeNull();
   unmount();
