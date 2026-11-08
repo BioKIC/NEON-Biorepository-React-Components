@@ -389,7 +389,6 @@ export function CollectionProfile({
       {navigationHost ? createPortal(navigation, navigationHost) : navigation}
       <div className={styles.main}>
         <header className={styles.header}>
-          <p className={styles.eyebrow}>NEON Biorepository · Sample type</p>
           <h1>{profile.title}</h1>
           <div className={styles.actions}>
             <Link

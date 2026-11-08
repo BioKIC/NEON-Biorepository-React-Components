@@ -130,6 +130,8 @@ export default function BiorepoPage() {
         <GlobalStyles styles={{
           '#header': { position: 'relative !important', top: 'auto !important' },
           '.catalog-sidebar > div > .MuiDivider-root': { display: 'none' },
+          '.profile-sidebar': { paddingTop: '24px' },
+          '.profile-sidebar + [data-selenium="neon-page.content"]': { paddingTop: '16px' },
           // The host must stick inside the full-height sidebar, not inside its own short wrapper.
           '.profile-sidebar > #biorepo-profile-navigation': {
             position: 'sticky',
