@@ -130,6 +130,21 @@ export default function BiorepoPage() {
         <GlobalStyles styles={{
           '#header': { position: 'relative !important', top: 'auto !important' },
           '.catalog-sidebar > div > .MuiDivider-root': { display: 'none' },
+          // The host must stick inside the full-height sidebar, not inside its own short wrapper.
+          '.profile-sidebar > #biorepo-profile-navigation': {
+            position: 'sticky',
+            top: '24px',
+            maxHeight: 'calc(100vh - 48px)',
+            overflowY: 'auto',
+          },
+          '@media (max-width: 959.95px)': {
+            '.profile-sidebar': { position: 'relative', top: 'auto' },
+            '.profile-sidebar > #biorepo-profile-navigation': {
+              position: 'static',
+              maxHeight: 'none',
+              overflowY: 'visible',
+            },
+          },
         }} />
       )}
       <StyleSeeds />

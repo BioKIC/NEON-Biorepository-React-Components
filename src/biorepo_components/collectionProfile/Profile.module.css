@@ -30,8 +30,7 @@
   flex: 0 0 240px;
   min-width: 0;
   padding: 0;
-  position: sticky;
-  top: 40px;
+  position: static;
   color: #1a1a1a;
   font-family: "Inter", Helvetica, Arial, sans-serif;
   line-height: 1.43;
@@ -45,11 +44,12 @@
   line-height: 1.4;
   overflow-wrap: anywhere;
 }
-.sidebar .code {
+/* Outrank the portal's p:not([class^="Mui"]):not(...) legacy rule. */
+.sidebar .code.code {
   margin: 8px 0 0;
-  color: #a0a2a2;
+  color: #a2a4a3;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   line-height: 1.5;
   overflow-wrap: anywhere;
 }
@@ -75,7 +75,7 @@
 .sidebar .sidebarItems > li:last-child {
   margin-bottom: 0;
 }
-.sidebar .sidebarLink {
+.sidebar .sidebarItems a.sidebarLink {
   display: block;
   color: #0073cf;
   font-size: 14px;
@@ -85,15 +85,15 @@
   text-underline-offset: 2px;
   overflow-wrap: anywhere;
 }
-.sidebar .sidebarLink:hover {
+.sidebar .sidebarItems a.sidebarLink:hover {
   color: #005a9f;
 }
-.sidebar .sidebarLink[aria-current="location"] {
-  color: #565b5c;
+.sidebar .sidebarItems a.sidebarLink[aria-current="location"] {
+  color: #565a5c;
   font-weight: 700;
   text-decoration: none;
 }
-.sidebar .sidebarLink:focus-visible {
+.sidebar .sidebarItems a.sidebarLink:focus-visible {
   outline: 3px solid #0073cf;
   outline-offset: 4px;
 }
