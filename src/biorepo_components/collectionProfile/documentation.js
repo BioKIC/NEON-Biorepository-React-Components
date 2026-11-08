@@ -12,6 +12,31 @@ export function dataProductCode(url) {
     : undefined;
 }
 
+function documentRevision(specNumber) {
+  const number = specNumber.trim().replace(/\.(?:pdf|docx?|xlsx?|csv|txt|zip)$/i, "");
+  const match = number.match(/^(NEON\.DOC\.\d+)v([a-z]+|\d+(?:\.\d+)*)$/i)
+    || number.match(/^(.*?)[_. -]+(?:rev(?:ision)?[_. -]*|v)([a-z]+|\d+(?:\.\d+)*)$/i);
+  if (!match) return { key: specNumber.trim().toLowerCase(), revision: [] };
+
+  const [, base, version] = match;
+  const alphabetic = /^[a-z]+$/i.test(version);
+  return {
+    // Keep unrelated document numbers separate, even when their titles match.
+    key: `${base.toLowerCase()}:${alphabetic ? "letter" : "number"}`,
+    revision: alphabetic
+      ? [version.length, ...version.toUpperCase().split("").map((letter) => letter.charCodeAt(0))]
+      : version.split(".").map(Number),
+  };
+}
+
+function compareRevisions(first, second) {
+  for (let index = 0; index < Math.max(first.length, second.length); index += 1) {
+    const difference = (first[index] || 0) - (second[index] || 0);
+    if (difference) return difference;
+  }
+  return 0;
+}
+
 export function selectDocumentation(specs) {
   const documents = specs.filter((spec) => {
     if (typeof spec?.specNumber !== "string" || !spec.specNumber.trim())
@@ -20,7 +45,15 @@ export function selectDocumentation(specs) {
       .replace(/[_-]/g, " ");
     return !DOCUMENTATION_EXCLUSIONS.some((pattern) => pattern.test(title));
   });
-  return [...new Map(documents.map((spec) => [spec.specNumber, spec])).values()]
+  const latest = new Map();
+  for (const spec of documents) {
+    const { key, revision } = documentRevision(spec.specNumber);
+    const previous = latest.get(key);
+    if (!previous || compareRevisions(revision, previous.revision) > 0) {
+      latest.set(key, { spec, revision });
+    }
+  }
+  return [...latest.values()].map(({ spec }) => spec)
     .sort((first, second) =>
       (first.specDescription || first.specNumber).localeCompare(
         second.specDescription || second.specNumber,

@@ -490,6 +490,7 @@ test("separates related data products from all eligible documentation", async ()
     ],
     "DP1.10020.001": [
       protocol,
+      { ...protocol, specNumber: "NEON.DOC.014050vL", specSize: 6000000 },
       { specNumber: "LAB_SOP", specDescription: "Laboratory standard operating procedure", specType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", specSize: 1024 },
       { specNumber: "NEON.QSG.DP1.10020.001v2", specDescription: "Quick Start Guide for Ground beetle sequences DNA barcode" },
     ],
@@ -521,6 +522,7 @@ test("separates related data products from all eligible documentation", async ()
   expect(within(documentation).getAllByRole("listitem").map((row) => row.textContent))
     .toEqual(["LAB_SOP", "CMNH_Receiving_SOP", protocol.specNumber, "NEON.DOC.000909vC"]);
   expect(within(documentation).getAllByText(protocol.specNumber)).toHaveLength(1);
+  expect(within(documentation).queryByText("NEON.DOC.014050vL")).toBeNull();
   expect(within(products).queryByText(protocol.specNumber)).toBeNull();
   expect(within(products).queryByText("Field resources")).toBeNull();
   expect(document.getElementById("resources").textContent).toContain("Field resources");
@@ -554,6 +556,52 @@ test("documentation exclusions recognize titles and filenames while keeping othe
   ];
   expect(selectDocumentation(specs).map((spec) => spec.specNumber))
     .toEqual(["LAB", "FIELD", "NEON.DOC.999999"]);
+});
+test("documentation keeps the newest revision regardless of product order or file size", () => {
+  const title = "TOS Protocol and Procedure: MAM – Small Mammal Sampling";
+  const older = {
+    specNumber: "NEON.DOC.000481vO",
+    specDescription: title,
+    specType: "application/pdf",
+    specSize: 3575644,
+    specUrl: "https://data.neonscience.org/api/v0/documents/NEON.DOC.000481vO",
+  };
+  const newer = {
+    ...older,
+    specNumber: "NEON.DOC.000481vQ",
+    specSize: 3502244,
+    specUrl: "https://data.neonscience.org/api/v0/documents/NEON.DOC.000481vQ",
+  };
+  expect(selectDocumentation([older, newer, older])).toEqual([newer]);
+  expect(selectDocumentation([newer, older])).toEqual([newer]);
+  expect(selectDocumentation([older, newer])[0]).toBe(newer);
+
+  const unrelated = { ...older, specNumber: "NEON.DOC.999999vA" };
+  expect(selectDocumentation([older, newer, unrelated])).toEqual([newer, unrelated]);
+});
+test("documentation compares letter and numeric revisions without merging unversioned files", () => {
+  const numbers = [
+    "NEON.DOC.000001vZ",
+    "NEON.DOC.000001vAA",
+    "NEON.DOC.000002v2",
+    "NEON.DOC.000002v10",
+    "LAB_SOP_Rev2.pdf",
+    "LAB_SOP_Rev10.pdf",
+    "OTHER_SOP_v1.9",
+    "OTHER_SOP_v1.10",
+    "CMNH_Receiving_SOP",
+    "CMNH_Receiving_SOP",
+    "FIELD_SOP",
+  ];
+  expect(selectDocumentation(numbers.map((specNumber) => ({ specNumber })))
+    .map((spec) => spec.specNumber).sort()).toEqual([
+      "CMNH_Receiving_SOP",
+      "FIELD_SOP",
+      "LAB_SOP_Rev10.pdf",
+      "NEON.DOC.000001vAA",
+      "NEON.DOC.000002v10",
+      "OTHER_SOP_v1.10",
+    ]);
 });
 test("documentation handles empty and invalid responses without claiming success on failures", async () => {
   const { rerender } = render(<CollectionProfile profile={profile} />);
