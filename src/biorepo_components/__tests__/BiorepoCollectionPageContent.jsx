@@ -252,7 +252,7 @@ test("citation displays the guidance and keeps the canonical citation text", asy
   });
   expect(guidance.getAttribute("href")).toBe("/portal/misc/cite.php");
   expect(guidance.parentElement.textContent).toBe(
-    "Please use this citation in your publications. Publications involving physical samples must also include the additional specimen citation requirements. See Acknowledging and Citing the Biorepository for more info.",
+    "Please use this citation in your publications. Publications involving physical samples must also include individual specimen citations. See Acknowledging and Citing the Biorepository for more info.",
   );
   expect(screen.getByText(profile.citationText)).toBeTruthy();
   for (const name of ["Copy citation", "Download (BibTeX)", "Download (RIS)"]) {

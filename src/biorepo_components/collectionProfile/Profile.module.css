@@ -311,7 +311,12 @@
 .profile.profile .citation .citationText {
   color: #1a1a1a;
   font-family: monospace;
+  font-size: 0.75rem;
   margin: 0;
+}
+.citationTooltip:global(.MuiTooltip-tooltip) {
+  font-size: 0.75rem;
+  line-height: 1.4;
 }
 .citationActions {
   display: flex;

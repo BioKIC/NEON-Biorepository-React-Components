@@ -154,8 +154,8 @@ function Citation({ profile, clientRoot }) {
     <>
       <p className={styles.citationInstructions}>
         Please use this citation in your publications.
-        Publications involving physical samples must also include the additional
-        specimen citation requirements. See{" "}
+        Publications involving physical samples must also include individual
+        specimen citations. See{" "}
         <Link href={`${clientRoot}/misc/cite.php`}>
           Acknowledging and Citing the Biorepository
         </Link>
@@ -170,6 +170,7 @@ function Citation({ profile, clientRoot }) {
             placement="bottom-start"
             title="Click to copy the above plain text citation to the clipboard"
             describeChild
+            slotProps={{ tooltip: { className: styles.citationTooltip } }}
           >
             <Button
               size="small"
@@ -191,6 +192,7 @@ function Citation({ profile, clientRoot }) {
               placement="bottom-start"
               title={`Click to download the ${profile.code || profile.title} citation as a file in ${name} format`}
               describeChild
+              slotProps={{ tooltip: { className: styles.citationTooltip } }}
             >
               <Button
                 size="small"
