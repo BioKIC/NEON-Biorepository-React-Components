@@ -360,13 +360,6 @@ export function CollectionProfile({
   clientRoot = "",
   language = "en",
 }) {
-  useEffect(() => {
-    const previousTitle = document.title;
-    document.title = `NEON Biorepository | ${profile.title || "Sample Types"}`;
-    return () => {
-      document.title = previousTitle;
-    };
-  }, [profile.title]);
   const description = useMemo(
     () => splitDescription(profile.description),
     [profile.description],

@@ -40,9 +40,10 @@ beforeEach(() => {
 });
 afterEach(() => { cleanup(); jest.restoreAllMocks(); });
 test('reactive text and map filters update cards without refetching', async () => {
+  const titleFromPhp = document.title;
   mount();
   await screen.findByRole('link', { name: 'Ear Punches' });
-  expect(document.title).toBe('NEON Biorepository | Explore Sample Types');
+  expect(document.title).toBe(titleFromPhp);
   fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'Hearts' } });
   expect(screen.queryByRole('link', { name: 'Ear Punches' })).toBeNull();
   expect(screen.getByRole('link', { name: 'Hearts' })).toBeTruthy();

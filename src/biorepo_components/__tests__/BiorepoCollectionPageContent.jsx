@@ -61,6 +61,7 @@ beforeEach(() => {
 });
 afterEach(cleanup);
 test("profile preserves collection IDs, description images, and site availability", async () => {
+  const titleFromPhp = document.title;
   render(<CollectionProfile profile={profile} clientRoot="/portal" />);
   await waitFor(() =>
     expect(screen.queryByText("Loading protocols…")).toBeNull(),
@@ -88,7 +89,7 @@ test("profile preserves collection IDs, description images, and site availabilit
     within(notice).getByRole("link", { name: "Browse identifications" }),
   ).toBeTruthy();
   expect(screen.getByTestId("availability").textContent).toContain("2024-01");
-  expect(document.title).toBe("NEON Biorepository | Ticks");
+  expect(document.title).toBe(titleFromPhp);
   expect(document.querySelector("script")).toBeNull();
   expect(screen.getByText("unsafe").getAttribute("href")).toBeNull();
   const details = screen.getByRole("complementary", {
