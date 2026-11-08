@@ -2,6 +2,9 @@ import React, { useEffect, useMemo, useState } from "react";
 import parse from "html-react-parser";
 import { createPortal } from "react-dom";
 import Button from "@mui/material/Button";
+import Tooltip from "@mui/material/Tooltip";
+import CopyIcon from "@mui/icons-material/Assignment";
+import DownloadIcon from "@mui/icons-material/SaveAlt";
 import SearchIcon from "@mui/icons-material/Search";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
@@ -148,27 +151,56 @@ function Citation({ profile, clientRoot }) {
   };
   return (
     <>
-      <p>
-        Use this citation for both data and physical sample use. Publications
-        using physical samples must also meet the specimen citation requirements
-        in{" "}
+      <p className={styles.citationInstructions}>
+        Please use the citation below when referencing this sample type. This
+        citation is required for both data-only and physical sample use.
+        Publications involving physical samples must also include the additional
+        specimen citation requirements. See{" "}
         <Link href={`${clientRoot}/misc/cite.php`}>
           Acknowledging and Citing the Biorepository
         </Link>
-        .
+        {" "}for full guidance.
       </p>
       <div className={styles.citation}>
-        <p>{profile.citationText}</p>
-        <div className={styles.actions}>
-          <button type="button" onClick={copy}>
-            Copy citation
-          </button>
-          <button type="button" onClick={() => download("bib")}>
-            Download BibTeX
-          </button>
-          <button type="button" onClick={() => download("ris")}>
-            Download RIS
-          </button>
+        <p className={styles.citationText}>{profile.citationText}</p>
+        <div className={styles.citationActions}>
+          <Tooltip
+            placement="bottom-start"
+            title="Click to copy the above plain text citation to the clipboard"
+            describeChild
+          >
+            <Button
+              size="small"
+              color="primary"
+              variant="outlined"
+              startIcon={<CopyIcon fontSize="small" />}
+              aria-label="Copy citation"
+              onClick={copy}
+            >
+              Copy
+            </Button>
+          </Tooltip>
+          {[
+            { format: "bib", label: "BibTeX", name: "BibTeX" },
+            { format: "ris", label: "RIS", name: "Research Information Systems (RIS)" },
+          ].map(({ format, label, name }) => (
+            <Tooltip
+              key={format}
+              placement="bottom-start"
+              title={`Click to download the ${profile.code || profile.title} citation as a file in ${name} format`}
+              describeChild
+            >
+              <Button
+                size="small"
+                color="primary"
+                variant="outlined"
+                startIcon={<DownloadIcon fontSize="small" />}
+                onClick={() => download(format)}
+              >
+                Download ({label})
+              </Button>
+            </Tooltip>
+          ))}
         </div>
         <p role="status" className={styles.status}>
           {status}

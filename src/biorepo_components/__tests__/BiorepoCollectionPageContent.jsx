@@ -242,6 +242,101 @@ test("clipboard reports failure and copies canonical citation on success", async
   await screen.findByText("Citation copied.");
   expect(writeText).toHaveBeenLastCalledWith(profile.citationText);
 });
+test("citation restores the original guidance and keeps the canonical citation text", async () => {
+  render(<CollectionProfile profile={profile} clientRoot="/portal" />);
+  await waitFor(() =>
+    expect(screen.queryByText("Loading protocols…")).toBeNull(),
+  );
+  const guidance = screen.getByRole("link", {
+    name: "Acknowledging and Citing the Biorepository",
+  });
+  expect(guidance.getAttribute("href")).toBe("/portal/misc/cite.php");
+  expect(guidance.parentElement.textContent).toBe(
+    "Please use the citation below when referencing this sample type. This citation is required for both data-only and physical sample use. Publications involving physical samples must also include the additional specimen citation requirements. See Acknowledging and Citing the Biorepository for full guidance.",
+  );
+  expect(screen.getByText(profile.citationText)).toBeTruthy();
+  for (const name of ["Copy citation", "Download (BibTeX)", "Download (RIS)"]) {
+    expect(screen.getByRole("button", { name }).classList.contains("MuiButton-outlined"))
+      .toBe(true);
+  }
+});
+test.each([
+  ["Copy citation", "Click to copy the above plain text citation to the clipboard"],
+  ["Download (BibTeX)", "Click to download the TICKS citation as a file in BibTeX format"],
+  ["Download (RIS)", "Click to download the TICKS citation as a file in Research Information Systems (RIS) format"],
+])("shows the data-product style help popup for %s", async (name, help) => {
+  render(<CollectionProfile profile={profile} />);
+  await waitFor(() =>
+    expect(screen.queryByText("Loading protocols…")).toBeNull(),
+  );
+  const button = screen.getByRole("button", { name });
+  jest.spyOn(button, "getBoundingClientRect").mockReturnValue({
+    x: 10, y: 10, top: 10, left: 10, right: 160, bottom: 42,
+    width: 150, height: 32,
+  });
+  fireEvent.mouseOver(button);
+  expect((await screen.findByRole("tooltip")).textContent).toBe(help);
+});
+test("citation buttons preserve BibTeX and RIS file contents, filenames, and types", async () => {
+  render(
+    <CollectionProfile
+      profile={{ ...profile, description: "<p>Archive <strong>description</strong>.</p>" }}
+    />,
+  );
+  await waitFor(() =>
+    expect(screen.queryByText("Loading protocols…")).toBeNull(),
+  );
+  const originalCreate = URL.createObjectURL;
+  const originalRevoke = URL.revokeObjectURL;
+  const blobs = [];
+  const downloads = [];
+  URL.createObjectURL = jest.fn((blob) => {
+    blobs.push(blob);
+    return `blob:citation-${blobs.length}`;
+  });
+  URL.revokeObjectURL = jest.fn();
+  const click = jest.spyOn(HTMLAnchorElement.prototype, "click")
+    .mockImplementation(function () {
+      downloads.push({ href: this.href, filename: this.download, attached: this.isConnected });
+    });
+  try {
+    fireEvent.click(screen.getByRole("button", { name: "Download (BibTeX)" }));
+    fireEvent.click(screen.getByRole("button", { name: "Download (RIS)" }));
+    expect(downloads).toEqual([
+      { href: "blob:citation-1", filename: "NEON-Ticks-nymphs-2026-11-08.bib", attached: true },
+      { href: "blob:citation-2", filename: "NEON-Ticks-nymphs-2026-11-08.ris", attached: true },
+    ]);
+    expect(blobs.map((blob) => blob.type)).toEqual([
+      "application/x-bibtex;charset=utf-8",
+      "application/x-research-info-systems;charset=utf-8",
+    ]);
+    const [bib, ris] = await Promise.all(blobs.map((blob) => blob.text()));
+    expect(bib).toBe(`@misc{TICKS/provisional,
+    doi = {},
+    url = {https://example.org/7},
+    author = {{NEON}},
+    language = {en},
+    title = {{Ticks \\& nymphs}},
+    publisher = {National Ecological Observatory Network (NEON)},
+    note = {Use \\& archive},
+    urldate = {2026-11-08},
+    copyright = {CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)}
+}`);
+    expect(ris).toBe([
+      "TY  - DATA", "T1  - Ticks & nymphs", "AU  - NEON", "DO  -",
+      "UR  - https://example.org/7",
+      "PB  - NEON (National Ecological Observatory Network) Biorepository",
+      "Y2  - 2026-11-08", "LA  - en", "N1  - Use & archive",
+      "AB  - Archive description.", "ER  -", "",
+    ].join("\r\n"));
+    expect(document.querySelector('a[download]')).toBeNull();
+  } finally {
+    await waitFor(() => expect(URL.revokeObjectURL).toHaveBeenCalledTimes(2), { timeout: 2000 });
+    click.mockRestore();
+    URL.createObjectURL = originalCreate;
+    URL.revokeObjectURL = originalRevoke;
+  }
+});
 test("About includes all collection statistics in their groups and supports old statistics links", async () => {
   window.history.replaceState(null, "", "/#statistics");
   render(
