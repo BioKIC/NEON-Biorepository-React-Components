@@ -12,6 +12,8 @@ import StyleSeeds from './StyleSeeds';
 export default function BiorepoPage() {
   const isSampleCatalog = window.location.pathname
     .endsWith('/collections/misc/browsecollprofiles.php');
+  const isCollectionProfile = window.location.pathname.endsWith('/collections/misc/neoncollprofiles.php');
+  const hasCustomSidebar = isSampleCatalog || isCollectionProfile;
   const [config, setConfig] = useState(null);
   const [layoutReady, setLayoutReady] = useState(false);
 
@@ -115,13 +117,13 @@ export default function BiorepoPage() {
     <NeonPage
       breadcrumbs={breadcrumbs}
       breadcrumbHomeHref="https://www.neonscience.org/"
-      sidebarLinks={isSampleCatalog ? [] : sidebarLinks}
-      sidebarContent={isSampleCatalog ? <div id="biorepo-catalog-filters" /> : null}
-      sidebarContentResponsive={isSampleCatalog}
-      sidebarDisableMaxHeight={isSampleCatalog}
+      sidebarLinks={hasCustomSidebar ? [] : sidebarLinks}
+      sidebarContent={isSampleCatalog ? <div id="biorepo-catalog-filters" /> : isCollectionProfile ? <div id="biorepo-profile-navigation" /> : null}
+      sidebarContentResponsive={hasCustomSidebar}
+      sidebarDisableMaxHeight={hasCustomSidebar}
       sidebarUnsticky={isSampleCatalog}
       sidebarWidth={isSampleCatalog ? 340 : 300}
-      sidebarTitle={isSampleCatalog ? 'Filter' : sidebarTitle}
+      sidebarTitle={isSampleCatalog ? 'Filter' : isCollectionProfile ? '' : sidebarTitle}
       sidebarContainerClassName={isSampleCatalog ? 'catalog-sidebar' : undefined}
     >
       {isSampleCatalog && (
