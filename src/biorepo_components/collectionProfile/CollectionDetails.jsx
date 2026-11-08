@@ -1,6 +1,7 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import SampleTypeChip from "../SampleTypeChip";
 import SampleTypeTags from "../SampleTypeTags";
+import { collectionKeywords } from "../sampleCatalog/keywords";
 import styles from "./Profile.module.css";
 
 export function availableDates(siteCodes = []) {
@@ -117,7 +118,7 @@ export default function CollectionDetails({
         if (!response.ok) throw new Error("Unable to load keywords");
         const data = await response.json();
         if (!controller.signal.aborted)
-          setKeywords({ id, values: terms(data?.[String(id)]) });
+          setKeywords({ id, values: collectionKeywords(data?.[String(id)]) });
       } catch {
         // Optional keywords must not prevent the rest of the profile from loading.
         if (!controller.signal.aborted) setKeywords({ id, values: [] });

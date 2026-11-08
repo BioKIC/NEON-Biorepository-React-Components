@@ -368,10 +368,14 @@ test('repository checkboxes support individual repositories, multiple selections
   expect(screen.getByRole('link', { name: 'Hearts' })).toBeTruthy();
 });
 
-test('search reads editable profile keywords by collection ID, ignoring invalid entries', async () => {
+test.each(['legacy', 'named'])('search reads %s profile keywords by collection ID, ignoring invalid entries', async (format) => {
+  const keywordEntries = { 1: ['biopsy', null, 3, ''], 2: ['cardiac'], 999: ['unrelated'] };
+  const keywordData = format === 'named'
+    ? Object.fromEntries(Object.entries(keywordEntries).map(([id, terms]) => [id, { name: 'Editor label', keywords: terms }]))
+    : keywordEntries;
   global.fetch.mockImplementation(async (url) => ({ ok: true, json: async () => (
     url.endsWith('/keywords.json')
-      ? { 1: ['biopsy', null, 3, ''], 2: ['cardiac'], 999: ['unrelated'] }
+      ? keywordData
       : data
   ) }));
   window.history.replaceState(null, '', '?q=cardiac');
@@ -383,6 +387,8 @@ test('search reads editable profile keywords by collection ID, ignoring invalid 
   fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'biopsy' } });
   expect(screen.getByRole('link', { name: 'Ear Punches' })).toBeTruthy();
   expect(screen.queryByRole('link', { name: 'Hearts' })).toBeNull();
+  fireEvent.change(screen.getByRole('searchbox'), { target: { value: '"Editor label"' } });
+  expect(screen.queryByRole('link', { name: 'Ear Punches' })).toBeNull();
   expect(global.fetch).toHaveBeenCalledTimes(2);
 });
 

@@ -86,7 +86,7 @@ test("loads the selected collection details and full catalog date range without 
     json: async () =>
       url.endsWith("keywords.json")
         ? {
-            7: [" soil ", "microbial ecology", "soil", "", null, 123],
+            7: { name: "Air-Dried Soil", keywords: [" soil ", "microbial ecology", "soil", "", null, 123] },
             8: ["wrong keyword"],
           }
         : { items: [{ ...soil, id: 8, storageContainer: "Wrong jar" }, soil] },
@@ -120,6 +120,7 @@ test("loads the selected collection details and full catalog date range without 
   expect(within(media).queryByText("250 mL glass jar")).toBeNull();
   expect(screen.getAllByText("soil")).toHaveLength(1);
   expect(screen.queryByText("wrong keyword")).toBeNull();
+  expect(screen.queryByText("Air-Dried Soil")).toBeNull();
   expect(global.fetch).toHaveBeenCalledWith(
     "/portal/neon-react/biorepo_lib/keywords.json",
     expect.objectContaining({ cache: "no-store" }),

@@ -2,6 +2,14 @@ const normalize = (value) => value.trim().replace(/\s+/g, ' ').toLowerCase();
 const queryParts = (query) => query.match(/"[^"]+"|\S+/g) || [];
 const unquote = (value) => value.replace(/^"|"$/g, '');
 
+export function collectionKeywords(entry) {
+  // Accept the original arrays as well as entries labeled with a public name.
+  const values = Array.isArray(entry) ? entry : entry?.keywords;
+  return Array.isArray(values)
+    ? [...new Set(values.filter((value) => typeof value === 'string').map((value) => value.trim()).filter(Boolean))]
+    : [];
+}
+
 export function keywordGroups(items) {
   const unique = new Map();
   items.forEach((item) => {

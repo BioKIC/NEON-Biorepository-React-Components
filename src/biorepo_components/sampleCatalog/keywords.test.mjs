@@ -1,6 +1,16 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { hasKeyword, keywordGroups, toggleKeyword } from './keywords.js';
+import { collectionKeywords, hasKeyword, keywordGroups, toggleKeyword } from './keywords.js';
+
+test('collection labels are metadata while keywords support named entries and legacy arrays', () => {
+  const values = [' soil ', 'microbial ecology', 'soil', '', null, 123];
+  const expected = ['soil', 'microbial ecology'];
+  assert.deepEqual(collectionKeywords({ name: 'Air-Dried Soil', keywords: values }), expected);
+  assert.deepEqual(collectionKeywords(values), expected);
+  for (const entry of [undefined, null, {}, { name: 'Air-Dried Soil' }, { keywords: 'soil' }]) {
+    assert.deepEqual(collectionKeywords(entry), []);
+  }
+});
 
 test('keyword browsing groups only valid catalog terms alphabetically, without case duplicates', () => {
   assert.deepEqual(keywordGroups([

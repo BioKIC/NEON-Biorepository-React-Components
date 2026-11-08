@@ -11,6 +11,7 @@ import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import CatalogDateFilter from './sampleCatalog/CatalogDateFilter';
 import CatalogDescription from './sampleCatalog/CatalogDescription';
 import CatalogKeywordBrowser from './sampleCatalog/CatalogKeywordBrowser';
+import { collectionKeywords } from './sampleCatalog/keywords';
 import SampleTypeChip from './SampleTypeChip';
 import SampleTypeTags from './SampleTypeTags';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
@@ -416,9 +417,7 @@ function Catalog() {
   const sites = geography.sites || EMPTY_SITES;
   const items = useMemo(() => (catalog?.items || EMPTY_ITEMS).map((item) => ({
     ...item,
-    keywords: Array.isArray(keywords?.[item.id])
-      ? keywords[item.id].filter((term) => typeof term === 'string' && term.trim())
-      : [],
+    keywords: collectionKeywords(keywords?.[item.id]),
   })), [catalog, keywords]);
 
   useEffect(() => {
