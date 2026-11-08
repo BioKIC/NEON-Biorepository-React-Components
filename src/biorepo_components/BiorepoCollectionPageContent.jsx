@@ -480,18 +480,24 @@ export function CollectionProfile({
                 aria-hidden="true"
               />
             </div>
-            <p className={styles.noticeLead}>Looking for a specific taxon?</p>
-            <p>
-              Taxonomic identifications derived from these samples are available
-              through a related sample type.
-            </p>
-            <div className={styles.noticeActions}>
-              <Link
-                button
-                href={profileUrl(profile.identificationCollectionId)}
-              >
-                Browse identifications
-              </Link>
+            <div className={styles.noticeBody}>
+              <div className={styles.noticeMessage}>
+                <p className={styles.noticeLead}>
+                  Looking for a specific taxon?
+                </p>
+                <p>
+                  Taxonomic identifications derived from these samples are
+                  available through a related sample type.
+                </p>
+              </div>
+              <div className={styles.noticeActions}>
+                <Link
+                  button
+                  href={profileUrl(profile.identificationCollectionId)}
+                >
+                  Browse identifications
+                </Link>
+              </div>
             </div>
           </aside>
         )}
