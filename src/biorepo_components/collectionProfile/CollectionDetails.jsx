@@ -102,8 +102,8 @@ export default function CollectionDetails({
   const identifier = code || item?.collectionCode;
   const rows = item
     ? [
-        ["Preservation", terms(item.preservation).join(", ")],
         ["Protocol", terms(item.protocols).join("; ")],
+        ["Preservation", terms(item.preservation).join(", ")],
       ]
     : [];
   // Match the dates shown on the catalog card; use profile coverage if the snapshot is unavailable.
