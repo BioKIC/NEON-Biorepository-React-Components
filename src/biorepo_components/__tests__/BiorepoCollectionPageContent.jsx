@@ -631,7 +631,7 @@ test("documentation handles empty and invalid responses without claiming success
   expect(screen.queryByText("No documentation is currently available for this sample type.")).toBeNull();
 });
 test("data downloads combine browse and search rows with the full archive and metadata", async () => {
-  const archiveUrl = "https://biorepo.neonscience.org/portal/content/dwca/NEON-TICKS_DwC-A.zip?download=1";
+  const archiveUrl = "/portal/content/dwca/NEON-TICKS_DwC-A.zip";
   const emlUrl = "../datasets/emlhandler.php?collid=7";
   const external = [
     { title: "GBIF dataset", url: "https://www.gbif.org/dataset/dataset-seven" },
@@ -698,7 +698,7 @@ test("the full download button renders the PHP action without deciding login sta
   const loginUrl = "/portal/profile/index.php?refurl=%2Fportal%2Fcollections%2Fmisc%2Fneoncollprofiles.php%3Fcollid%3D7%23data-downloads";
   const archive = {
     kind: "dwca",
-    filename: "public-archive.zip",
+    filename: "",
     sizeBytes: 126976,
     url: loginUrl,
     action: "Log in to download",
@@ -721,7 +721,8 @@ test("the full download button renders the PHP action without deciding login sta
   expect(login.getAttribute("href"))
     .toBe(loginUrl);
   expect(login.getAttribute("target")).toBeNull();
-  expect(within(downloads).getByText("public-archive.zip")).toBeTruthy();
+  expect(within(downloads).queryByText("public-archive.zip")).toBeNull();
+  expect(within(downloads).queryByText("index.php")).toBeNull();
   expect(within(downloads).getByText("124 KB")).toBeTruthy();
   expect(document.querySelector('a[href="https://example.org/public-archive.zip"]')).toBeNull();
   expect(within(downloads).getByRole("link", { name: /View Metadata/ }).getAttribute("href"))
@@ -734,13 +735,13 @@ test("the full download button renders the PHP action without deciding login sta
     ...downloadProfile,
     isLoggedIn: false,
     additionalResources: [
-      { ...archive, url: "https://example.org/public-archive.zip", action: "Download", actionIcon: "download", openInNewTab: true },
+      { ...archive, filename: "public-archive.zip", url: "/portal/content/dwca/public-archive.zip", action: "Download", actionIcon: "download", openInNewTab: true },
       ...profile.additionalResources,
     ],
   }} />);
   const download = within(downloads).getByRole("link", { name: /Download Full Data Download/ });
   expect(download.getAttribute("href"))
-    .toBe("https://example.org/public-archive.zip");
+    .toBe("/portal/content/dwca/public-archive.zip");
   expect(within(downloads).queryByText("Log in to download")).toBeNull();
   expect(download.getAttribute("target")).toBe("_blank");
 });
