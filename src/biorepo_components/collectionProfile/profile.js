@@ -77,7 +77,7 @@ export function citationFile(citation, format, description = "") {
     language = {en},
     title = {{${escape(citation.title)}}},
     publisher = {National Ecological Observatory Network (NEON)},
-    note = {${escape(citation.note)}},
+    note = {${escape(citation.bibNote ?? citation.note)}},
     urldate = {${citation.accessDate}},
     copyright = {${escape(`${citation.license} (${citation.licenseUrl})`)}}
 }`;

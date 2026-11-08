@@ -277,10 +277,19 @@ test.each([
   fireEvent.mouseOver(button);
   expect((await screen.findByRole("tooltip")).textContent).toBe(help);
 });
-test("citation buttons preserve BibTeX and RIS file contents, filenames, and types", async () => {
+test("citation downloads use a compact BibTeX note and preserve the full RIS note and metadata", async () => {
+  const exportCitation = {
+    ...citation,
+    bibNote: "Use & archive",
+    note: "Data accessed from https://example.org/7 on 2026-11-08. Licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Use & archive",
+  };
   render(
     <CollectionProfile
-      profile={{ ...profile, description: "<p>Archive <strong>description</strong>.</p>" }}
+      profile={{
+        ...profile,
+        citation: exportCitation,
+        description: "<p>Archive <strong>description</strong>.</p>",
+      }}
     />,
   );
   await waitFor(() =>
@@ -326,7 +335,8 @@ test("citation buttons preserve BibTeX and RIS file contents, filenames, and typ
       "TY  - DATA", "T1  - Ticks & nymphs", "AU  - NEON", "DO  -",
       "UR  - https://example.org/7",
       "PB  - NEON (National Ecological Observatory Network) Biorepository",
-      "Y2  - 2026-11-08", "LA  - en", "N1  - Use & archive",
+      "Y2  - 2026-11-08", "LA  - en",
+      "N1  - Data accessed from https://example.org/7 on 2026-11-08. Licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Use & archive",
       "AB  - Archive description.", "ER  -", "",
     ].join("\r\n"));
     expect(document.querySelector('a[download]')).toBeNull();
