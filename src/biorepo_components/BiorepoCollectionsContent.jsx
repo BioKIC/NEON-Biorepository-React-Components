@@ -425,6 +425,7 @@ function Catalog() {
   const [context] = NeonContext.useNeonContextState();
   const { data: geography, isFinal: geographyReady, hasError: geographyError } = context;
   const [catalog, setCatalog] = useState(null);
+  const [keywords, setKeywords] = useState({});
   const [error, setError] = useState('');
   const [attempt, setAttempt] = useState(0);
   const [filters, setFilters] = useState(() => readFilters(window.location.search));
@@ -437,7 +438,12 @@ function Catalog() {
   const [exportError, setExportError] = useState('');
   const [downloading, setDownloading] = useState('');
   const sites = geography.sites || EMPTY_SITES;
-  const items = catalog?.items || EMPTY_ITEMS;
+  const items = useMemo(() => (catalog?.items || EMPTY_ITEMS).map((item) => ({
+    ...item,
+    keywords: Array.isArray(keywords?.[item.id])
+      ? keywords[item.id].filter((term) => typeof term === 'string' && term.trim())
+      : [],
+  })), [catalog, keywords]);
 
   useEffect(() => {
     const syncSidebar = () => setSidebar(document.getElementById('biorepo-catalog-filters'));
@@ -466,6 +472,21 @@ function Catalog() {
       .then(setCatalog)
       .catch((reason) => {
         if (reason.name !== 'AbortError') setError(reason.message);
+      });
+    // Read the same editable terms as the profile without rebuilding the catalog snapshot.
+    setKeywords({});
+    fetch(`${root}/neon-react/biorepo_lib/keywords.json`, {
+      signal: controller.signal, cache: 'no-store',
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error('Unable to load sample keywords.');
+        return response.json();
+      })
+      .then((data) => {
+        if (!controller.signal.aborted) setKeywords(data);
+      })
+      .catch(() => {
+        // Optional keywords must not prevent browsing or searching the other catalog fields.
       });
     return () => controller.abort();
   }, [root, attempt]);

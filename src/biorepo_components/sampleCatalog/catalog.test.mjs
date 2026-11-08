@@ -171,3 +171,28 @@ test('individual repositories support combined selections and shared domain-offi
   assert.deepEqual(selected(['outside', 'emec']), [44, 74, 95, 97, 115]);
   assert.deepEqual(readFilters(writeFilters('', { ...emptyFilters(), repository: ['msb', 'neon-domains'] })).repository, ['msb', 'neon-domains']);
 });
+
+test('additional keywords find and rank samples without repeating title or description text', () => {
+  const base = { ...item, taxa: [], protocols: [], preservation: [], description: '', dataProducts: '' };
+  const records = [
+    { ...base, id: 1, name: 'A incidental match', description: 'Overview. Sampling involves cardiac material.' },
+    { ...base, id: 2, name: 'B hearts', keywords: ['cardiac', 'cardiovascular'] },
+    { ...base, id: 3, name: 'C cardiac material' },
+    { ...base, id: 4, name: 'D other samples' },
+  ];
+  const rank = (q) => filterCatalog(records, { ...emptyFilters(), q }, reference).map(({ id }) => id);
+  assert.deepEqual(rank('cardiac'), [3, 2, 1]);
+  assert.deepEqual(rank('CARDIOVASCULAR'), [2]);
+  assert.deepEqual(rank('cardiac cardiac'), [3, 2, 1]);
+  assert.deepEqual(rank(''), [1, 2, 3, 4]);
+});
+
+test('keyword phrases respect existing quoted search and facet filters', () => {
+  const records = [
+    { ...item, id: 1, name: 'Hearts', keywords: ['circulatory system'], preservation: ['Frozen'] },
+    { ...item, id: 2, name: 'Blood', keywords: ['circulatory system'], preservation: ['Dry'] },
+  ];
+  const filters = { ...emptyFilters(), q: '"circulatory system"', preservation: ['Frozen'] };
+  assert.deepEqual(filterCatalog(records, filters, reference).map(({ id }) => id), [1]);
+  assert.deepEqual(filterCatalog(records, { ...filters, q: '"system circulatory"' }, reference), []);
+});

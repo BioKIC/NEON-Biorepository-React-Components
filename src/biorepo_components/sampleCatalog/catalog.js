@@ -76,6 +76,7 @@ function searchScore(item, terms) {
     { weight: 100, priority: true, values: [item.name, item.sampleTypeName, item.collectionName] },
     { weight: 60, values: [(item.shortDescription ?? cardDescription(description)).split(/\s+/).slice(0, 5).join(' ')] },
     { weight: 30, values: [item.shortDescription ?? cardDescription(description)] },
+    { weight: 20, priority: true, values: item.keywords || [] },
     { weight: 10, priority: true, values: item.taxa },
     { weight: 10, values: [...item.protocols, ...item.preservation, item.dataProducts] },
     { weight: 1, values: [item.shortDescription != null ? description : (samplingIndex < 0 ? '' : description.slice(samplingIndex))] },
@@ -102,7 +103,7 @@ function searchScore(item, terms) {
     }
     return score + best;
   }, 0);
-  // Boost topical name or taxonomic matches, not incidental description or protocol mentions.
+  // Boost topical name, keyword, or taxonomic matches, not incidental protocol mentions.
   return priorityMatches && PRIORITY_COLLECTION_IDS.has(Number(item.id))
     ? relevance + (Number(item.id) === 28 ? 2000 : 1000) : relevance;
 }

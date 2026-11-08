@@ -51,7 +51,7 @@ test('reactive text and map filters update cards without refetching', async () =
   fireEvent.click(screen.getByRole('button', { name: 'Map SITES' }));
   expect(screen.queryByRole('link', { name: 'Hearts' })).toBeNull();
   expect(window.location.search).toContain('sites=ABBY');
-  expect(global.fetch).toHaveBeenCalledTimes(1);
+  expect(global.fetch).toHaveBeenCalledTimes(2);
 });
 test('month filters restrict cards and chart data; browser history restores state', async () => {
   mount();
@@ -106,7 +106,7 @@ test('scrolling reveals every batch and filtering resets progressive rendering',
     expect(screen.getAllByTestId('availability')).toHaveLength(23);
     fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'Sample' } });
     expect(screen.getAllByTestId('availability')).toHaveLength(10);
-    expect(global.fetch).toHaveBeenCalledTimes(1);
+    expect(global.fetch).toHaveBeenCalledTimes(2);
     view.unmount();
     expect(observers.every((observer) => observer.disconnect.mock.calls.length)).toBe(true);
   } finally {
@@ -129,6 +129,7 @@ test.each(['csv', 'json', 'pdf'])('downloads the PR summary as a %s attachment',
   const blob = new Blob(['file contents'], { type: format === 'pdf' ? 'application/pdf' : 'text/plain' });
   const filename = `NEON_Sample_Type_Summary20261106.${format}`;
   global.fetch.mockResolvedValueOnce({ ok: true, json: async () => data })
+    .mockResolvedValueOnce({ ok: true, json: async () => ({}) })
     .mockResolvedValueOnce({ ok: true, blob: async () => blob,
       headers: { get: () => `attachment; filename="${filename}"` } });
   const createUrl = jest.fn(() => 'blob:summary');
@@ -160,6 +161,7 @@ test.each(['csv', 'json', 'pdf'])('downloads the PR summary as a %s attachment',
 });
 test('failed downloads show the server error without saving a file', async () => {
   global.fetch.mockResolvedValueOnce({ ok: true, json: async () => data })
+    .mockResolvedValueOnce({ ok: true, json: async () => ({}) })
     .mockResolvedValueOnce({ ok: false, json: async () => ({ error: 'Summary unavailable' }) });
   const click = jest.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
   mount();
@@ -362,4 +364,36 @@ test('repository checkboxes support individual repositories, multiple selections
   expect(outside.checked).toBe(false);
   expect(asu.checked).toBe(false);
   expect(screen.getByRole('link', { name: 'Hearts' })).toBeTruthy();
+});
+
+test('search reads editable profile keywords by collection ID, ignoring invalid entries', async () => {
+  global.fetch.mockImplementation(async (url) => ({ ok: true, json: async () => (
+    url.endsWith('/keywords.json')
+      ? { 1: ['biopsy', null, 3, ''], 2: ['cardiac'], 999: ['unrelated'] }
+      : data
+  ) }));
+  window.history.replaceState(null, '', '?q=cardiac');
+  mount();
+  await screen.findByRole('link', { name: 'Hearts' });
+  expect(screen.queryByRole('link', { name: 'Ear Punches' })).toBeNull();
+  expect(global.fetch).toHaveBeenCalledWith('/neon-react/biorepo_lib/keywords.json',
+    expect.objectContaining({ cache: 'no-store', signal: expect.anything() }));
+  fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'biopsy' } });
+  expect(screen.getByRole('link', { name: 'Ear Punches' })).toBeTruthy();
+  expect(screen.queryByRole('link', { name: 'Hearts' })).toBeNull();
+  expect(global.fetch).toHaveBeenCalledTimes(2);
+});
+
+test.each(['unavailable', 'invalid'])('catalog search still works when optional keywords are %s', async (failure) => {
+  global.fetch.mockImplementation(async (url) => {
+    if (!url.endsWith('/keywords.json')) return { ok: true, json: async () => data };
+    if (failure === 'unavailable') throw new Error('Network failure');
+    return { ok: true, json: async () => ({ 1: 'not an array', 2: [false, null] }) };
+  });
+  mount();
+  await screen.findByRole('link', { name: 'Hearts' });
+  fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'Hearts' } });
+  expect(screen.getByRole('link', { name: 'Hearts' })).toBeTruthy();
+  expect(screen.queryByRole('link', { name: 'Ear Punches' })).toBeNull();
+  expect(screen.queryByRole('alert')).toBeNull();
 });
