@@ -1,0 +1,75 @@
+import React from "react";
+import { statistics } from "./profile";
+import styles from "./Profile.module.css";
+
+const groups = [
+  [
+    "Records",
+    [
+      "Specimen records",
+      "Georeferenced records",
+      "Records with images",
+      "Images",
+    ],
+  ],
+  [
+    "Taxonomy",
+    [
+      "Families",
+      "Genera",
+      "Species",
+      "Total taxa (including subspecies and varieties)",
+      "Identified to species",
+    ],
+  ],
+  [
+    "References",
+    [
+      "GenBank references",
+      "BOLD references",
+      "Other genetic references",
+      "Publication references",
+    ],
+  ],
+];
+
+export default function CollectionStatistics({ stats, extraStats }) {
+  const values = new Map(statistics(stats, extraStats));
+  return (
+    <section
+      id="statistics"
+      className={styles.statistics}
+      aria-labelledby="statistics-heading"
+    >
+      <h3 id="statistics-heading">Collection statistics</h3>
+      <div className={styles.statGroups}>
+        {groups.map(([title, labels]) => {
+          const rows = labels.filter((label) => values.has(label));
+          if (!rows.length) return null;
+          return (
+            <div className={styles.statGroup} key={title}>
+              <h4>{title}</h4>
+              <dl>
+                {rows.map((label) => (
+                  <div className={styles.statRow} key={label}>
+                    <dt>
+                      {label.startsWith("Total taxa") ? (
+                        <>
+                          Total taxa
+                          <small>Includes subspecies and varieties</small>
+                        </>
+                      ) : (
+                        label
+                      )}
+                    </dt>
+                    <dd>{values.get(label)}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}

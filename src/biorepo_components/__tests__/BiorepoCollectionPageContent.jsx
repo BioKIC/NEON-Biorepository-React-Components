@@ -85,11 +85,13 @@ test("profile preserves collection IDs, description images, and site availabilit
     name: "Sample type details",
   });
   expect(within(details).getByAltText("Tick")).toBeTruthy();
-  expect(within(details).getByRole("heading", { name: "Image" })).toBeTruthy();
+  const gallery = within(details).getByRole("group", {
+    name: "Sample type images",
+  });
   expect(
     within(details).getByText("Sample Type ID").parentElement
       .nextElementSibling,
-  ).toBe(within(details).getByRole("heading", { name: "Image" }).parentElement);
+  ).toBe(gallery.parentElement);
   expect(
     screen.getByText("Description").parentElement.querySelector("img"),
   ).toBeNull();
@@ -140,7 +142,7 @@ test.each([
       name: "Sample type details",
     });
     expect(
-      within(details).queryByRole("heading", { name: "Image" }),
+      within(details).queryByRole("group", { name: "Sample type images" }),
     ).toBeNull();
     expect(within(details).queryByRole("img")).toBeNull();
     expect(screen.queryByRole("link", { name: "" })).toBeNull();
@@ -161,6 +163,59 @@ test("clipboard reports failure and copies canonical citation on success", async
   fireEvent.click(screen.getByRole("button", { name: "Copy citation" }));
   await screen.findByText("Citation copied.");
   expect(writeText).toHaveBeenLastCalledWith(profile.citationText);
+});
+test("About includes all collection statistics in their groups and supports old statistics links", async () => {
+  window.history.replaceState(null, "", "/#statistics");
+  render(
+    <CollectionProfile
+      profile={{
+        ...profile,
+        stats: {
+          recordcnt: 1967,
+          georefcnt: 1967,
+          familycnt: 10,
+          genuscnt: 36,
+          speciescnt: 99,
+        },
+        extraStats: {
+          imgcnt: "6418:1843",
+          TotalTaxaCount: 98,
+          SpecimensCountID: 1920,
+          boldcnt: 60,
+          refcnt: 141,
+          gencnt: 12,
+          geneticcnt: 4,
+        },
+      }}
+    />,
+  );
+  await waitFor(() =>
+    expect(screen.queryByText("Loading protocols…")).toBeNull(),
+  );
+  const about = screen.getByRole("region", { name: "About" });
+  const stats = within(about).getByRole("region", {
+    name: "Collection statistics",
+  });
+  const groups = [
+    ["Records", ["1,967", "1,967 (100%)", "1,843 (93.7%)", "6,418"]],
+    ["Taxonomy", ["10", "36", "99", "98", "1,920"]],
+    ["References", ["12", "60", "4", "141"]],
+  ];
+  for (const [title, expected] of groups) {
+    const group = within(stats).getByRole("heading", {
+      name: title,
+    }).parentElement;
+    expect(
+      [...group.querySelectorAll("dd")].map((node) => node.textContent),
+    ).toEqual(expected);
+  }
+  const nav = screen.getByRole("navigation", { name: "Sample type sections" });
+  expect(
+    nav.querySelector('[aria-current="location"]').getAttribute("href"),
+  ).toBe("#about");
+  expect(nav.querySelector('a[href="#statistics"]')).toBeNull();
+  expect(stats.id).toBe("statistics");
+  window.history.replaceState(null, "", "/");
 });
 test("partial protocol failures preserve successful protocols and deduplicate products", async () => {
   global.fetch.mockImplementation(async (url) => {

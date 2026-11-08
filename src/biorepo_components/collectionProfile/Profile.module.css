@@ -101,7 +101,6 @@
 .main {
   flex: 1;
   min-width: 0;
-  max-width: 1100px;
 }
 /* Outrank legacy non-MUI typography without changing other portal pages. */
 .profile h1,
@@ -195,25 +194,6 @@
 .description table {
   max-width: 100%;
 }
-.stats {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 24px;
-  margin: 0;
-}
-.stats div {
-  border-left: 3px solid #d8e9f0;
-  padding-left: 16px;
-}
-.stats dt {
-  font-size: 14px;
-  color: #58636a;
-}
-.stats dd {
-  margin: 6px 0 0;
-  font-size: 24px;
-  line-height: 1.25;
-}
 .citation {
   background: #f7f8fa;
   padding: 24px;
@@ -265,9 +245,6 @@
   .sidebar {
     flex-basis: 200px;
   }
-  .stats {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
 }
 @media (max-width: 700px) {
   .profile {
@@ -296,23 +273,54 @@
 
 .aboutLayout {
   display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(220px, 1fr);
-  gap: 40px;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 32px;
   align-items: start;
+}
+.main > .about {
+  border-top: 0;
+  padding-top: 0;
+}
+.profile.profile .about > h2 {
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #d9dfe3;
+  font-weight: 600;
 }
 .aboutDescription {
   min-width: 0;
+  color: #565a5c;
+}
+.profile.profile .aboutDescription .description :is(h1, h2, h3, h4, h5, h6) {
+  color: #1a1a1a;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.4;
+  margin: 24px 0 10px;
+}
+.profile.profile .aboutDescription .description p {
+  margin: 0 0 12px;
+}
+.profile.profile .aboutDescription .description :is(ul, ol) {
+  padding-left: 22px;
+  margin: 0 0 16px;
+}
+.profile.profile .aboutDescription .description :is(ul, ol) :is(ul, ol) {
+  margin: 0;
+}
+.profile.profile .aboutDescription .description li {
+  margin: 2px 0;
+  padding: 0;
+}
+.profile.profile .aboutDescription .description > :last-child {
+  margin-bottom: 0;
 }
 .details {
   min-width: 0;
   font-family: "Inter", Helvetica, Arial, sans-serif;
 }
-.details .detailsList {
-  margin: 0;
-  padding: 0;
-}
 .details .detail {
-  margin: 0 0 26px;
+  margin: 0 0 20px;
 }
 .details .detail:last-child {
   margin-bottom: 0;
@@ -321,10 +329,13 @@
   display: grid;
   gap: 16px;
   max-width: 320px;
+  justify-items: start;
 }
 .details .imageFigure {
   min-width: 0;
   margin: 0;
+  padding: 0;
+  text-align: left;
 }
 .details .imageFigure a {
   display: inline-block;
@@ -337,6 +348,8 @@
   max-width: 100%;
   max-height: 240px;
   object-fit: contain;
+  object-position: left center;
+  margin: 0;
 }
 .details .imageCaption {
   margin-top: 8px;
@@ -344,27 +357,23 @@
   font-size: 13px;
   line-height: 1.5;
 }
-.details .detail dt,
-.profile .details .keywordHeading {
+.profile.profile .details .keywordHeading {
   margin: 0 0 10px;
   color: #1a1a1a;
   font-size: 18px;
-  font-weight: 400;
+  font-weight: 600;
   line-height: 1.4;
 }
-.details .detail dd {
+.detailsBand .detail dd {
   margin: 0;
   color: #292d30;
   font-size: 14px;
   line-height: 1.6;
   overflow-wrap: anywhere;
 }
-.details .detailsStatus.detailsStatus {
+.profile.profile .detailsBand .detailsStatus {
   font-size: 14px;
   margin: 0 0 16px;
-}
-.details .detailsList + .detail {
-  margin-top: 26px;
 }
 .details .keywords {
   display: flex;
@@ -386,26 +395,6 @@
   line-height: 1.5;
   overflow-wrap: anywhere;
 }
-@media (max-width: 1100px) {
-  .aboutLayout {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 28px;
-  }
-  .details .detailsList {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 24px;
-  }
-  .details .detailsList .detail {
-    margin-bottom: 0;
-  }
-}
-@media (max-width: 500px) {
-  .details .detailsList {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
 .profile .details .identifierChip {
   display: inline-block;
   max-width: 100%;
@@ -418,4 +407,138 @@
   font-weight: 600;
   line-height: 1.5;
   overflow-wrap: anywhere;
+}
+
+/* Extend to the content pane edges, leaving the page sidebar intact. The
+   host supplies its gutter; standalone profiles use their available width. */
+.detailsBand {
+  --details-background: #f4f5f6;
+  position: relative;
+  background: var(--details-background);
+  margin: 34px calc(-1 * var(--profile-content-gutter, 0px)) 32px;
+  padding: 22px var(--profile-content-gutter, 0px);
+}
+.detailsBand::before,
+.detailsBand::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='6' viewBox='0 0 240 6'%3E%3Cpath fill='%23f4f5f6' d='M0 3 4 2 7 4 11 3 14 1 18 2 22 4 25 3 29 4 32 2 37 3 40 1 44 2 48 1 52 3 55 2 59 4 63 2 67 3 70 1 73 3 78 2 82 4 86 3 89 1 94 2 98 1 102 3 106 2 110 4 114 2 117 3 121 1 125 2 129 4 133 3 137 4 141 2 145 3 148 1 152 3 156 2 160 4 164 3 169 1 172 2 176 1 180 3 184 2 188 4 191 2 195 3 199 1 203 2 207 4 211 3 215 1 219 2 223 4 227 2 231 3 235 1 240 3V6H0Z'/%3E%3C/svg%3E")
+    repeat-x left top;
+}
+.detailsBand::before {
+  top: -6px;
+}
+.detailsBand::after {
+  bottom: -6px;
+  transform: rotate(180deg);
+}
+.detailsBand .detailsList {
+  display: grid;
+  grid-template-columns: 1fr 1.25fr 1.65fr 1fr;
+  gap: 24px;
+  margin: 0;
+  padding: 0;
+}
+.detailsBand .detail {
+  min-width: 0;
+  margin: 0;
+}
+.detailsBand .detail dt {
+  margin: 0 0 8px;
+  color: #1a1a1a;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.storageValue {
+  display: block;
+}
+.storageValue + .storageValue {
+  margin-top: 6px;
+}
+.statistics {
+  scroll-margin-top: 24px;
+}
+.profile.profile .statistics > h3 {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 16px;
+}
+.statGroups {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 32px;
+}
+.statGroup {
+  min-width: 0;
+}
+.profile.profile .statGroup h4 {
+  color: #1a1a1a;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.4;
+  margin: 0 0 10px;
+}
+.statGroup dl {
+  margin: 0;
+  border-top: 1px solid #d9dfe3;
+}
+.statRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #d9dfe3;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.statRow dt {
+  min-width: 0;
+  font-weight: 400;
+  overflow-wrap: anywhere;
+}
+.statRow dt small {
+  display: block;
+  font-size: 12px;
+  font-style: italic;
+  color: #565a5c;
+}
+.statRow dd {
+  flex-shrink: 0;
+  margin: 0;
+  color: #292d30;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: right;
+}
+@media (max-width: 1199px) {
+  .aboutLayout {
+    grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+    gap: 24px;
+  }
+  .detailsBand .detailsList,
+  .statGroups {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+  }
+}
+@media (max-width: 700px) {
+  .aboutLayout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+  .statGroups {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 500px) {
+  .detailsBand .detailsList {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
 }

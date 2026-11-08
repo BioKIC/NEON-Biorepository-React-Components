@@ -127,11 +127,14 @@ export default function BiorepoPage() {
       sidebarContainerClassName={isSampleCatalog ? 'catalog-sidebar' : isCollectionProfile ? 'profile-sidebar' : undefined}
     >
       {hasCustomSidebar && (
-        <GlobalStyles styles={{
+        <GlobalStyles styles={(theme) => ({
           '#header': { position: 'relative !important', top: 'auto !important' },
           '.catalog-sidebar > div > .MuiDivider-root': { display: 'none' },
           '.profile-sidebar': { paddingTop: '24px' },
-          '.profile-sidebar + [data-selenium="neon-page.content"]': { paddingTop: '16px' },
+          '.profile-sidebar + [data-selenium="neon-page.content"]': {
+            paddingTop: '16px',
+            '--profile-content-gutter': theme.spacing(8),
+          },
           // The host must stick inside the full-height sidebar, not inside its own short wrapper.
           '.profile-sidebar > #biorepo-profile-navigation': {
             position: 'sticky',
@@ -140,6 +143,9 @@ export default function BiorepoPage() {
             overflowY: 'auto',
           },
           '@media (max-width: 959.95px)': {
+            '.profile-sidebar + [data-selenium="neon-page.content"]': {
+              '--profile-content-gutter': theme.spacing(5),
+            },
             '.profile-sidebar': { position: 'relative', top: 'auto' },
             '.profile-sidebar > #biorepo-profile-navigation': {
               position: 'static',
@@ -147,7 +153,7 @@ export default function BiorepoPage() {
               overflowY: 'visible',
             },
           },
-        }} />
+        })} />
       )}
       <StyleSeeds />
     </NeonPage>

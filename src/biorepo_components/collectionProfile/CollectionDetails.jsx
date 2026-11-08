@@ -2,6 +2,12 @@ import React, { useEffect, useState } from "react";
 import styles from "./Profile.module.css";
 
 export function availableDates(siteCodes = []) {
+  const formatMonth = (month) =>
+    new Date(`${month}-01T00:00:00Z`).toLocaleDateString("en-US", {
+      month: "long",
+      year: "numeric",
+      timeZone: "UTC",
+    });
   const months = siteCodes
     .flatMap((site) =>
       Array.isArray(site.availableMonths) ? site.availableMonths : [],
@@ -12,7 +18,7 @@ export function availableDates(siteCodes = []) {
     )
     .sort();
   return months.length
-    ? `${months[0]} through ${months[months.length - 1]}`
+    ? `${formatMonth(months[0])} – ${formatMonth(months[months.length - 1])}`
     : "No dated site records";
 }
 
@@ -35,6 +41,7 @@ export default function CollectionDetails({
   siteCodes = [],
   images = [],
   title = "Sample type",
+  children,
 }) {
   const [result, setResult] = useState({
     id,
@@ -96,104 +103,135 @@ export default function CollectionDetails({
     ? [
         ["Preservation", terms(item.preservation).join(", ")],
         ["Protocol", terms(item.protocols).join("; ")],
-        ["Storage", item.storageConditions],
-        ["Container", item.storageContainer],
       ]
     : [];
   // Match the dates shown on the catalog card; use profile coverage if the snapshot is unavailable.
   const coverage =
     item && Array.isArray(item.siteCodes) ? item.siteCodes : siteCodes;
   return (
-    <aside className={styles.details} aria-label="Sample type details">
-      {identifier && (
-        <div className={styles.detail}>
-          <h3 className={styles.keywordHeading}>Sample Type ID</h3>
-          <span className={styles.identifierChip}>{identifier}</span>
-        </div>
-      )}
-      {images.length > 0 && (
-        <div className={styles.detail}>
-          <h3 className={styles.keywordHeading}>Image</h3>
-          <div className={styles.imageGallery}>
-            {images.map((image, index) => (
-              <figure
-                className={styles.imageFigure}
-                key={`${image.src}-${index}`}
+    <>
+      <div className={styles.aboutLayout}>
+        <div className={styles.aboutDescription}>{children}</div>
+        <aside className={styles.details} aria-label="Sample type details">
+          {identifier && (
+            <div className={styles.detail}>
+              <h3 className={styles.keywordHeading}>Sample Type ID</h3>
+              <span className={styles.identifierChip}>{identifier}</span>
+            </div>
+          )}
+          {images.length > 0 && (
+            <div className={styles.detail}>
+              <div
+                className={styles.imageGallery}
+                role="group"
+                aria-label="Sample type images"
               >
-                <a
-                  href={image.href || image.src}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <img
-                    src={image.src}
-                    alt={image.alt || `${title} image ${index + 1}`}
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </a>
-                {image.caption && (
-                  <figcaption className={styles.imageCaption}>
-                    {image.caption}
-                  </figcaption>
-                )}
-              </figure>
-            ))}
-          </div>
-        </div>
-      )}
-      {loading && (
-        <p className={styles.detailsStatus} role="status">
-          Loading sample details…
-        </p>
-      )}
-      {!loading && result.error && (
-        <div role="status">
-          <p className={styles.detailsStatus}>
-            Sample details could not be loaded.
+                {images.map((image, index) => (
+                  <figure
+                    className={styles.imageFigure}
+                    key={`${image.src}-${index}`}
+                  >
+                    <a
+                      href={image.href || image.src}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <img
+                        src={image.src}
+                        alt={image.alt || `${title} image ${index + 1}`}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </a>
+                    {image.caption && (
+                      <figcaption className={styles.imageCaption}>
+                        {image.caption}
+                      </figcaption>
+                    )}
+                  </figure>
+                ))}
+              </div>
+            </div>
+          )}
+          {keywordTerms.length > 0 && (
+            <div className={styles.detail}>
+              <h3 className={styles.keywordHeading}>Scientific keywords</h3>
+              <ul className={styles.keywords}>
+                {keywordTerms.map((keyword) => (
+                  <li key={keyword} className={styles.keyword}>
+                    {keyword}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </aside>
+      </div>
+      <div
+        className={styles.detailsBand}
+        role="group"
+        aria-label="Preservation and storage details"
+      >
+        {loading && (
+          <p className={styles.detailsStatus} role="status">
+            Loading sample details…
           </p>
-          <button
-            className={styles.button}
-            type="button"
-            onClick={() => setAttempt((value) => value + 1)}
-          >
-            Retry details
-          </button>
-        </div>
-      )}
-      {!loading && !result.error && !item && (
-        <p className={styles.detailsStatus}>
-          Additional details are not available for this sample type.
-        </p>
-      )}
-      <dl className={styles.detailsList}>
-        {rows.map(([label, value]) => (
-          <div className={styles.detail} key={label}>
-            <dt>{label}</dt>
-            <dd>
-              {typeof value === "string" && value.trim()
-                ? value
-                : "Not specified"}
-            </dd>
+        )}
+        {!loading && result.error && (
+          <div role="status">
+            <p className={styles.detailsStatus}>
+              Sample details could not be loaded.
+            </p>
+            <button
+              className={styles.button}
+              type="button"
+              onClick={() => setAttempt((value) => value + 1)}
+            >
+              Retry details
+            </button>
           </div>
-        ))}
-        <div className={styles.detail}>
-          <dt>Available Dates</dt>
-          <dd>{availableDates(coverage)}</dd>
-        </div>
-      </dl>
-      {keywordTerms.length > 0 && (
-        <div className={styles.detail}>
-          <h3 className={styles.keywordHeading}>Scientific Keywords</h3>
-          <ul className={styles.keywords}>
-            {keywordTerms.map((keyword) => (
-              <li key={keyword} className={styles.keyword}>
-                {keyword}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-    </aside>
+        )}
+        {!loading && !result.error && !item && (
+          <p className={styles.detailsStatus}>
+            Additional details are not available for this sample type.
+          </p>
+        )}
+        <dl className={styles.detailsList}>
+          {rows.map(([label, value]) => (
+            <div className={styles.detail} key={label}>
+              <dt>{label}</dt>
+              <dd>
+                {typeof value === "string" && value.trim()
+                  ? value
+                  : "Not specified"}
+              </dd>
+            </div>
+          ))}
+          {item && (
+            <div className={styles.detail}>
+              <dt>Storage &amp; container</dt>
+              <dd>
+                <span className={styles.storageValue}>
+                  {typeof item.storageConditions === "string" &&
+                  item.storageConditions.trim()
+                    ? item.storageConditions
+                    : "Not specified"}
+                </span>
+                <span className={styles.storageValue}>
+                  {typeof item.storageContainer === "string" &&
+                  item.storageContainer.trim()
+                    ? item.storageContainer
+                    : "Not specified"}
+                </span>
+              </dd>
+            </div>
+          )}
+          <div className={styles.detail}>
+            <dt>Available dates</dt>
+            <dd>{availableDates(coverage)}</dd>
+          </div>
+        </dl>
+      </div>
+    </>
   );
 }

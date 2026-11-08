@@ -3,9 +3,10 @@ import parse from "html-react-parser";
 import { createPortal } from "react-dom";
 import DocumentListItem from "../lib_components/components/Documents/DocumentListItem";
 import DataProductAvailability from "../lib_components/components/DataProductAvailability/DataProductAvailability";
-import { citationFile, safeUrl, statistics } from "./collectionProfile/profile";
+import { citationFile, safeUrl } from "./collectionProfile/profile";
 import styles from "./collectionProfile/Profile.module.css";
 import CollectionDetails from "./collectionProfile/CollectionDetails";
+import CollectionStatistics from "./collectionProfile/CollectionStatistics";
 
 function Link({ href, children, button = false, external = false }) {
   const url = safeUrl(href);
@@ -366,7 +367,6 @@ export function CollectionProfile({
     `${clientRoot}/collections/misc/neoncollprofiles.php?collid=${id}`;
   const sections = [
     ["about", "About"],
-    ["statistics", "Statistics"],
     ["citation", "Citation"],
     ...(Object.keys(profile.related || {}).length
       ? [["related", "Related sample types"]]
@@ -376,11 +376,10 @@ export function CollectionProfile({
     ["resources", "Additional resources"],
     ["contact", "Contact"],
   ];
-  const [activeSection, setActiveSection] = useState(() =>
-    sections.some(([id]) => `#${id}` === window.location.hash)
-      ? window.location.hash.slice(1)
-      : "about",
-  );
+  const [activeSection, setActiveSection] = useState(() => {
+    const hash = window.location.hash.slice(1);
+    return sections.some(([id]) => id === hash) ? hash : "about";
+  });
   // Keep the selected link in sync with direct anchors and browser back/forward.
   const sectionIds = sections.map(([id]) => id).join(",");
   useEffect(() => {
@@ -450,46 +449,38 @@ export function CollectionProfile({
           </div>
           <DatasetBadges datasetKey={profile.datasetKey} />
         </header>
-        <section id="about">
-          <h2>About</h2>
-          <div className={styles.aboutLayout}>
-            <div className={styles.aboutDescription}>
-              {!!profile.identificationCollectionId && (
-                <div className={styles.notice}>
-                  <strong>Looking for a specific taxon?</strong>
-                  <p>
-                    Taxonomic identifications derived from these samples are
-                    available through a related sample type.
-                  </p>
-                  <Link href={profileUrl(profile.identificationCollectionId)}>
-                    Browse identifications
-                  </Link>
-                </div>
-              )}
-              <Description html={description.html} />
-            </div>
-            <CollectionDetails
-              id={profile.id}
-              code={profile.code}
-              clientRoot={clientRoot}
-              siteCodes={profile.siteCodes}
-              images={description.images}
-              title={profile.title}
-            />
-          </div>
-        </section>
-        <section id="statistics">
-          <h2>Sample type statistics</h2>
-          <dl className={styles.stats}>
-            {statistics(profile.stats, profile.extraStats).map(
-              ([label, value]) => (
-                <div key={label}>
-                  <dt>{label}</dt>
-                  <dd>{value}</dd>
-                </div>
-              ),
+        <section
+          id="about"
+          className={styles.about}
+          aria-labelledby="about-heading"
+        >
+          <h2 id="about-heading">About</h2>
+          <CollectionDetails
+            id={profile.id}
+            code={profile.code}
+            clientRoot={clientRoot}
+            siteCodes={profile.siteCodes}
+            images={description.images}
+            title={profile.title}
+          >
+            {!!profile.identificationCollectionId && (
+              <div className={styles.notice}>
+                <strong>Looking for a specific taxon?</strong>
+                <p>
+                  Taxonomic identifications derived from these samples are
+                  available through a related sample type.
+                </p>
+                <Link href={profileUrl(profile.identificationCollectionId)}>
+                  Browse identifications
+                </Link>
+              </div>
             )}
-          </dl>
+            <Description html={description.html} />
+          </CollectionDetails>
+          <CollectionStatistics
+            stats={profile.stats}
+            extraStats={profile.extraStats}
+          />
         </section>
         <section id="citation">
           <h2>Citation</h2>

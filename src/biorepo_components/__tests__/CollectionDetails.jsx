@@ -1,5 +1,12 @@
 import React from "react";
-import { render, screen, fireEvent, cleanup, act } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  cleanup,
+  act,
+  within,
+} from "@testing-library/react";
 import CollectionDetails, {
   availableDates,
 } from "../collectionProfile/CollectionDetails";
@@ -38,7 +45,18 @@ test("loads the selected collection details and full catalog date range without 
   expect(screen.getByText("Dry Samples")).toBeTruthy();
   expect(screen.getByText(soil.protocols[0])).toBeTruthy();
   expect(screen.getByText("dry, ambient")).toBeTruthy();
-  expect(screen.getByText("2014-01 through 2025-10")).toBeTruthy();
+  expect(screen.getByText("January 2014 – October 2025")).toBeTruthy();
+  const details = screen.getByRole("group", {
+    name: "Preservation and storage details",
+  });
+  expect(within(details).getByText("250 mL glass jar")).toBeTruthy();
+  expect(within(details).getByText("Storage & container")).toBeTruthy();
+  const media = screen.getByRole("complementary", {
+    name: "Sample type details",
+  });
+  expect(within(media).getByText("SOIC-DP")).toBeTruthy();
+  expect(within(media).getByText("soil")).toBeTruthy();
+  expect(within(media).queryByText("250 mL glass jar")).toBeNull();
   expect(screen.getAllByText("soil")).toHaveLength(1);
   expect(screen.queryByText("wrong keyword")).toBeNull();
   expect(global.fetch).toHaveBeenCalledWith(
@@ -54,11 +72,13 @@ test("failed metadata requests keep keywords and known dates and can be retried"
     .fn()
     .mockRejectedValueOnce(new Error("Network"))
     .mockResolvedValueOnce({ ok: true, json: async () => ({ items: [soil] }) });
-  global.fetch = jest.fn().mockImplementation((url) =>
-    url.endsWith("keywords.json")
-      ? Promise.resolve({ ok: true, json: async () => ({ 7: ["soil"] }) })
-      : catalog(),
-  );
+  global.fetch = jest
+    .fn()
+    .mockImplementation((url) =>
+      url.endsWith("keywords.json")
+        ? Promise.resolve({ ok: true, json: async () => ({ 7: ["soil"] }) })
+        : catalog(),
+    );
   render(
     <CollectionDetails
       id={7}
@@ -67,7 +87,7 @@ test("failed metadata requests keep keywords and known dates and can be retried"
     />,
   );
   await screen.findByText("Sample details could not be loaded.");
-  expect(screen.getByText("2024-01 through 2024-01")).toBeTruthy();
+  expect(screen.getByText("January 2024 – January 2024")).toBeTruthy();
   expect(await screen.findByText("soil")).toBeTruthy();
   fireEvent.click(screen.getByRole("button", { name: "Retry details" }));
   await screen.findByText("250 mL glass jar");
@@ -83,7 +103,7 @@ test("missing metadata does not fabricate values or keywords", async () => {
   await screen.findByText("Preservation");
   expect(screen.getAllByText("Not specified")).toHaveLength(4);
   expect(screen.getByText("No dated site records")).toBeTruthy();
-  expect(screen.queryByText("Scientific Keywords")).toBeNull();
+  expect(screen.queryByText("Scientific keywords")).toBeNull();
 });
 test.each(["http", "json"])(
   "a keyword %s failure leaves the other details available",
@@ -100,8 +120,10 @@ test.each(["http", "json"])(
     );
     render(<CollectionDetails id={7} />);
     await screen.findByText("250 mL glass jar");
-    expect(screen.queryByText("Scientific Keywords")).toBeNull();
-    expect(screen.queryByText("Sample details could not be loaded.")).toBeNull();
+    expect(screen.queryByText("Scientific keywords")).toBeNull();
+    expect(
+      screen.queryByText("Sample details could not be loaded."),
+    ).toBeNull();
   },
 );
 test("changing collections ignores a late keyword response from the previous collection", async () => {
@@ -116,11 +138,13 @@ test("changing collections ignores a late keyword response from the previous col
       ok: true,
       json: async () => ({ 8: ["zooplankton"] }),
     });
-  global.fetch = jest.fn().mockImplementation((url) =>
-    url.endsWith("keywords.json")
-      ? keywordRequests()
-      : Promise.resolve({ ok: true, json: async () => ({ items: [soil] }) }),
-  );
+  global.fetch = jest
+    .fn()
+    .mockImplementation((url) =>
+      url.endsWith("keywords.json")
+        ? keywordRequests()
+        : Promise.resolve({ ok: true, json: async () => ({ items: [soil] }) }),
+    );
   const { rerender } = render(<CollectionDetails id={7} />);
   await screen.findByText("250 mL glass jar");
   rerender(<CollectionDetails id={8} />);
@@ -137,6 +161,6 @@ test("date range ignores malformed months and handles empty site coverage", () =
       { availableMonths: ["2020-13", "2019-00", null, "2021-04", "2015-01"] },
       {},
     ]),
-  ).toBe("2015-01 through 2021-04");
+  ).toBe("January 2015 – April 2021");
   expect(availableDates([])).toBe("No dated site records");
 });
