@@ -583,6 +583,7 @@ export function CollectionProfile({
                   <Button
                     className={styles.relatedAction}
                     variant="outlined"
+                    endIcon={<ChevronRightIcon />}
                     href={profileUrl(id)}
                     target="_blank"
                     rel="noopener noreferrer"
