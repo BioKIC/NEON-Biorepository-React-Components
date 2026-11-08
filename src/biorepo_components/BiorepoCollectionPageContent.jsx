@@ -406,11 +406,15 @@ export function CollectionProfile({
   const navigationHost = document.getElementById("biorepo-profile-navigation");
   const profileUrl = (id) =>
     `${clientRoot}/collections/misc/neoncollprofiles.php?collid=${id}`;
+  const relatedSamples = Object.entries(profile.related || {}).sort(
+    ([, firstTitle], [, secondTitle]) =>
+      firstTitle.localeCompare(secondTitle, "en", { sensitivity: "base" }),
+  );
   const sections = [
     ["about", "About"],
     ["citation", "Citation"],
-    ...(Object.keys(profile.related || {}).length
-      ? [["related", "Linked Sample Types"]]
+    ...(relatedSamples.length
+      ? [["related-sample-types", "Related Sample Types"]]
       : []),
     ["documentation", "Data Products and Protocols"],
     ["availability", "Sample Availability"],
@@ -563,11 +567,11 @@ export function CollectionProfile({
           <h2>Citation</h2>
           <Citation profile={profile} clientRoot={clientRoot} />
         </section>
-        {!!Object.keys(profile.related || {}).length && (
-          <section id="related" aria-labelledby="related-heading">
-            <h2 id="related-heading">Linked Sample Types</h2>
+        {!!relatedSamples.length && (
+          <section id="related-sample-types" aria-labelledby="related-sample-types-heading">
+            <h2 id="related-sample-types-heading">Related Sample Types</h2>
             <ul className={styles.relatedList}>
-              {Object.entries(profile.related).map(([id, title]) => (
+              {relatedSamples.map(([id, title]) => (
                 <li key={id} className={styles.relatedItem}>
                   <FontAwesomeIcon icon={faFlask} className={styles.relatedIcon} aria-hidden="true" />
                   <div className={styles.relatedLabel}>

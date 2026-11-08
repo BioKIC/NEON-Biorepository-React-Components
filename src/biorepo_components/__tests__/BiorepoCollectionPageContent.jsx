@@ -188,7 +188,7 @@ test("linked sample type subtitles match collection IDs and omit unavailable cod
   await waitFor(() =>
     expect(screen.queryByText("Loading protocols…")).toBeNull(),
   );
-  const section = screen.getByRole("region", { name: "Linked Sample Types" });
+  const section = screen.getByRole("region", { name: "Related Sample Types" });
   const rows = within(section).getAllByRole("listitem");
   expect(rows).toHaveLength(3);
   for (const [id, title, code] of [
