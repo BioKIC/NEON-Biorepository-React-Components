@@ -54,7 +54,9 @@ const profile = {
   siteCodes: [{ siteCode: "ABBY", availableMonths: ["2024-01"] }],
 };
 beforeEach(() => {
-  global.fetch = jest.fn();
+  global.fetch = jest
+    .fn()
+    .mockResolvedValue({ ok: true, json: async () => ({ items: [] }) });
 });
 afterEach(cleanup);
 test("profile preserves collection IDs, description images, and site availability", async () => {
@@ -97,8 +99,11 @@ test("clipboard reports failure and copies canonical citation on success", async
   expect(writeText).toHaveBeenLastCalledWith(profile.citationText);
 });
 test("partial protocol failures preserve successful protocols and deduplicate products", async () => {
-  global.fetch
-    .mockResolvedValueOnce({
+  global.fetch.mockImplementation(async (url) => {
+    if (url.endsWith("sample-catalog.php"))
+      return { ok: true, json: async () => ({ items: [] }) };
+    if (url.includes("DP1.00002.001")) throw new Error("Unavailable");
+    return {
       ok: true,
       json: async () => ({
         data: {
@@ -110,8 +115,8 @@ test("partial protocol failures preserve successful protocols and deduplicate pr
           ],
         },
       }),
-    })
-    .mockRejectedValueOnce(new Error());
+    };
+  });
   render(
     <CollectionProfile
       profile={{
@@ -127,7 +132,9 @@ test("partial protocol failures preserve successful protocols and deduplicate pr
   );
   await screen.findByText("PROTO-1");
   expect(screen.getByText(/Some protocols could not be loaded/)).toBeTruthy();
-  expect(global.fetch).toHaveBeenCalledTimes(2);
+  expect(
+    global.fetch.mock.calls.filter(([url]) => url.includes("api/v0/products")),
+  ).toHaveLength(2);
 });
 test("empty availability and zero counts do not invent sites or percentages", async () => {
   render(
@@ -162,7 +169,9 @@ test("uses the shared page sidebar without duplicating navigation", async () => 
     expect(screen.queryByText("Loading protocols…")).toBeNull(),
   );
   expect(host.querySelector("nav")).not.toBeNull();
-  expect(container.querySelector("aside")).toBeNull();
+  expect(
+    container.querySelector('nav[aria-label="Sample type sections"]'),
+  ).toBeNull();
   expect(
     screen.getAllByRole("navigation", { name: "Sample type sections" }),
   ).toHaveLength(1);

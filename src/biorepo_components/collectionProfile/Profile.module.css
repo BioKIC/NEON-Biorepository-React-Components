@@ -283,3 +283,88 @@
 .directory {
   display: block;
 }
+
+.aboutLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(220px, 1fr);
+  gap: 40px;
+  align-items: start;
+}
+.aboutDescription {
+  min-width: 0;
+}
+.details {
+  min-width: 0;
+  font-family: "Inter", Helvetica, Arial, sans-serif;
+}
+.details .detailsList {
+  margin: 0;
+  padding: 0;
+}
+.details .detail {
+  margin: 0 0 26px;
+}
+.details .detail:last-child {
+  margin-bottom: 0;
+}
+.details .detail dt,
+.profile .details .keywordHeading {
+  margin: 0 0 10px;
+  color: #1a1a1a;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.4;
+}
+.details .detail dd {
+  margin: 0;
+  color: #292d30;
+  font-size: 14px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.details .detailsStatus.detailsStatus {
+  font-size: 14px;
+  margin: 0 0 16px;
+}
+.details .detailsList + .detail {
+  margin-top: 26px;
+}
+.details .keywords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.profile .details .keywords li.keyword {
+  list-style: none;
+  margin: 0;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: #d7d9d9;
+  color: #1a1a1a;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 1100px) {
+  .aboutLayout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+  .details .detailsList {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+  }
+  .details .detail {
+    margin-bottom: 0;
+  }
+}
+@media (max-width: 500px) {
+  .details .detailsList {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -5,6 +5,9 @@ import DocumentListItem from "../lib_components/components/Documents/DocumentLis
 import DataProductAvailability from "../lib_components/components/DataProductAvailability/DataProductAvailability";
 import { citationFile, safeUrl, statistics } from "./collectionProfile/profile";
 import styles from "./collectionProfile/Profile.module.css";
+import CollectionDetails from "./collectionProfile/CollectionDetails";
+// Curated keyword arrays, keyed by collection ID. Empty until terms are supplied.
+import keywordsByCollection from "./collectionProfile/keywords.json";
 
 function Link({ href, children, button = false, external = false }) {
   const url = safeUrl(href);
@@ -408,19 +411,29 @@ export function CollectionProfile({
         </header>
         <section id="about">
           <h2>About</h2>
-          {!!profile.identificationCollectionId && (
-            <div className={styles.notice}>
-              <strong>Looking for a specific taxon?</strong>
-              <p>
-                Taxonomic identifications derived from these samples are
-                available through a related sample type.
-              </p>
-              <Link href={profileUrl(profile.identificationCollectionId)}>
-                Browse identifications
-              </Link>
+          <div className={styles.aboutLayout}>
+            <div className={styles.aboutDescription}>
+              {!!profile.identificationCollectionId && (
+                <div className={styles.notice}>
+                  <strong>Looking for a specific taxon?</strong>
+                  <p>
+                    Taxonomic identifications derived from these samples are
+                    available through a related sample type.
+                  </p>
+                  <Link href={profileUrl(profile.identificationCollectionId)}>
+                    Browse identifications
+                  </Link>
+                </div>
+              )}
+              <Description html={profile.description} />
             </div>
-          )}
-          <Description html={profile.description} />
+            <CollectionDetails
+              id={profile.id}
+              clientRoot={clientRoot}
+              siteCodes={profile.siteCodes}
+              keywords={keywordsByCollection[String(profile.id)] || []}
+            />
+          </div>
         </section>
         <section id="statistics">
           <h2>Sample type statistics</h2>
