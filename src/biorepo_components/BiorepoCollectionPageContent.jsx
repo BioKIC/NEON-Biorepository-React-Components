@@ -1,6 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
 import parse from "html-react-parser";
 import { createPortal } from "react-dom";
+import Button from "@mui/material/Button";
+import SearchIcon from "@mui/icons-material/Search";
+import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import DocumentListItem from "../lib_components/components/Documents/DocumentListItem";
@@ -175,32 +179,16 @@ function Citation({ profile, clientRoot }) {
 }
 
 function DatasetBadges({ datasetKey }) {
-  const [count, setCount] = useState(null);
-  useEffect(() => {
-    if (!datasetKey) return undefined;
-    const controller = new AbortController();
-    fetch(
-      `https://api.gbif.org/v1/literature/search?gbifDatasetKey=${encodeURIComponent(datasetKey)}&limit=0`,
-      { signal: controller.signal },
-    )
-      .then((response) => {
-        if (!response.ok) throw new Error();
-        return response.json();
-      })
-      .then((data) => setCount(data.count))
-      .catch(() => {});
-    return () => controller.abort();
-  }, [datasetKey]);
   if (!datasetKey) return null;
   return (
     <div className={styles.badges}>
-      <Link
-        href={`https://www.gbif.org/resource/search?contentType=literature&gbifDatasetKey=${encodeURIComponent(datasetKey)}`}
-        external
-      >
-        GBIF citations
-        {count !== null ? `: ${Number(count).toLocaleString()}` : ""}
-      </Link>
+      <iframe
+        title="GBIF citation count"
+        src={`https://www.gbif.org/api/widgets/literature/button?gbifDatasetKey=${encodeURIComponent(datasetKey)}`}
+        scrolling="no"
+        frameBorder="0"
+        style={{ width: 140, height: 24, border: 0 }}
+      />
       <Link
         href={`https://bionomia.net/dataset/${encodeURIComponent(datasetKey)}`}
         external
@@ -435,21 +423,25 @@ export function CollectionProfile({
       <div className={styles.main}>
         <header className={styles.header}>
           <h1>{profile.title}</h1>
-          <div className={styles.actions}>
-            <Link
-              button
-              href={`${clientRoot}/collections/list.php?db=${profile.id}`}
-            >
-              Browse records
-            </Link>
-            <Link
-              button
-              href={`${clientRoot}/neon/search/index.php?db=${profile.id}`}
-            >
-              Search this sample type
-            </Link>
+          <div className={styles.headerControls}>
+            <DatasetBadges datasetKey={profile.datasetKey} />
+            <div className={styles.actions}>
+              <Button
+                variant="contained"
+                href={`${clientRoot}/collections/list.php?db=${profile.id}`}
+                endIcon={<FormatListBulletedIcon />}
+              >
+                Browse records
+              </Button>
+              <Button
+                variant="contained"
+                href={`${clientRoot}/neon/search/index.php?db=${profile.id}`}
+                endIcon={<SearchIcon />}
+              >
+                Search this sample type
+              </Button>
+            </div>
           </div>
-          <DatasetBadges datasetKey={profile.datasetKey} />
         </header>
         {!!profile.identificationCollectionId && (
           <aside
@@ -489,6 +481,7 @@ export function CollectionProfile({
                   href={profileUrl(profile.identificationCollectionId)}
                 >
                   Browse identifications
+                  <ChevronRightIcon fontSize="small" aria-hidden="true" />
                 </Link>
               </div>
             </div>

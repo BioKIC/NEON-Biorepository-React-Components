@@ -60,6 +60,59 @@ beforeEach(() => {
     .mockResolvedValue({ ok: true, json: async () => ({ items: [] }) });
 });
 afterEach(cleanup);
+test("header embeds the GBIF count chip for the current dataset before its actions", async () => {
+  const { rerender } = render(
+    <CollectionProfile
+      profile={{ ...profile, datasetKey: "dataset-one" }}
+      clientRoot="/portal"
+    />,
+  );
+  await waitFor(() =>
+    expect(screen.queryByText("Loading protocols…")).toBeNull(),
+  );
+  const header = screen.getByRole("heading", { name: "Ticks", level: 1 })
+    .closest("header");
+  const widget = within(header).getByTitle("GBIF citation count");
+  expect(widget.tagName).toBe("IFRAME");
+  expect(widget.getAttribute("src")).toBe(
+    "https://www.gbif.org/api/widgets/literature/button?gbifDatasetKey=dataset-one",
+  );
+  expect(header.firstElementChild.nextElementSibling.firstElementChild).toBe(
+    widget.parentElement,
+  );
+  const browse = within(header).getByRole("link", { name: "Browse records" });
+  const search = within(header).getByRole("link", {
+    name: "Search this sample type",
+  });
+  expect(widget.parentElement.nextElementSibling).toBe(browse.parentElement);
+  expect(search.getAttribute("href")).toBe("/portal/neon/search/index.php?db=7");
+  for (const action of [browse, search]) {
+    expect(action.classList.contains("MuiButton-contained")).toBe(true);
+  }
+  expect(within(header).getByAltText("Bionomia dataset").getAttribute("src"))
+    .toBe("https://api.bionomia.net/dataset/dataset-one/badge.svg");
+  expect(global.fetch.mock.calls.some(([url]) => url.includes("api.gbif.org")))
+    .toBe(false);
+
+  rerender(
+    <CollectionProfile
+      profile={{ ...profile, datasetKey: "dataset-two" }}
+      clientRoot="/portal"
+    />,
+  );
+  expect(widget.getAttribute("src")).toContain("gbifDatasetKey=dataset-two");
+  expect(within(header).getByAltText("Bionomia dataset").getAttribute("src"))
+    .toContain("/dataset/dataset-two/badge.svg");
+});
+test("omits dataset chips when the collection has no GBIF dataset", async () => {
+  render(<CollectionProfile profile={profile} />);
+  await waitFor(() =>
+    expect(screen.queryByText("Loading protocols…")).toBeNull(),
+  );
+  expect(screen.queryByTitle("GBIF citation count")).toBeNull();
+  expect(screen.queryByAltText("Bionomia dataset")).toBeNull();
+  expect(screen.getByRole("link", { name: "Browse records" })).toBeTruthy();
+});
 test("profile preserves collection IDs, description images, and site availability", async () => {
   const titleFromPhp = document.title;
   render(<CollectionProfile profile={profile} clientRoot="/portal" />);
