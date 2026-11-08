@@ -3,6 +3,7 @@ import parse from "html-react-parser";
 import { createPortal } from "react-dom";
 import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
+import Typography from "@mui/material/Typography";
 import CopyIcon from "@mui/icons-material/Assignment";
 import DownloadIcon from "@mui/icons-material/SaveAlt";
 import SearchIcon from "@mui/icons-material/Search";
@@ -161,7 +162,9 @@ function Citation({ profile, clientRoot }) {
         {" "}for more info.
       </p>
       <div className={styles.citation}>
-        <p className={styles.citationText}>{profile.citationText}</p>
+        <Typography component="div" variant="body2" className={styles.citationText}>
+          {profile.citationText}
+        </Typography>
         <div className={styles.citationActions}>
           <Tooltip
             placement="bottom-start"
