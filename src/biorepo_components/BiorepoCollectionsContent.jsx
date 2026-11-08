@@ -421,6 +421,11 @@ Facet.propTypes = {
 };
 
 function Catalog() {
+  useEffect(() => {
+    const previousTitle = document.title;
+    document.title = 'NEON Biorepository | Explore Sample Types';
+    return () => { document.title = previousTitle; };
+  }, []);
   const root = (window.NEON_CLIENT_ROOT || '').replace(/\/$/, '');
   const [context] = NeonContext.useNeonContextState();
   const { data: geography, isFinal: geographyReady, hasError: geographyError } = context;

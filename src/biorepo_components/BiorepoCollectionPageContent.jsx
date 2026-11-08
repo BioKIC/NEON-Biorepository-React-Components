@@ -362,7 +362,7 @@ export function CollectionProfile({
 }) {
   useEffect(() => {
     const previousTitle = document.title;
-    document.title = `NEON | ${profile.title || "Sample Types"}`;
+    document.title = `NEON Biorepository | ${profile.title || "Sample Types"}`;
     return () => {
       document.title = previousTitle;
     };

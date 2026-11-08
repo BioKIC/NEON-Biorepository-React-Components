@@ -88,7 +88,7 @@ test("profile preserves collection IDs, description images, and site availabilit
     within(notice).getByRole("link", { name: "Browse identifications" }),
   ).toBeTruthy();
   expect(screen.getByTestId("availability").textContent).toContain("2024-01");
-  expect(document.title).toBe("NEON | Ticks");
+  expect(document.title).toBe("NEON Biorepository | Ticks");
   expect(document.querySelector("script")).toBeNull();
   expect(screen.getByText("unsafe").getAttribute("href")).toBeNull();
   const details = screen.getByRole("complementary", {
