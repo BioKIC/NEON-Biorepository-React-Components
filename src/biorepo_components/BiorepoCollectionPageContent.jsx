@@ -569,7 +569,12 @@ export function CollectionProfile({
               {Object.entries(profile.related).map(([id, title]) => (
                 <li key={id} className={styles.relatedItem}>
                   <ScienceIcon className={styles.relatedIcon} aria-hidden="true" />
-                  <h3>{title}</h3>
+                  <div className={styles.relatedLabel}>
+                    <h3>{title}</h3>
+                    {profile.relatedCodes?.[id] && (
+                      <p className={styles.relatedCode}>{profile.relatedCodes[id]}</p>
+                    )}
+                  </div>
                   <Button
                     className={styles.relatedAction}
                     variant="outlined"

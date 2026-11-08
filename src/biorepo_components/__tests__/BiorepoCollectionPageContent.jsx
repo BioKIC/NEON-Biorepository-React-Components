@@ -174,6 +174,39 @@ test("profile preserves collection IDs, description images, and site availabilit
     screen.getByText("Description").parentElement.querySelector("img"),
   ).toBeNull();
 });
+test("linked sample type subtitles match collection IDs and omit unavailable codes", async () => {
+  render(
+    <CollectionProfile
+      clientRoot="/portal"
+      profile={{
+        ...profile,
+        related: { 9: "Tick extracts", 118: "Gastrointestinal Tracts", 208: "External collection" },
+        relatedCodes: { 118: "MAMC-GI", 9: "TICK-DNA" },
+      }}
+    />,
+  );
+  await waitFor(() =>
+    expect(screen.queryByText("Loading protocols…")).toBeNull(),
+  );
+  const section = screen.getByRole("region", { name: "Linked Sample Types" });
+  const rows = within(section).getAllByRole("listitem");
+  expect(rows).toHaveLength(3);
+  for (const [id, title, code] of [
+    [9, "Tick extracts", "TICK-DNA"],
+    [118, "Gastrointestinal Tracts", "MAMC-GI"],
+    [208, "External collection", null],
+  ]) {
+    const titleElement = within(section).getByRole("heading", { name: title });
+    const row = titleElement.closest("li");
+    if (code) {
+      expect(titleElement.nextElementSibling.textContent).toBe(code);
+    } else {
+      expect(titleElement.nextElementSibling).toBeNull();
+    }
+    expect(within(row).getByRole("link").getAttribute("href"))
+      .toBe(`/portal/collections/misc/neoncollprofiles.php?collid=${id}`);
+  }
+});
 test("moves multiple photos and captions into details while preserving links and surrounding text", async () => {
   render(
     <CollectionProfile
