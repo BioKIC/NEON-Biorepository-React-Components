@@ -10,6 +10,7 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import CatalogDateFilter from './sampleCatalog/CatalogDateFilter';
 import CatalogDescription from './sampleCatalog/CatalogDescription';
+import CatalogKeywordBrowser from './sampleCatalog/CatalogKeywordBrowser';
 import SampleTypeChip from './SampleTypeChip';
 import SampleTypeTags from './SampleTypeTags';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
@@ -646,8 +647,14 @@ function Catalog() {
         onChange={(event) => update({ q: event.target.value }, true)}
       />
       <Typography id="catalog-search-help" className="catalog-search-help" sx={{ mt: 1.5 }}>
-        Use several terms to match products having <em>any</em> term (<em>term OR term</em>).
+        Use several terms to match sample types having <em>any</em> term (<em>term OR term</em>).
         {' '}Quote terms to match phrases (e.g. "DNA extracts").
+        {' '}<CatalogKeywordBrowser
+          items={items}
+          query={filters.q}
+          onChange={(q) => update({ q }, true)}
+          resultCount={results.length}
+        />
       </Typography>
       <CatalogDateFilter items={items} from={filters.from} through={filters.to} onChange={update} />
       <Divider />

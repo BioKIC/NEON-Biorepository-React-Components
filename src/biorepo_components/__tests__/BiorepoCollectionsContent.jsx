@@ -399,3 +399,47 @@ test.each(['unavailable', 'invalid'])('catalog search still works when optional 
   expect(screen.queryByRole('link', { name: 'Ear Punches' })).toBeNull();
   expect(screen.queryByRole('alert')).toBeNull();
 });
+
+test('Browse keywords adds and removes terms in the search while retaining other filters', async () => {
+  const shared = 'community composition';
+  global.fetch.mockImplementation(async (url) => ({ ok: true, json: async () => (
+    url.endsWith('/keywords.json')
+      ? { 1: ['biopsy', shared], 2: ['cardiac', shared], 999: ['unused term'] }
+      : data
+  ) }));
+  window.history.replaceState(null, '', '?sites=ABBY');
+  mount();
+  await screen.findByRole('link', { name: 'Ear Punches' });
+  fireEvent.click(screen.getByRole('button', { name: 'Browse keywords' }));
+  const dialog = await screen.findByRole('dialog', { name: 'Browse Keywords' });
+  const keyword = await within(dialog).findByRole('button', { name: shared });
+  expect(within(dialog).getAllByRole('button', { name: shared })).toHaveLength(1);
+  expect(within(dialog).queryByRole('button', { name: 'unused term' })).toBeNull();
+  expect(within(dialog).getByRole('status').textContent).toBe('With all filters combined: 1 sample type');
+  fireEvent.click(keyword);
+  expect(keyword.getAttribute('aria-pressed')).toBe('true');
+  expect(within(dialog).getByRole('searchbox', { name: 'Search sample types' }).value).toBe('"community composition"');
+  let params = new URLSearchParams(window.location.search);
+  expect(params.get('q')).toBe('"community composition"');
+  expect(params.get('sites')).toBe('ABBY');
+  fireEvent.click(keyword);
+  expect(keyword.getAttribute('aria-pressed')).toBe('false');
+  fireEvent.change(within(dialog).getByRole('searchbox', { name: 'Search sample types' }), { target: { value: 'cardiac' } });
+  expect(within(dialog).getByRole('status').textContent).toBe('With all filters combined: 0 sample types');
+  fireEvent.click(within(dialog).getByRole('button', { name: 'Close keyword browser' }));
+  await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+  expect(screen.getByRole('searchbox', { name: 'Search' }).value).toBe('cardiac');
+  expect(screen.queryByRole('link', { name: 'Ear Punches' })).toBeNull();
+  expect(new URLSearchParams(window.location.search).get('sites')).toBe('ABBY');
+});
+
+test('the keyword browser handles missing keywords and closes with Escape', async () => {
+  mount();
+  await screen.findByRole('link', { name: 'Ear Punches' });
+  fireEvent.click(screen.getByRole('button', { name: 'Browse keywords' }));
+  const dialog = await screen.findByRole('dialog', { name: 'Browse Keywords' });
+  expect(within(dialog).getByText(/No keywords are available yet/)).toBeTruthy();
+  fireEvent.keyDown(dialog, { key: 'Escape', code: 'Escape' });
+  await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+  expect(screen.getByRole('link', { name: 'Ear Punches' })).toBeTruthy();
+});
