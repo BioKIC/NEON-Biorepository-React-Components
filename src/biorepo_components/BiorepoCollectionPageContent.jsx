@@ -665,6 +665,7 @@ export function CollectionProfile({
           <CollectionDetails
             id={profile.id}
             code={profile.code}
+            collectionName={profile.collectionName || profile.title}
             clientRoot={clientRoot}
             siteCodes={profile.siteCodes}
             images={description.images}
@@ -791,7 +792,11 @@ export function CollectionProfile({
                   <ul className={styles.externalLinks}>
                     {externalResources.map((resource) => (
                       <li key={resource.url}>
-                        <Link href={resource.url} external>{resource.title}</Link>
+                        <Link href={resource.url} external>
+                          {resource.title === "GBIF dataset"
+                            ? profile.collectionName || profile.title
+                            : resource.title}
+                        </Link>
                       </li>
                     ))}
                   </ul>

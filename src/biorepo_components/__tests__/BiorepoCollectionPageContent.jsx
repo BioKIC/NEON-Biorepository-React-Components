@@ -43,6 +43,7 @@ const citation = {
 const profile = {
   id: 7,
   title: "Ticks",
+  collectionName: "NEON Biorepository Tick Collection",
   code: "TICKS",
   description:
     '<p>Description</p><img src="/tick.jpg" alt="Tick"/><script>alert(1)</script><a href="javascript:alert(1)">unsafe</a>',
@@ -172,7 +173,10 @@ test("profile preserves collection IDs, description images, and site availabilit
   expect(
     within(details).getByText("Sample Type ID").parentElement
       .nextElementSibling,
-  ).toBe(gallery.parentElement);
+  ).toBe(within(details).getByText("Full Name").parentElement);
+  expect(within(details).getByText(profile.collectionName)).toBeTruthy();
+  expect(within(details).getByText("Full Name").parentElement.nextElementSibling)
+    .toBe(gallery.parentElement);
   expect(
     screen.getByText("Description").parentElement.querySelector("img"),
   ).toBeNull();
@@ -674,10 +678,12 @@ test("data downloads combine browse and search rows with the full archive and me
   const hosts = screen.getByRole("region", { name: "Externally Hosted Data" });
   expect(within(hosts).getByText("External Hosts")).toBeTruthy();
   for (const resource of external) {
-    expect(within(hosts).getByRole("link", { name: resource.title }).getAttribute("href"))
+    const label = resource.title === "GBIF dataset" ? profile.collectionName : resource.title;
+    expect(within(hosts).getByRole("link", { name: label }).getAttribute("href"))
       .toBe(resource.url);
     expect(within(downloads).queryByText(resource.title)).toBeNull();
   }
+  expect(within(hosts).queryByRole("link", { name: "GBIF dataset" })).toBeNull();
   const nav = screen.getByRole("navigation", { name: "Sample type sections" });
   expect(within(nav).getByRole("link", { name: "Data Downloads" }).getAttribute("href"))
     .toBe(`#${downloads.id}`);

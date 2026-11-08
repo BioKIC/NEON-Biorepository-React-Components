@@ -38,6 +38,7 @@ const terms = (values) =>
 export default function CollectionDetails({
   id,
   code = "",
+  collectionName = "",
   clientRoot = "",
   siteCodes = [],
   images = [],
@@ -147,6 +148,12 @@ export default function CollectionDetails({
             <div className={styles.detail}>
               <h3 className={styles.keywordHeading}>Sample Type ID</h3>
               <SampleTypeChip label={identifier} variant="outlined" />
+            </div>
+          )}
+          {collectionName && (
+            <div className={styles.detail}>
+              <h3 className={styles.keywordHeading}>Full Name</h3>
+              <p className={styles.detailValue}>{collectionName}</p>
             </div>
           )}
           {images.length > 0 && (

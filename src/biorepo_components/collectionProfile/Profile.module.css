@@ -643,6 +643,7 @@
   font-weight: 400;
   line-height: 1.4;
 }
+.profile.profile .details .detailValue,
 .detailsBand .detail dd {
   margin: 0;
   color: #292d30;
