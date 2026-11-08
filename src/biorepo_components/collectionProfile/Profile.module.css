@@ -398,14 +398,19 @@
   overflow-wrap: anywhere;
 }
 
-/* Extend to the content pane edges, leaving the page sidebar intact. The
-   host supplies its gutter; standalone profiles use their available width. */
+/* Extend through the content gutter and any outer right margin. Matching
+   padding keeps the details aligned with the rest of the profile. */
 .detailsBand {
   --details-background: #f4f5f6;
+  --details-right-bleed: calc(
+    var(--profile-content-gutter, 0px) + var(--profile-right-margin, 0px)
+  );
   position: relative;
   background: var(--details-background);
   margin: 34px calc(-1 * var(--profile-content-gutter, 0px)) 32px;
+  margin-right: calc(-1 * var(--details-right-bleed));
   padding: 22px var(--profile-content-gutter, 0px);
+  padding-right: var(--details-right-bleed);
 }
 .detailsBand::before,
 .detailsBand::after {
