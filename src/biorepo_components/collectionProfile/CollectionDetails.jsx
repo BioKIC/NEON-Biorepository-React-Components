@@ -33,6 +33,8 @@ export default function CollectionDetails({
   code = "",
   clientRoot = "",
   siteCodes = [],
+  images = [],
+  title = "Sample type",
 }) {
   const [result, setResult] = useState({
     id,
@@ -107,6 +109,37 @@ export default function CollectionDetails({
         <div className={styles.detail}>
           <h3 className={styles.keywordHeading}>Sample Type ID</h3>
           <span className={styles.identifierChip}>{identifier}</span>
+        </div>
+      )}
+      {images.length > 0 && (
+        <div className={styles.detail}>
+          <h3 className={styles.keywordHeading}>Image</h3>
+          <div className={styles.imageGallery}>
+            {images.map((image, index) => (
+              <figure
+                className={styles.imageFigure}
+                key={`${image.src}-${index}`}
+              >
+                <a
+                  href={image.href || image.src}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <img
+                    src={image.src}
+                    alt={image.alt || `${title} image ${index + 1}`}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </a>
+                {image.caption && (
+                  <figcaption className={styles.imageCaption}>
+                    {image.caption}
+                  </figcaption>
+                )}
+              </figure>
+            ))}
+          </div>
         </div>
       )}
       {loading && (

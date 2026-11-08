@@ -5,6 +5,7 @@ import {
   fireEvent,
   cleanup,
   waitFor,
+  within,
 } from "@testing-library/react";
 import { CollectionProfile } from "../BiorepoCollectionPageContent";
 import {
@@ -80,8 +81,71 @@ test("profile preserves collection IDs, description images, and site availabilit
   expect(screen.getByTestId("availability").textContent).toContain("2024-01");
   expect(document.querySelector("script")).toBeNull();
   expect(screen.getByText("unsafe").getAttribute("href")).toBeNull();
-  expect(screen.getByAltText("Tick")).toBeTruthy();
+  const details = screen.getByRole("complementary", {
+    name: "Sample type details",
+  });
+  expect(within(details).getByAltText("Tick")).toBeTruthy();
+  expect(within(details).getByRole("heading", { name: "Image" })).toBeTruthy();
+  expect(
+    within(details).getByText("Sample Type ID").parentElement
+      .nextElementSibling,
+  ).toBe(within(details).getByRole("heading", { name: "Image" }).parentElement);
+  expect(
+    screen.getByText("Description").parentElement.querySelector("img"),
+  ).toBeNull();
 });
+test("moves multiple photos and captions into details while preserving links and surrounding text", async () => {
+  render(
+    <CollectionProfile
+      profile={{
+        ...profile,
+        description:
+          '<p>Before the photos</p><figure><a href="/full-photo"><img src="/one.jpg" alt="First photo" width="1200" height="900" style="width:1200px" onerror="alert(1)" /></a><figcaption>Photo credit</figcaption></figure><p>After the photos <img src="/two.jpg" /></p>',
+      }}
+    />,
+  );
+  await waitFor(() =>
+    expect(screen.queryByText("Loading protocols…")).toBeNull(),
+  );
+  const details = screen.getByRole("complementary", {
+    name: "Sample type details",
+  });
+  const images = within(details).getAllByRole("img");
+  expect(images.map((image) => image.getAttribute("src"))).toEqual([
+    "/one.jpg",
+    "/two.jpg",
+  ]);
+  expect(images[0].closest("a").getAttribute("href")).toBe("/full-photo");
+  expect(images[1].getAttribute("alt")).toBe("Ticks image 2");
+  expect(images[1].closest("a").getAttribute("href")).toBe("/two.jpg");
+  for (const attribute of ["width", "height", "style", "onerror"]) {
+    expect(images[0].hasAttribute(attribute)).toBe(false);
+  }
+  expect(within(details).getByText("Photo credit")).toBeTruthy();
+  const description = screen.getByText("Before the photos").parentElement;
+  expect(description.querySelector("img, figure, a")).toBeNull();
+  expect(within(description).getByText("After the photos")).toBeTruthy();
+});
+test.each([
+  "<p>Text only</p>",
+  '<p>Text only</p><a href="/empty"><img src="javascript:alert(1)" /></a><form><img src="/hidden.jpg" /></form>',
+])(
+  "omits the image block when the description has no usable photos: %s",
+  async (description) => {
+    render(<CollectionProfile profile={{ ...profile, description }} />);
+    await waitFor(() =>
+      expect(screen.queryByText("Loading protocols…")).toBeNull(),
+    );
+    const details = screen.getByRole("complementary", {
+      name: "Sample type details",
+    });
+    expect(
+      within(details).queryByRole("heading", { name: "Image" }),
+    ).toBeNull();
+    expect(within(details).queryByRole("img")).toBeNull();
+    expect(screen.queryByRole("link", { name: "" })).toBeNull();
+  },
+);
 test("clipboard reports failure and copies canonical citation on success", async () => {
   const writeText = jest
     .fn()

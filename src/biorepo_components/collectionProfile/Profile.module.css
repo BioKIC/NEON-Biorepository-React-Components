@@ -192,11 +192,6 @@
 .description {
   overflow-wrap: anywhere;
 }
-.description img {
-  max-width: 100% !important;
-  height: auto !important;
-  object-fit: contain;
-}
 .description table {
   max-width: 100%;
 }
@@ -322,6 +317,33 @@
 .details .detail:last-child {
   margin-bottom: 0;
 }
+.details .imageGallery {
+  display: grid;
+  gap: 16px;
+  max-width: 320px;
+}
+.details .imageFigure {
+  min-width: 0;
+  margin: 0;
+}
+.details .imageFigure a {
+  display: inline-block;
+  max-width: 100%;
+}
+.details .imageFigure img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 240px;
+  object-fit: contain;
+}
+.details .imageCaption {
+  margin-top: 8px;
+  color: #565a5c;
+  font-size: 13px;
+  line-height: 1.5;
+}
 .details .detail dt,
 .profile .details .keywordHeading {
   margin: 0 0 10px;
@@ -374,7 +396,7 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 24px;
   }
-  .details .detail {
+  .details .detailsList .detail {
     margin-bottom: 0;
   }
 }

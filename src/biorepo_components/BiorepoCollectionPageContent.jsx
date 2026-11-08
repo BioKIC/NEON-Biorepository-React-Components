@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import parse from "html-react-parser";
 import { createPortal } from "react-dom";
 import DocumentListItem from "../lib_components/components/Documents/DocumentListItem";
@@ -270,26 +270,65 @@ function Distribution({ distribution, profileUrl, recordsUrl }) {
   );
 }
 
-// Description HTML is curator-authored rich text. Parse it into React, retaining
-// formatting and images while excluding executable content and unsafe URLs.
+const excludedDescriptionTags = [
+  "script",
+  "style",
+  "iframe",
+  "object",
+  "embed",
+  "form",
+  "input",
+  "button",
+  "link",
+  "meta",
+];
+
+// Separate curator-authored photos for the details column without changing stored HTML.
+function splitDescription(html = "") {
+  const document = new DOMParser().parseFromString(html || "", "text/html");
+  document
+    .querySelectorAll(excludedDescriptionTags.join(","))
+    .forEach((node) => node.remove());
+  const images = [];
+  document.body.querySelectorAll("img").forEach((image) => {
+    const src = safeUrl(image.getAttribute("src"));
+    const caption = image.closest("figure")?.querySelector("figcaption");
+    if (src) {
+      images.push({
+        src,
+        alt: image.getAttribute("alt") || "",
+        href: safeUrl(image.closest("a")?.getAttribute("href")),
+        caption: caption?.textContent.trim() || "",
+      });
+      caption?.remove();
+    }
+    let wrapper = image.parentElement;
+    image.remove();
+    // Remove image-only links and layout wrappers, retaining any surrounding text.
+    while (
+      wrapper &&
+      ["A", "P", "DIV", "SPAN", "FIGURE", "PICTURE"].includes(
+        wrapper.tagName,
+      ) &&
+      !wrapper.textContent.trim() &&
+      !wrapper.querySelector(
+        "img, video, audio, svg, iframe, object, embed, table, hr",
+      )
+    ) {
+      const parent = wrapper.parentElement;
+      wrapper.remove();
+      wrapper = parent;
+    }
+  });
+  return { html: document.body.innerHTML, images };
+}
+
+// Description HTML is curator-authored rich text. Keep its formatting while
+// excluding executable content and unsafe URLs.
 function Description({ html }) {
   const options = {
     replace: (node) => {
-      if (
-        [
-          "script",
-          "style",
-          "iframe",
-          "object",
-          "embed",
-          "form",
-          "input",
-          "button",
-          "link",
-          "meta",
-        ].includes(node.name)
-      )
-        return <></>;
+      if (excludedDescriptionTags.includes(node.name)) return <></>;
       if (node.attribs)
         Object.keys(node.attribs).forEach((key) => {
           if (
@@ -318,6 +357,10 @@ export function CollectionProfile({
   clientRoot = "",
   language = "en",
 }) {
+  const description = useMemo(
+    () => splitDescription(profile.description),
+    [profile.description],
+  );
   const navigationHost = document.getElementById("biorepo-profile-navigation");
   const profileUrl = (id) =>
     `${clientRoot}/collections/misc/neoncollprofiles.php?collid=${id}`;
@@ -423,13 +466,15 @@ export function CollectionProfile({
                   </Link>
                 </div>
               )}
-              <Description html={profile.description} />
+              <Description html={description.html} />
             </div>
             <CollectionDetails
               id={profile.id}
               code={profile.code}
               clientRoot={clientRoot}
               siteCodes={profile.siteCodes}
+              images={description.images}
+              title={profile.title}
             />
           </div>
         </section>
