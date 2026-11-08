@@ -1,5 +1,6 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import SampleTypeChip from "../SampleTypeChip";
+import SampleTypeTags from "../SampleTypeTags";
 import styles from "./Profile.module.css";
 
 export function availableDates(siteCodes = []) {
@@ -141,6 +142,7 @@ export default function CollectionDetails({
     item && Array.isArray(item.siteCodes) ? item.siteCodes : siteCodes;
   return (
     <>
+      <SampleTypeTags item={item || { name: title }} className={styles.aboutTags} />
       <div className={styles.aboutLayout}>
         <div className={styles.aboutDescription}>{children}</div>
         <aside className={styles.details} aria-label="Sample type details">

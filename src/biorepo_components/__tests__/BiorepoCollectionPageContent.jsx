@@ -926,3 +926,36 @@ test("sidebar follows direct section links and back/forward hash changes", async
   ).toBe("#documentation");
   window.history.replaceState(null, "", "/");
 });
+
+test('About shows the explorer tags before its details, with both help popups', async () => {
+  global.fetch = jest.fn().mockResolvedValue({ ok: true, json: async () => ({
+    items: [{ id: 7, name: 'Identification collection', sampleTypeName: 'Sample Identifications', outsideRepository: true }],
+  }) });
+  render(<CollectionProfile profile={profile} clientRoot="/portal" />);
+  const about = screen.getByRole('region', { name: 'About' });
+  const tags = await within(about).findByRole('group', { name: 'Sample type tags' });
+  expect(tags.previousElementSibling).toBe(within(about).getByRole('heading', { name: 'About' }));
+  expect(within(tags).getByText('Identification Records')).toBeTruthy();
+  expect(within(tags).getByText('Outside Repository')).toBeTruthy();
+  expect(tags.nextElementSibling.contains(within(about).getByRole('complementary', { name: 'Sample type details' }))).toBe(true);
+  const identificationHelp = within(tags).getByRole('button', { name: 'About identification records' });
+  fireEvent.click(identificationHelp);
+  expect((await screen.findByRole('tooltip')).textContent).toContain('Taxonomic identification records describe organisms identified within a bulk sample');
+  fireEvent.keyDown(identificationHelp, { key: 'Escape' });
+  await waitFor(() => expect(screen.queryByRole('tooltip')).toBeNull());
+  fireEvent.click(within(tags).getByRole('button', { name: 'About outside repositories' }));
+  const tooltip = await screen.findByRole('tooltip');
+  expect(tooltip.textContent).toContain('repositories outside the NEON Biorepository at Arizona State University');
+  expect(within(tooltip).getByRole('link', { name: 'Learn about NEON sample repositories' }).getAttribute('href'))
+    .toBe('https://www.neonscience.org/samples/sample-repositories');
+});
+
+test('physical samples with linked identifications do not get identification or outside tags', async () => {
+  global.fetch = jest.fn().mockResolvedValue({ ok: true, json: async () => ({
+    items: [{ id: 7, name: 'Ticks', sampleTypeName: 'Tick Vouchers' }],
+  }) });
+  render(<CollectionProfile profile={profile} clientRoot="/portal" />);
+  await screen.findByText('Protocol');
+  expect(screen.getByRole('link', { name: /Browse identifications/i })).toBeTruthy();
+  expect(screen.queryByRole('group', { name: 'Sample type tags' })).toBeNull();
+});

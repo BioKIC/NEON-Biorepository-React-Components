@@ -561,6 +561,9 @@
   display: block;
 }
 
+.aboutTags {
+  margin-bottom: 20px;
+}
 .aboutLayout {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
