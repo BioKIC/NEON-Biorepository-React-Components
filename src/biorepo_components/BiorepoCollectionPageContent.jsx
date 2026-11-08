@@ -734,7 +734,22 @@ export function CollectionProfile({
                 <>
                   <hr className={styles.externalDivider} />
                   <p className={styles.externalLead}>
-                    Explore data and related resources for this sample type on these external websites:
+                    Data for this sample type are available in other formats from{" "}
+                    {externalResources.map((resource, index) => (
+                      <React.Fragment key={resource.url}>
+                        {index > 0 && (index === externalResources.length - 1 ? " and " : ", ")}
+                        <Link
+                          href={resource.title === "GBIF dataset" ? "https://www.gbif.org/" : resource.url}
+                          external
+                        >
+                          {{
+                            "GBIF dataset": "GBIF (Global Biodiversity Information Facility)",
+                            "EDI dataset": "Environmental Data Initiative (EDI)",
+                            "iDigBio dataset": "iDigBio",
+                          }[resource.title] || resource.title}
+                        </Link>
+                      </React.Fragment>
+                    ))}.
                   </p>
                   <ul className={styles.externalLinks}>
                     {externalResources.map((resource) => (
