@@ -31,9 +31,8 @@ const terms = (values) =>
 export default function CollectionDetails({
   id,
   code = "",
-  clientRoot,
+  clientRoot = "",
   siteCodes = [],
-  keywords = [],
 }) {
   const [result, setResult] = useState({
     id,
@@ -41,10 +40,12 @@ export default function CollectionDetails({
     item: null,
     error: false,
   });
+  const [keywords, setKeywords] = useState({ id, values: [] });
   const [attempt, setAttempt] = useState(0);
   useEffect(() => {
     const controller = new AbortController();
     setResult({ id, loading: true, item: null, error: false });
+    setKeywords({ id, values: [] });
     async function load() {
       try {
         // Reuse the public cached catalog rather than querying or changing backend classes.
@@ -65,12 +66,29 @@ export default function CollectionDetails({
           setResult({ id, loading: false, item: null, error: true });
       }
     }
+    async function loadKeywords() {
+      try {
+        // Keep editable terms in the portal so updates do not require a React rebuild.
+        const response = await fetch(
+          `${clientRoot}/neon-react/biorepo_lib/keywords.json`,
+          { signal: controller.signal, cache: "no-store" },
+        );
+        if (!response.ok) throw new Error("Unable to load keywords");
+        const data = await response.json();
+        if (!controller.signal.aborted)
+          setKeywords({ id, values: terms(data?.[String(id)]) });
+      } catch {
+        // Optional keywords must not prevent the rest of the profile from loading.
+        if (!controller.signal.aborted) setKeywords({ id, values: [] });
+      }
+    }
     load();
+    loadKeywords();
     return () => controller.abort();
   }, [id, clientRoot, attempt]);
   const item = result.id === id ? result.item : null;
   const loading = result.id !== id || result.loading;
-  const keywordTerms = terms(keywords);
+  const keywordTerms = keywords.id === id ? keywords.values : [];
   const identifier = code || item?.collectionCode;
   const rows = item
     ? [

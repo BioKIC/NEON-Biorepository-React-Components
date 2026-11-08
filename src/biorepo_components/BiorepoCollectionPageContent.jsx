@@ -6,8 +6,6 @@ import DataProductAvailability from "../lib_components/components/DataProductAva
 import { citationFile, safeUrl, statistics } from "./collectionProfile/profile";
 import styles from "./collectionProfile/Profile.module.css";
 import CollectionDetails from "./collectionProfile/CollectionDetails";
-// Curated keyword arrays, keyed by collection ID. Empty until terms are supplied.
-import keywordsByCollection from "./collectionProfile/keywords.json";
 
 function Link({ href, children, button = false, external = false }) {
   const url = safeUrl(href);
@@ -432,7 +430,6 @@ export function CollectionProfile({
               code={profile.code}
               clientRoot={clientRoot}
               siteCodes={profile.siteCodes}
-              keywords={keywordsByCollection[String(profile.id)] || []}
             />
           </div>
         </section>
