@@ -425,7 +425,7 @@ test("About includes all collection statistics in their groups and supports old 
     name: "Collection Statistics",
   });
   const groups = [
-    ["Records", ["1,967", "1,967 (100%)", "1,843 (93.7%)", "6,418", "65"]],
+    ["Records", ["1,967", "1,967 (100%)", "1,843 (93.7%)", "6,418", "65 (3.3%)"]],
     ["Taxonomy", ["10", "36", "99", "98", "1,920"]],
     ["Research", ["7", "123", "3", "100"]],
   ];

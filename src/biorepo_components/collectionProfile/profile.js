@@ -28,7 +28,7 @@ export function statistics(stats = {}, extra = {}) {
     if (parts.length > 1 && Number(parts[0]) > 0) rows.push(["Images", count(parts[0])]);
   }
   if (Number(extra.sequencedRecordCount) > 0) {
-    rows.push(["Sequenced records", count(extra.sequencedRecordCount)]);
+    rows.push(["Sequenced records", count(extra.sequencedRecordCount) + percent(extra.sequencedRecordCount)]);
   }
   [
     ["Families", "familycnt"],
