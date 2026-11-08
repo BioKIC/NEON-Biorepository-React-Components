@@ -11,6 +11,7 @@ import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import ScienceIcon from "@mui/icons-material/Science";
 import DocumentListItem from "../lib_components/components/Documents/DocumentListItem";
 import DataProductAvailability from "../lib_components/components/DataProductAvailability/DataProductAvailability";
 import { citationFile, safeUrl } from "./collectionProfile/profile";
@@ -408,7 +409,7 @@ export function CollectionProfile({
     ["about", "About"],
     ["citation", "Citation"],
     ...(Object.keys(profile.related || {}).length
-      ? [["related", "Related Sample Types"]]
+      ? [["related", "Linked Sample Types"]]
       : []),
     ["documentation", "Data Products and Protocols"],
     ["availability", "Sample Availability"],
@@ -562,11 +563,26 @@ export function CollectionProfile({
           <Citation profile={profile} clientRoot={clientRoot} />
         </section>
         {!!Object.keys(profile.related || {}).length && (
-          <section id="related">
-            <h2>Related Sample Types</h2>
-            {Object.entries(profile.related).map(([id, title]) => (
-              <Resource key={id} title={title} url={profileUrl(id)} />
-            ))}
+          <section id="related" aria-labelledby="related-heading">
+            <h2 id="related-heading">Linked Sample Types</h2>
+            <ul className={styles.relatedList}>
+              {Object.entries(profile.related).map(([id, title]) => (
+                <li key={id} className={styles.relatedItem}>
+                  <ScienceIcon className={styles.relatedIcon} aria-hidden="true" />
+                  <h3>{title}</h3>
+                  <Button
+                    className={styles.relatedAction}
+                    variant="outlined"
+                    href={profileUrl(id)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Explore
+                    <span className={styles.srOnly}> {title} (opens in a new tab)</span>
+                  </Button>
+                </li>
+              ))}
+            </ul>
           </section>
         )}
         <section id="documentation">
