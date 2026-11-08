@@ -343,7 +343,7 @@
 .profile .relatedList {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 10px;
+  gap: 0;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -356,14 +356,15 @@
   min-height: 72px;
   margin: 0;
   padding: 16px 20px;
-  border: 1px solid #d7d9d9;
-  border-radius: 4px;
   background: #fff;
   list-style: none;
 }
-.relatedItem:hover,
-.relatedItem:focus-within {
+.profile .relatedItem:nth-child(even) {
   background: #f5f6f7;
+}
+.profile .relatedItem:hover,
+.profile .relatedItem:focus-within {
+  background: #edf4fa;
 }
 .relatedItem .relatedIcon {
   color: #7c7f80;
