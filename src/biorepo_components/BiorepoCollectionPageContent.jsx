@@ -152,14 +152,13 @@ function Citation({ profile, clientRoot }) {
   return (
     <>
       <p className={styles.citationInstructions}>
-        Please use the citation below when referencing this sample type. This
-        citation is required for both data-only and physical sample use.
+        Please use this citation in your publications.
         Publications involving physical samples must also include the additional
         specimen citation requirements. See{" "}
         <Link href={`${clientRoot}/misc/cite.php`}>
           Acknowledging and Citing the Biorepository
         </Link>
-        {" "}for full guidance.
+        {" "}for more info.
       </p>
       <div className={styles.citation}>
         <p className={styles.citationText}>{profile.citationText}</p>

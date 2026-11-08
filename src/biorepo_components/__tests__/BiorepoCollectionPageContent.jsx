@@ -242,7 +242,7 @@ test("clipboard reports failure and copies canonical citation on success", async
   await screen.findByText("Citation copied.");
   expect(writeText).toHaveBeenLastCalledWith(profile.citationText);
 });
-test("citation restores the original guidance and keeps the canonical citation text", async () => {
+test("citation displays the guidance and keeps the canonical citation text", async () => {
   render(<CollectionProfile profile={profile} clientRoot="/portal" />);
   await waitFor(() =>
     expect(screen.queryByText("Loading protocols…")).toBeNull(),
@@ -252,7 +252,7 @@ test("citation restores the original guidance and keeps the canonical citation t
   });
   expect(guidance.getAttribute("href")).toBe("/portal/misc/cite.php");
   expect(guidance.parentElement.textContent).toBe(
-    "Please use the citation below when referencing this sample type. This citation is required for both data-only and physical sample use. Publications involving physical samples must also include the additional specimen citation requirements. See Acknowledging and Citing the Biorepository for full guidance.",
+    "Please use this citation in your publications. Publications involving physical samples must also include the additional specimen citation requirements. See Acknowledging and Citing the Biorepository for more info.",
   );
   expect(screen.getByText(profile.citationText)).toBeTruthy();
   for (const name of ["Copy citation", "Download (BibTeX)", "Download (RIS)"]) {
