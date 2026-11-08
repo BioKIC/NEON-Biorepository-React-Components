@@ -10,6 +10,7 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import CatalogDateFilter from './sampleCatalog/CatalogDateFilter';
 import CatalogDescription from './sampleCatalog/CatalogDescription';
+import SampleTypeChip from './SampleTypeChip';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import { createTheme, ThemeProvider, useTheme } from '@mui/material/styles';
@@ -837,11 +838,10 @@ function Catalog() {
                     </Typography>
                     <Stack direction="row" sx={{ mt: 1, gap: 1, flexWrap: 'wrap' }}>
                       {item.collectionCode && (
-                        <Chip
+                        <SampleTypeChip
                           className="catalog-code"
                           label={item.collectionCode}
-                          size="small"
-                          sx={{ bgcolor: '#e4e7e7', color: '#737d81', border: '1px solid #92999b' }}
+                          variant="outlined"
                         />
                       )}
                       {item.outsideRepository && (

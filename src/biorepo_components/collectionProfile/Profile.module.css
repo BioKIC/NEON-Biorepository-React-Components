@@ -1,11 +1,8 @@
 .profile {
   --profile-blue: #0073a9;
+  --profile-font-family: "Inter", Helvetica, Arial, sans-serif;
   color: #292d30;
-  font:
-    14px/1.5 "Inter",
-    Helvetica,
-    Arial,
-    sans-serif;
+  font: 14px/1.5 var(--profile-font-family);
   display: flex;
   align-items: flex-start;
   gap: 44px;
@@ -375,27 +372,9 @@
 .profile .details .keywords li.keyword {
   list-style: none;
   margin: 0;
-  padding: 3px 10px;
-  border-radius: 20px;
-  background: #d7d9d9;
-  color: #1a1a1a;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 1.5;
-  overflow-wrap: anywhere;
-}
-.profile .details .identifierChip {
-  display: inline-block;
+  padding: 0;
+  min-width: 0;
   max-width: 100%;
-  padding: 5px 12px;
-  border: 1px solid #565a5c;
-  border-radius: 24px;
-  background: #e4e6e7;
-  color: #565a5c;
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 1.5;
-  overflow-wrap: anywhere;
 }
 
 /* Extend through the content gutter and any outer right margin. Matching
@@ -503,10 +482,11 @@
   font-style: italic;
   color: #565a5c;
 }
-.statRow dd {
+.profile.profile .statRow dd {
   flex-shrink: 0;
   margin: 0;
   color: #292d30;
+  font-family: var(--profile-font-family);
   font-size: 16px;
   font-weight: 600;
   text-align: right;

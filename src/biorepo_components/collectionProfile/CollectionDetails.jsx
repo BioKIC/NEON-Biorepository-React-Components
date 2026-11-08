@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import SampleTypeChip from "../SampleTypeChip";
 import styles from "./Profile.module.css";
 
 export function availableDates(siteCodes = []) {
@@ -116,7 +117,7 @@ export default function CollectionDetails({
           {identifier && (
             <div className={styles.detail}>
               <h3 className={styles.keywordHeading}>Sample Type ID</h3>
-              <span className={styles.identifierChip}>{identifier}</span>
+              <SampleTypeChip label={identifier} variant="outlined" />
             </div>
           )}
           {images.length > 0 && (
@@ -159,7 +160,7 @@ export default function CollectionDetails({
               <ul className={styles.keywords}>
                 {keywordTerms.map((keyword) => (
                   <li key={keyword} className={styles.keyword}>
-                    {keyword}
+                    <SampleTypeChip label={keyword} />
                   </li>
                 ))}
               </ul>
