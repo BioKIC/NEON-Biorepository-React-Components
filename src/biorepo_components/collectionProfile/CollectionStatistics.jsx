@@ -62,12 +62,12 @@ export default function CollectionStatistics({ stats, extraStats }) {
                       ) : label === "Research projects" ? (
                         <>
                           Research projects
-                          <small>Ongoing and completed studies supported by the Biorepository</small>
+                          <small>Ongoing and completed studies</small>
                         </>
                       ) : label === "Publications" ? (
                         <>
                           Publications
-                          <small>Published works linked to specimens in this sample type</small>
+                          <small>Published works</small>
                         </>
                       ) : (
                         label

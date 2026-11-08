@@ -451,8 +451,8 @@ test("About includes all collection statistics in their groups and supports old 
   expect(within(stats).queryByText("GenBank references")).toBeNull();
   expect(within(stats).queryByText("BOLD references")).toBeNull();
   expect(within(stats).queryByText("Other genetic references")).toBeNull();
-  expect(within(stats).getByText("Ongoing and completed studies supported by the Biorepository")).toBeTruthy();
-  expect(within(stats).getByText("Published works linked to specimens in this sample type")).toBeTruthy();
+  expect(within(stats).getByText("Ongoing and completed studies")).toBeTruthy();
+  expect(within(stats).getByText("Published works")).toBeTruthy();
   expect(within(stats).queryByText("Publication references")).toBeNull();
   expect(within(stats).queryByText("141")).toBeNull();
   window.history.replaceState(null, "", "/");
