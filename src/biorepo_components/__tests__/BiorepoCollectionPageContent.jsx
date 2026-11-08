@@ -198,3 +198,44 @@ test("distribution drilldown keeps the selected collection and encodes geographi
     screen.getByRole("link", { name: "5 records" }).getAttribute("href"),
   ).toContain("db=7");
 });
+
+test("sidebar selects clicked sections and keeps one link per list item", async () => {
+  window.history.replaceState(null, "", "/");
+  render(<CollectionProfile profile={profile} />);
+  await waitFor(() =>
+    expect(screen.queryByText("Loading protocols…")).toBeNull(),
+  );
+  const nav = screen.getByRole("navigation", { name: "Sample type sections" });
+  const about = nav.querySelector('a[href="#about"]');
+  const citationLink = nav.querySelector('a[href="#citation"]');
+  expect(about.getAttribute("aria-current")).toBe("location");
+  expect(nav.querySelectorAll("li")).toHaveLength(
+    nav.querySelectorAll("a").length,
+  );
+  // Exercise React selection without jsdom scheduling a later document navigation.
+  citationLink.addEventListener("click", (event) => event.preventDefault(), {
+    once: true,
+  });
+  fireEvent.click(citationLink);
+  expect(citationLink.getAttribute("aria-current")).toBe("location");
+  expect(about.hasAttribute("aria-current")).toBe(false);
+  expect(nav.querySelectorAll('[aria-current="location"]')).toHaveLength(1);
+});
+
+test("sidebar follows direct section links and back/forward hash changes", async () => {
+  window.history.replaceState(null, "", "/#resources");
+  render(<CollectionProfile profile={profile} />);
+  await waitFor(() =>
+    expect(screen.queryByText("Loading protocols…")).toBeNull(),
+  );
+  const nav = screen.getByRole("navigation", { name: "Sample type sections" });
+  expect(
+    nav.querySelector('[aria-current="location"]').getAttribute("href"),
+  ).toBe("#resources");
+  window.history.replaceState(null, "", "/#documentation");
+  fireEvent(window, new HashChangeEvent("hashchange"));
+  expect(
+    nav.querySelector('[aria-current="location"]').getAttribute("href"),
+  ).toBe("#documentation");
+  window.history.replaceState(null, "", "/");
+});

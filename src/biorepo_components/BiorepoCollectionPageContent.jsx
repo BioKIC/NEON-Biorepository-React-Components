@@ -332,20 +332,42 @@ export function CollectionProfile({
     ["resources", "Additional resources"],
     ["contact", "Contact"],
   ];
+  const [activeSection, setActiveSection] = useState(() =>
+    sections.some(([id]) => `#${id}` === window.location.hash)
+      ? window.location.hash.slice(1)
+      : "about",
+  );
+  // Keep the selected link in sync with direct anchors and browser back/forward.
+  const sectionIds = sections.map(([id]) => id).join(",");
   useEffect(() => {
+    const syncSection = () => {
+      const hash = window.location.hash.slice(1);
+      setActiveSection(sectionIds.split(",").includes(hash) ? hash : "about");
+    };
+    window.addEventListener("hashchange", syncSection);
     const target = document.getElementById(window.location.hash.slice(1));
     target?.scrollIntoView?.();
-  }, []);
+    return () => window.removeEventListener("hashchange", syncSection);
+  }, [sectionIds]);
   const navigation = (
     <aside className={styles.sidebar}>
-      <strong>{profile.title}</strong>
+      <strong className={styles.sidebarTitle}>{profile.title}</strong>
       {profile.code && <p className={styles.code}>{profile.code}</p>}
-      <nav aria-label="Sample type sections">
-        {sections.map(([id, label]) => (
-          <a key={id} href={`#${id}`}>
-            {label}
-          </a>
-        ))}
+      <nav className={styles.sidebarNav} aria-label="Sample type sections">
+        <ul className={styles.sidebarItems}>
+          {sections.map(([id, label]) => (
+            <li key={id}>
+              <a
+                className={styles.sidebarLink}
+                href={`#${id}`}
+                aria-current={activeSection === id ? "location" : undefined}
+                onClick={() => setActiveSection(id)}
+              >
+                {label}
+              </a>
+            </li>
+          ))}
+        </ul>
       </nav>
     </aside>
   );

@@ -28,30 +28,74 @@
 }
 .sidebar {
   flex: 0 0 240px;
-  background: #f5f6f8;
-  padding: 28px 24px;
+  min-width: 0;
+  padding: 0;
   position: sticky;
-  top: 24px;
+  top: 40px;
+  color: #1a1a1a;
+  font-family: "Inter", Helvetica, Arial, sans-serif;
+  line-height: 1.43;
 }
-.sidebar strong {
-  font-size: 18px;
-  line-height: 1.4;
+.sidebar .sidebarTitle {
   display: block;
-}
-.code {
-  color: #626a70;
+  margin: 0;
+  color: #1a1a1a;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.4;
   overflow-wrap: anywhere;
 }
-.sidebar nav {
-  border-top: 1px solid #d6dade;
-  margin-top: 24px;
-  padding-top: 20px;
-  display: grid;
-  gap: 10px;
-}
-.sidebar nav a {
-  text-decoration: none;
+.sidebar .code {
+  margin: 8px 0 0;
+  color: #a0a2a2;
   font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.sidebar .sidebarNav {
+  display: block;
+  border-top: 1px solid #d5d7d8;
+  border-bottom: 1px solid #d5d7d8;
+  margin-top: 24px;
+  padding: 24px 0;
+}
+.sidebar .sidebarItems {
+  display: block;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.sidebar .sidebarItems > li {
+  display: block;
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+}
+.sidebar .sidebarItems > li:last-child {
+  margin-bottom: 0;
+}
+.sidebar .sidebarLink {
+  display: block;
+  color: #0073cf;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  overflow-wrap: anywhere;
+}
+.sidebar .sidebarLink:hover {
+  color: #005a9f;
+}
+.sidebar .sidebarLink[aria-current="location"] {
+  color: #565b5c;
+  font-weight: 700;
+  text-decoration: none;
+}
+.sidebar .sidebarLink:focus-visible {
+  outline: 3px solid #0073cf;
+  outline-offset: 4px;
 }
 .main {
   flex: 1;
@@ -215,7 +259,6 @@
   }
   .sidebar {
     flex-basis: 200px;
-    padding: 20px;
   }
   .stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -228,13 +271,6 @@
   .sidebar {
     position: static;
     margin-bottom: 28px;
-  }
-  .sidebar nav {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px 20px;
-    margin-top: 16px;
-    padding-top: 16px;
   }
   .resource {
     align-items: flex-start;
@@ -251,21 +287,4 @@
 
 .directory {
   display: block;
-}
-.sidebar {
-  color: #292d30;
-  font:
-    16px/1.6 Arial,
-    Helvetica,
-    sans-serif;
-}
-.sidebar nav a {
-  color: #0073a9;
-}
-.sidebar nav a:hover {
-  text-decoration: underline;
-}
-.sidebar nav a:focus-visible {
-  outline: 3px solid #0073a9;
-  outline-offset: 4px;
 }

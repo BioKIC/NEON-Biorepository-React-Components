@@ -119,14 +119,14 @@ export default function BiorepoPage() {
       breadcrumbHomeHref="https://www.neonscience.org/"
       sidebarLinks={hasCustomSidebar ? [] : sidebarLinks}
       sidebarContent={isSampleCatalog ? <div id="biorepo-catalog-filters" /> : isCollectionProfile ? <div id="biorepo-profile-navigation" /> : null}
-      sidebarContentResponsive={hasCustomSidebar}
+      sidebarContentResponsive={isSampleCatalog}
       sidebarDisableMaxHeight={hasCustomSidebar}
       sidebarUnsticky={isSampleCatalog}
       sidebarWidth={isSampleCatalog ? 340 : 300}
       sidebarTitle={isSampleCatalog ? 'Filter' : isCollectionProfile ? '' : sidebarTitle}
-      sidebarContainerClassName={isSampleCatalog ? 'catalog-sidebar' : undefined}
+      sidebarContainerClassName={isSampleCatalog ? 'catalog-sidebar' : isCollectionProfile ? 'profile-sidebar' : undefined}
     >
-      {isSampleCatalog && (
+      {hasCustomSidebar && (
         <GlobalStyles styles={{
           '#header': { position: 'relative !important', top: 'auto !important' },
           '.catalog-sidebar > div > .MuiDivider-root': { display: 'none' },
