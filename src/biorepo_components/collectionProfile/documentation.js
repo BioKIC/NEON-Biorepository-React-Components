@@ -6,6 +6,11 @@ export const DOCUMENTATION_EXCLUSIONS = [
   /\balgorithm\s+theoretical\s+basis\s+documents?\b|\batbd\b/i,
 ];
 
+// Superseded documents whose renamed identifiers do not share a revision family.
+const EXCLUDED_DOCUMENT_NUMBERS = new Set([
+  "essig_carabidtaxonid_sop2021_rev3",
+]);
+
 export function dataProductCode(url) {
   return typeof url === "string"
     ? url.match(/\bDP\d\.\d{5}\.\d{3}\b/i)?.[0].toUpperCase()
@@ -40,6 +45,8 @@ function compareRevisions(first, second) {
 export function selectDocumentation(specs) {
   const documents = specs.filter((spec) => {
     if (typeof spec?.specNumber !== "string" || !spec.specNumber.trim())
+      return false;
+    if (EXCLUDED_DOCUMENT_NUMBERS.has(spec.specNumber.trim().toLowerCase()))
       return false;
     const title = `${spec.specDescription || ""} ${spec.specNumber}`
       .replace(/[_-]/g, " ");

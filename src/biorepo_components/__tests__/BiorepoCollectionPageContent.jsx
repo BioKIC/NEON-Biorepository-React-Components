@@ -10,6 +10,7 @@ import {
 import { CollectionProfile } from "../BiorepoCollectionPageContent";
 import DocumentListItem from "../../lib_components/components/Documents/DocumentListItem";
 import { selectDocumentation } from "../collectionProfile/documentation";
+import { archiveFilename, partitionResources } from "../collectionProfile/resources";
 import {
   citationFile,
   statistics,
@@ -52,7 +53,7 @@ const profile = {
   citationText: "NEON. Ticks.",
   related: { 9: "Tick extracts" },
   resources: [],
-  additionalResources: [{ title: "Metadata", url: "/metadata?collid=7" }],
+  additionalResources: [{ kind: "eml", title: "Collection metadata", url: "../datasets/emlhandler.php?collid=7", action: "View" }],
   contacts: [],
   siteCodes: [{ siteCode: "ABBY", availableMonths: ["2024-01"] }],
 };
@@ -525,7 +526,8 @@ test("separates related data products from all eligible documentation", async ()
   expect(within(documentation).queryByText("NEON.DOC.014050vL")).toBeNull();
   expect(within(products).queryByText(protocol.specNumber)).toBeNull();
   expect(within(products).queryByText("Field resources")).toBeNull();
-  expect(document.getElementById("resources").textContent).toContain("Field resources");
+  expect(screen.getByRole("region", { name: "Externally Hosted Data" }).textContent)
+    .toContain("Field resources");
   const nav = screen.getByRole("navigation", { name: "Sample type sections" });
   expect(within(nav).getByRole("link", { name: "Related Data Products" }).getAttribute("href"))
     .toBe(`#${products.id}`);
@@ -603,6 +605,18 @@ test("documentation compares letter and numeric revisions without merging unvers
       "OTHER_SOP_v1.10",
     ]);
 });
+test("omits the superseded Essig beetle SOP even though its replacement was renamed", () => {
+  const older = {
+    specNumber: "ESSIG_carabidtaxonID_SOP2021_Rev3",
+    specDescription: "Essig Museum of Entomology University of California, Berkeley. Standard Operating Procedures and Protocols for Ground Beetle Morphological Identification and Museum Services. Rev 3.",
+  };
+  const newer = {
+    specNumber: "ESSIG_carabidTaxonID_SOP_2025_Rev6",
+    specDescription: "Essig Museum of Entomology University of California, Berkeley. Standard Operating Procedures and Protocols for Ground Beetle Morphological Identification and Museum Services. Rev 6",
+  };
+  expect(selectDocumentation([older, newer])).toEqual([newer]);
+  expect(selectDocumentation([older])).toEqual([]);
+});
 test("documentation handles empty and invalid responses without claiming success on failures", async () => {
   const { rerender } = render(<CollectionProfile profile={profile} />);
   await screen.findByText("No documentation is currently available for this sample type.");
@@ -615,6 +629,71 @@ test("documentation handles empty and invalid responses without claiming success
   }} />);
   await screen.findByText(/Some documentation could not be loaded/);
   expect(screen.queryByText("No documentation is currently available for this sample type.")).toBeNull();
+});
+test("data downloads contain only DwC-A and EML while external datasets use the host panel", async () => {
+  const archiveUrl = "https://biorepo.neonscience.org/portal/content/dwca/NEON-TICKS_DwC-A.zip?download=1";
+  const emlUrl = "../datasets/emlhandler.php?collid=7";
+  const external = [
+    { title: "GBIF dataset", url: "https://www.gbif.org/dataset/dataset-seven" },
+    { title: "EDI dataset", url: "https://doi.org/10.6073/pasta/example" },
+    { title: "iDigBio dataset", url: "https://www.idigbio.org/portal/recordsets/recordset-seven" },
+  ];
+  render(<CollectionProfile profile={{
+    ...profile,
+    additionalResources: [
+      ...external,
+      { kind: "eml", title: "Collection metadata", url: emlUrl },
+      { kind: "dwca", title: "Darwin Core Archive", url: archiveUrl },
+    ],
+  }} />);
+  await waitFor(() => expect(screen.queryByText("Loading documentation…")).toBeNull());
+  const downloads = screen.getByRole("region", { name: "Data Downloads and Metadata" });
+  const rows = within(downloads).getAllByRole("listitem");
+  expect(rows.map((row) => within(row).getByRole("heading").textContent))
+    .toEqual(["DwC-Archive", "Metadata"]);
+  expect(within(downloads).getByText("Darwin Core Archive (DwC-A)")).toBeTruthy();
+  expect(within(downloads).getByText("NEON-TICKS_DwC-A.zip")).toBeTruthy();
+  expect(within(downloads).getByText("Ecological Metadata Language (EML) File")).toBeTruthy();
+  expect(within(downloads).getByRole("link", { name: /Download DwC-Archive/ }).getAttribute("href"))
+    .toBe(archiveUrl);
+  expect(within(downloads).getByRole("link", { name: /View Metadata/ }).getAttribute("href"))
+    .toBe(emlUrl);
+  for (const action of within(downloads).getAllByRole("link")) {
+    expect(action.classList.contains("MuiButton-outlined")).toBe(true);
+    expect(action.getAttribute("target")).toBe("_blank");
+    expect(action.getAttribute("rel")).toBe("noopener noreferrer");
+  }
+  const hosts = screen.getByRole("region", { name: "Externally Hosted Data" });
+  expect(within(hosts).getByText("External Hosts")).toBeTruthy();
+  for (const resource of external) {
+    expect(within(hosts).getByRole("link", { name: resource.title }).getAttribute("href"))
+      .toBe(resource.url);
+    expect(within(downloads).queryByText(resource.title)).toBeNull();
+  }
+  const nav = screen.getByRole("navigation", { name: "Sample type sections" });
+  expect(within(nav).getByRole("link", { name: "Data Downloads and Metadata" }).getAttribute("href"))
+    .toBe(`#${downloads.id}`);
+  expect(within(nav).getByRole("link", { name: "Externally Hosted Data" }).getAttribute("href"))
+    .toBe(`#${hosts.id}`);
+  expect(screen.queryByText("Additional Resources")).toBeNull();
+});
+test("missing archives and external datasets do not create empty rows or external sections", async () => {
+  render(<CollectionProfile profile={profile} />);
+  await waitFor(() => expect(screen.queryByText("Loading documentation…")).toBeNull());
+  const downloads = screen.getByRole("region", { name: "Data Downloads and Metadata" });
+  expect(within(downloads).getAllByRole("listitem")).toHaveLength(1);
+  expect(within(downloads).queryByText("DwC-Archive")).toBeNull();
+  expect(screen.queryByRole("region", { name: "Externally Hosted Data" })).toBeNull();
+  expect(screen.queryByRole("link", { name: "Externally Hosted Data" })).toBeNull();
+});
+test("resource grouping supports existing PHP profiles and preserves safe destinations", () => {
+  const archive = { title: "Darwin Core Archive", url: "https://example.org/Sample%20Archive.zip?download=1#file" };
+  const metadata = { title: "Collection metadata", url: "../datasets/emlhandler.php?collid=39" };
+  const host = { title: "GBIF dataset", url: "https://www.gbif.org/dataset/example" };
+  const result = partitionResources([host, metadata, archive, host, { kind: "dwca", url: "javascript:alert(1)" }]);
+  expect(result.downloads).toEqual([{ ...archive, kind: "dwca" }, { ...metadata, kind: "eml" }]);
+  expect(result.external).toEqual([host]);
+  expect(archiveFilename(archive.url)).toBe("Sample Archive.zip");
 });
 test("empty availability and zero counts do not invent sites or percentages", async () => {
   render(
@@ -739,7 +818,7 @@ test("sidebar selects clicked sections and keeps one link per list item", async 
 });
 
 test("sidebar follows direct section links and back/forward hash changes", async () => {
-  window.history.replaceState(null, "", "/#resources");
+  window.history.replaceState(null, "", "/#data-downloads-and-metadata");
   render(<CollectionProfile profile={profile} />);
   await waitFor(() =>
     expect(screen.queryByText("Loading documentation…")).toBeNull(),
@@ -747,7 +826,7 @@ test("sidebar follows direct section links and back/forward hash changes", async
   const nav = screen.getByRole("navigation", { name: "Sample type sections" });
   expect(
     nav.querySelector('[aria-current="location"]').getAttribute("href"),
-  ).toBe("#resources");
+  ).toBe("#data-downloads-and-metadata");
   window.history.replaceState(null, "", "/#documentation");
   fireEvent(window, new HashChangeEvent("hashchange"));
   expect(

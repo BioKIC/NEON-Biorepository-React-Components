@@ -10,14 +10,17 @@ import SearchIcon from "@mui/icons-material/Search";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import LinkIcon from "@mui/icons-material/Link";
+import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFlask } from "@fortawesome/free-solid-svg-icons";
 import DocumentListItem from "../lib_components/components/Documents/DocumentListItem";
+import InfoMessageCard from "../lib_components/components/Card/InfoMessageCard";
 import DataProductAvailability from "../lib_components/components/DataProductAvailability/DataProductAvailability";
 import { citationFile, safeUrl } from "./collectionProfile/profile";
 import { dataProductCode, selectDocumentation } from "./collectionProfile/documentation";
+import { archiveFilename, partitionResources } from "./collectionProfile/resources";
 import styles from "./collectionProfile/Profile.module.css";
 import CollectionDetails from "./collectionProfile/CollectionDetails";
 import CollectionStatistics from "./collectionProfile/CollectionStatistics";
@@ -36,18 +39,45 @@ function Link({ href, children, button = false, external = false }) {
   );
 }
 
-function Resource({ title, description, url, action = "Explore" }) {
+function DataDownloads({ resources }) {
   return (
-    <div className={styles.resource}>
-      <div>
-        <h3>{title}</h3>
-        {description && <p>{description}</p>}
-      </div>
-      <Link href={url} button external>
-        {action}
-        <span className={styles.srOnly}> {title} (opens in a new tab)</span>
-      </Link>
-    </div>
+    <ul className={styles.relatedList}>
+      {resources.map((resource) => {
+        const isArchive = resource.kind === "dwca";
+        const title = isArchive ? "DwC-Archive" : "Metadata";
+        const Icon = isArchive ? DescriptionOutlinedIcon : LinkIcon;
+        const filename = isArchive ? archiveFilename(resource.url) : "";
+        return (
+          <li key={resource.kind} className={styles.relatedItem}>
+            <Icon className={styles.relatedIcon} aria-hidden="true" />
+            <div className={styles.relatedLabel}>
+              <h3>{title}</h3>
+              <p className={styles.relatedCode}>
+                {isArchive ? "Darwin Core Archive (DwC-A)" : "Ecological Metadata Language (EML) File"}
+                {filename && (
+                  <>
+                    <span className={styles.resourceSeparator} aria-hidden="true">|</span>
+                    <span>{filename}</span>
+                  </>
+                )}
+              </p>
+            </div>
+            <Button
+              className={styles.relatedAction}
+              variant="outlined"
+              startIcon={isArchive ? <DownloadIcon /> : undefined}
+              endIcon={isArchive ? undefined : <ChevronRightIcon />}
+              href={resource.url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {isArchive ? "Download" : "View"}
+              <span className={styles.srOnly}> {title} (opens in a new tab)</span>
+            </Button>
+          </li>
+        );
+      })}
+    </ul>
   );
 }
 
@@ -433,12 +463,12 @@ export function CollectionProfile({
   ).values()].sort((first, second) =>
     resourceTitle(first).localeCompare(resourceTitle(second), "en", { sensitivity: "base" }),
   );
-  const additionalResources = [
+  const { downloads, external: externalResources } = partitionResources([
     ...resources
       .filter((resource) => !dataProductCode(resource.url))
       .map((resource) => ({ ...resource, title: resourceTitle(resource) })),
     ...(profile.additionalResources || []),
-  ];
+  ]);
   const sections = [
     ["about", "About"],
     ["citation", "Citation"],
@@ -448,7 +478,10 @@ export function CollectionProfile({
     ["related-data-products", "Related Data Products"],
     ["documentation", "Documentation"],
     ["availability", "Availability"],
-    ["resources", "Additional Resources"],
+    ["data-downloads-and-metadata", "Data Downloads and Metadata"],
+    ...(externalResources.length
+      ? [["externally-hosted-data", "Externally Hosted Data"]]
+      : []),
   ];
   const [activeSection, setActiveSection] = useState(() => {
     const hash = window.location.hash.slice(1);
@@ -680,12 +713,41 @@ export function CollectionProfile({
             <p>No site availability information is currently available.</p>
           )}
         </section>
-        <section id="resources">
-          <h2>Additional Resources</h2>
-          {additionalResources.map((resource) => (
-            <Resource key={resource.url} {...resource} />
-          ))}
+        <section id="data-downloads-and-metadata" aria-labelledby="data-downloads-heading">
+          <h2 id="data-downloads-heading">Data Downloads and Metadata</h2>
+          {downloads.length ? (
+            <DataDownloads resources={downloads} />
+          ) : (
+            <p>No full data download or metadata file is currently available.</p>
+          )}
         </section>
+        {!!externalResources.length && (
+          <section
+            id="externally-hosted-data"
+            aria-labelledby="external-data-heading"
+            className={styles.externalData}
+          >
+            <h2 id="external-data-heading">Externally Hosted Data</h2>
+            <InfoMessageCard
+              title={externalResources.length === 1 ? "External Host" : "External Hosts"}
+              messageContent={(
+                <>
+                  <hr className={styles.externalDivider} />
+                  <p className={styles.externalLead}>
+                    Explore data and related resources for this sample type on these external websites:
+                  </p>
+                  <ul className={styles.externalLinks}>
+                    {externalResources.map((resource) => (
+                      <li key={resource.url}>
+                        <Link href={resource.url} external>{resource.title}</Link>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
+            />
+          </section>
+        )}
         <Distribution
           distribution={profile.distribution}
           profileUrl={profileUrl(profile.id)}

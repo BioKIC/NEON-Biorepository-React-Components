@@ -416,6 +416,33 @@
   text-decoration: none;
   white-space: nowrap;
 }
+.resourceSeparator {
+  margin: 0 12px;
+  color: #b5b9bb;
+}
+.externalDivider {
+  border: 0;
+  border-top: 1px solid #d9dfe3;
+  margin: 0 0 20px;
+}
+.profile.profile .externalData .externalLead {
+  color: #1a1a1a;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 20px;
+}
+.profile .externalLinks {
+  padding-left: 24px;
+  margin: 0;
+  color: #1a1a1a;
+}
+.profile .externalLinks li {
+  margin: 4px 0;
+}
+.profile .externalLinks a {
+  color: #0073cf;
+  overflow-wrap: anywhere;
+}
 .profile .documentationItem {
   margin: 0;
   padding: 16px 20px;
@@ -718,7 +745,7 @@
 }
 .profile.profile .statGroup h4 {
   color: #1a1a1a;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 400;
   line-height: 1.4;
   margin: 0 0 10px;
