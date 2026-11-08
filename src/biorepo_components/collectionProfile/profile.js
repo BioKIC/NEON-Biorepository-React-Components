@@ -41,9 +41,9 @@ export function statistics(stats = {}, extra = {}) {
     ["Total taxa (including subspecies and varieties)", "TotalTaxaCount"],
     ["Identified to species", "SpecimensCountID"],
     ["Research projects", "researchProjectCount"],
-    ["Specimens used", "researchSpecimenCount"],
+    ["Research project specimens", "researchSpecimenCount"],
     ["Publications", "publicationCount"],
-    ["Samples in publications", "publicationSpecimenCount"],
+    ["Publication specimens", "publicationSpecimenCount"],
   ].forEach(([label, key]) => {
     if (Number(extra[key])) rows.push([label, count(extra[key])]);
   });

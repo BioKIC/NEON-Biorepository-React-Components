@@ -444,14 +444,15 @@ test("About includes all collection statistics in their groups and supports old 
   expect(nav.querySelector('a[href="#statistics"]')).toBeNull();
   expect(stats.id).toBe("statistics");
   expect(within(stats).getByText("Research projects")).toBeTruthy();
-  expect(within(stats).getByText("Specimens used")).toBeTruthy();
+  expect(within(stats).getByText("Research project specimens")).toBeTruthy();
   expect(within(stats).getByText("Publications")).toBeTruthy();
-  expect(within(stats).getByText("Samples in publications")).toBeTruthy();
+  expect(within(stats).getByText("Publication specimens")).toBeTruthy();
   expect(within(stats).getByText("Sequenced records")).toBeTruthy();
   expect(within(stats).queryByText("GenBank references")).toBeNull();
   expect(within(stats).queryByText("BOLD references")).toBeNull();
   expect(within(stats).queryByText("Other genetic references")).toBeNull();
-  expect(within(stats).getByText("Public projects with linked specimens")).toBeTruthy();
+  expect(within(stats).getByText("Ongoing and completed studies supported by the Biorepository")).toBeTruthy();
+  expect(within(stats).getByText("Published works linked to specimens in this sample type")).toBeTruthy();
   expect(within(stats).queryByText("Publication references")).toBeNull();
   expect(within(stats).queryByText("141")).toBeNull();
   window.history.replaceState(null, "", "/");

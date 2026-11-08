@@ -27,9 +27,9 @@ const groups = [
     "Research",
     [
       "Research projects",
-      "Specimens used",
+      "Research project specimens",
       "Publications",
-      "Samples in publications",
+      "Publication specimens",
     ],
   ],
 ];
@@ -62,12 +62,12 @@ export default function CollectionStatistics({ stats, extraStats }) {
                       ) : label === "Research projects" ? (
                         <>
                           Research projects
-                          <small>Public projects with linked specimens</small>
+                          <small>Ongoing and completed studies supported by the Biorepository</small>
                         </>
-                      ) : label === "Specimens used" ? (
+                      ) : label === "Publications" ? (
                         <>
-                          Specimens used
-                          <small>Distinct specimens linked to public projects</small>
+                          Publications
+                          <small>Published works linked to specimens in this sample type</small>
                         </>
                       ) : (
                         label
