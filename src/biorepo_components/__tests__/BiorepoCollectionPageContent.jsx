@@ -147,7 +147,7 @@ test("profile preserves collection IDs, description images, and site availabilit
   ).toContain("collid=9");
   expect(
     screen
-      .getByRole("link", { name: "Browse identifications" })
+      .getByRole("link", { name: "View related sample type" })
       .getAttribute("href"),
   ).toContain("collid=8");
   const notice = screen.getByRole("note", {
@@ -157,7 +157,7 @@ test("profile preserves collection IDs, description images, and site availabilit
   expect(notice.nextElementSibling).toBe(about);
   expect(within(about).queryByRole("note")).toBeNull();
   expect(
-    within(notice).getByRole("link", { name: "Browse identifications" }),
+    within(notice).getByRole("link", { name: "View related sample type" }),
   ).toBeTruthy();
   expect(screen.getByTestId("availability").textContent).toContain("2024-01");
   expect(document.title).toBe(titleFromPhp);
@@ -195,7 +195,7 @@ test("identification profiles link back to bulk samples in a matching notice abo
   expect(notice.nextElementSibling).toBe(about);
   expect(within(about).queryByRole("note")).toBeNull();
   expect(within(notice).getByText("Looking for the bulk samples?")).toBeTruthy();
-  expect(within(notice).getByRole("link", { name: "Browse bulk samples" }).getAttribute("href"))
+  expect(within(notice).getByRole("link", { name: "View related sample type" }).getAttribute("href"))
     .toBe("/portal/collections/misc/neoncollprofiles.php?collid=7");
   expect(screen.queryByRole("note", { name: "Taxonomic Identifications" })).toBeNull();
 });
@@ -211,8 +211,8 @@ test("bulk-sample notices retain every linked parent and omit themselves without
     "/collections/misc/neoncollprofiles.php?collid=45",
     "/collections/misc/neoncollprofiles.php?collid=60",
   ]);
-  expect(within(notice).getByRole("link", { name: "Browse Bulk Zooplankton" })).toBeTruthy();
-  expect(within(notice).getByRole("link", { name: "Browse Sorted Zooplankton" })).toBeTruthy();
+  expect(within(notice).getByRole("link", { name: "View related sample type: Bulk Zooplankton" })).toBeTruthy();
+  expect(within(notice).getByRole("link", { name: "View related sample type: Sorted Zooplankton" })).toBeTruthy();
   rerender(<CollectionProfile profile={identificationProfile} />);
   expect(screen.queryByRole("note", { name: "Bulk Samples" })).toBeNull();
 });
@@ -991,6 +991,6 @@ test('physical samples with linked identifications do not get identification or 
   }) });
   render(<CollectionProfile profile={profile} clientRoot="/portal" />);
   await screen.findByText('Protocol');
-  expect(screen.getByRole('link', { name: /Browse identifications/i })).toBeTruthy();
+  expect(screen.getByRole('link', { name: /View related sample type/i })).toBeTruthy();
   expect(screen.queryByRole('group', { name: 'Sample type tags' })).toBeNull();
 });

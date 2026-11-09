@@ -645,7 +645,7 @@ export function CollectionProfile({
             title="Taxonomic Identifications"
             lead="Looking for a specific taxon?"
             message="Taxonomic identifications derived from these samples are available through a related sample type."
-            links={[{ href: profileUrl(profile.identificationCollectionId), label: "Browse identifications" }]}
+            links={[{ href: profileUrl(profile.identificationCollectionId), label: "View related sample type" }]}
           />
         )}
         {bulkSampleCollections.length > 0 && (
@@ -656,7 +656,7 @@ export function CollectionProfile({
             message={`Bulk samples associated with these taxonomic identifications are available through ${bulkSampleCollections.length === 1 ? "a related sample type" : "related sample types"}.`}
             links={bulkSampleCollections.map((collection) => ({
               href: profileUrl(collection.id),
-              label: bulkSampleCollections.length === 1 ? "Browse bulk samples" : `Browse ${collection.title}`,
+              label: bulkSampleCollections.length === 1 ? "View related sample type" : `View related sample type: ${collection.title}`,
             }))}
           />
         )}
