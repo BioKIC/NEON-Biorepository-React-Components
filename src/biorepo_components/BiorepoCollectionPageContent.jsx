@@ -2,6 +2,10 @@ import React, { useEffect, useMemo, useState } from "react";
 import parse from "html-react-parser";
 import { createPortal } from "react-dom";
 import Button from "@mui/material/Button";
+import Collapse from "@mui/material/Collapse";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import AddIcon from "@mui/icons-material/Add";
+import RemoveIcon from "@mui/icons-material/Remove";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import CopyIcon from "@mui/icons-material/Assignment";
@@ -148,6 +152,35 @@ function DataDownloads({ resources, profile, clientRoot }) {
   );
 }
 
+function ExpandableRelatedList({ id, children }) {
+  const [expanded, setExpanded] = useState(false);
+  const reduceMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
+  const rows = React.Children.toArray(children);
+  return (
+    <>
+      <ul className={styles.relatedList}>{rows.slice(0, 4)}</ul>
+      {rows.length > 4 && (
+        <>
+          <Collapse id={id} in={expanded} timeout={reduceMotion ? 0 : "auto"} unmountOnExit>
+            <ul className={styles.relatedList}>{rows.slice(4)}</ul>
+          </Collapse>
+          <Button
+            className={styles.viewAllButton}
+            variant="outlined"
+            size="small"
+            startIcon={expanded ? <RemoveIcon /> : <AddIcon />}
+            aria-expanded={expanded}
+            aria-controls={id}
+            onClick={() => setExpanded((value) => !value)}
+          >
+            {expanded ? "View Fewer" : `View All (${rows.length})`}
+          </Button>
+        </>
+      )}
+    </>
+  );
+}
+
 function Documentation({ resources }) {
   const [result, setResult] = useState({
     specs: [],
@@ -206,7 +239,7 @@ function Documentation({ resources }) {
         <p>No documentation is currently available for this sample type.</p>
       )}
       {!!result.specs.length && (
-        <ul className={styles.relatedList}>
+        <ExpandableRelatedList id="documentation-more">
           {result.specs.map((spec) => (
             <li key={spec.specNumber} className={styles.documentationItem}>
               <DocumentListItem
@@ -222,7 +255,7 @@ function Documentation({ resources }) {
               />
             </li>
           ))}
-        </ul>
+        </ExpandableRelatedList>
       )}
     </>
   );
@@ -693,7 +726,7 @@ export function CollectionProfile({
         {!!relatedSamples.length && (
           <section id="related-sample-types" aria-labelledby="related-sample-types-heading">
             <h2 id="related-sample-types-heading">Related Sample Types</h2>
-            <ul className={styles.relatedList}>
+            <ExpandableRelatedList id="related-sample-types-more">
               {relatedSamples.map(([id, title]) => (
                 <li key={id} className={styles.relatedItem}>
                   <FontAwesomeIcon icon={faFlask} className={styles.relatedIcon} aria-hidden="true" />
@@ -716,13 +749,13 @@ export function CollectionProfile({
                   </Button>
                 </li>
               ))}
-            </ul>
+            </ExpandableRelatedList>
           </section>
         )}
         <section id="related-data-products" aria-labelledby="related-data-products-heading">
           <h2 id="related-data-products-heading">Related Data Products</h2>
           {dataProducts.length ? (
-            <ul className={styles.relatedList}>
+            <ExpandableRelatedList id="related-data-products-more">
               {dataProducts.map((resource) => (
                 <li key={dataProductCode(resource.url)} className={styles.relatedItem}>
                   <LinkIcon className={styles.relatedIcon} aria-hidden="true" />
@@ -743,7 +776,7 @@ export function CollectionProfile({
                   </Button>
                 </li>
               ))}
-            </ul>
+            </ExpandableRelatedList>
           ) : (
             <p>No related data products are currently available.</p>
           )}
