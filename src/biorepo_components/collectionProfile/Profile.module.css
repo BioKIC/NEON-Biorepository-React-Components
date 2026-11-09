@@ -194,17 +194,42 @@
   width: auto;
   height: 24px;
 }
-.gbifBadge {
-  position: relative;
+.profile .badges a.gbifBadge {
+  display: inline-flex;
+  align-items: stretch;
   flex-shrink: 0;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #555;
+  color: #fff;
+  font: 400 14px/24px Verdana, Geneva, sans-serif;
+  text-decoration: none;
+  white-space: nowrap;
 }
-.gbifBadge iframe {
+.gbifBadgeIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  background: #3b6f37;
+}
+.gbifBadgeIcon svg {
   display: block;
-  pointer-events: none;
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
 }
-.gbifBadge > a {
-  position: absolute;
-  inset: 0;
+.gbifBadgeLabel,
+.gbifBadgeCount {
+  padding: 0 8px;
+}
+.gbifBadgeCount {
+  min-width: 32px;
+  background: #2da844;
+  text-align: center;
 }
 .actions {
   margin-left: auto;
