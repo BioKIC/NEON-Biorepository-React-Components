@@ -653,7 +653,7 @@ function Catalog() {
         className="catalog-search-field"
         fullWidth
         size="small"
-        placeholder="Search sample types…"
+        placeholder='Soil, "DNA extracts", Quercus'
         slotProps={{ htmlInput: {
           'aria-labelledby': 'catalog-search-heading',
           'aria-describedby': 'catalog-search-help',
@@ -663,9 +663,8 @@ function Catalog() {
         onChange={(event) => update({ q: event.target.value }, true)}
       />
       <Typography id="catalog-search-help" className="catalog-search-help" sx={{ mt: 1.5 }}>
-        Examples: soil, "DNA extracts", "Peromyscus maniculatus".
-        {' '}Use several terms to match sample types having <em>any</em> term (<em>term OR term</em>).
-        {' '}Quote terms to match phrases.
+        Use several terms to match sample types having <em>any</em> term (<em>term OR term</em>).
+        {' '}Quote terms to match phrases (e.g. "DNA extracts").
         {' '}Scientific names match from the beginning of the name (at least 3 characters).
         {' '}<CatalogKeywordBrowser
           items={items}
