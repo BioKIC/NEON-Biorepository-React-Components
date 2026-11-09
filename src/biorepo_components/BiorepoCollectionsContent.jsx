@@ -656,7 +656,8 @@ function Catalog() {
       >
         Reset all filters
       </Button>
-      <Stack sx={{ gap: 1, mt: 1 }}>
+      <Divider sx={{ my: 2 }} />
+      <Stack sx={{ gap: 1 }}>
         <Button
           className="catalog-record-button"
           fullWidth
