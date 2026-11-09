@@ -661,7 +661,7 @@ function Catalog() {
         Reset all filters
       </Button>
       <Divider sx={{ my: 2 }} />
-      <Typography component="h2" variant="h6" sx={{ mb: 1.5 }}>
+      <Typography component="h2" className="catalog-date-heading" sx={{ mb: 1.5 }}>
         Explore Records
       </Typography>
       <Stack sx={{ gap: 1 }}>
