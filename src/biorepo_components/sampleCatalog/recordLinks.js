@@ -48,7 +48,10 @@ export function recordLinks({ root, items, results, filters, sites, datasets }) 
   }
   // Catalog words narrow the selected collections. Only scientific-name fallback
   // terms become specimen-level taxonomy filters; do not send "soil" as a taxon.
-  if (taxa.length) params.set('taxa', taxa.join(','));
+  if (taxa.length) {
+    params.set('taxa', taxa.join(','));
+    params.set('usethes', '1');
+  }
   const base = root.replace(/\/$/, '');
   return {
     browse: `${base}/collections/list.php?${params}`,

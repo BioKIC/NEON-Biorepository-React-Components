@@ -727,7 +727,6 @@ function Catalog() {
       <Typography id="catalog-search-help" className="catalog-search-help" sx={{ mt: 1.5 }}>
         Use several terms to match sample types having <em>any</em> term (<em>term OR term</em>).
         {' '}Quote terms to match phrases (e.g. "DNA extracts").
-        {' '}Scientific names match from the beginning of the name (at least 3 characters); higher taxa also include their descendants.
         {' '}<CatalogKeywordBrowser
           items={items}
           query={filters.q}

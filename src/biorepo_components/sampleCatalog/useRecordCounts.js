@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 
 const EMPTY_COUNTS = {};
+const COUNT_PARAMS = new Set(['db', 'datasetid', 'eventdate1', 'eventdate2', 'taxa']);
 
 export function countQueries(cardLinks) {
   return [...cardLinks.values()].filter((links) => links.filtered && links.browse).map((links) => (
-    Object.fromEntries(new URLSearchParams(links.browse.slice(links.browse.indexOf('?') + 1)))
+    Object.fromEntries([...new URLSearchParams(links.browse.slice(links.browse.indexOf('?') + 1))]
+      .filter(([name]) => COUNT_PARAMS.has(name)))
   ));
 }
 
