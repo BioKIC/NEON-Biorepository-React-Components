@@ -12,6 +12,7 @@ import CatalogDateFilter from './sampleCatalog/CatalogDateFilter';
 import CatalogDescription from './sampleCatalog/CatalogDescription';
 import CatalogKeywordBrowser from './sampleCatalog/CatalogKeywordBrowser';
 import { collectionKeywords } from './sampleCatalog/keywords';
+import useTaxonSearch from './sampleCatalog/useTaxonSearch';
 import SampleTypeChip from './SampleTypeChip';
 import SampleTypeTags from './SampleTypeTags';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
@@ -406,6 +407,7 @@ function Catalog() {
   const [error, setError] = useState('');
   const [attempt, setAttempt] = useState(0);
   const [filters, setFilters] = useState(() => readFilters(window.location.search));
+  const taxonSearch = useTaxonSearch(root, filters.q);
   const [limit, setLimit] = useState(10);
   const loadMoreRef = useRef(null);
   const lastTrackedSearch = useRef('');
@@ -478,16 +480,16 @@ function Catalog() {
       window.history[replace ? 'replaceState' : 'pushState'](null, '', url);
     }
   };
-  const results = useMemo(() => filterCatalog(items, filters, sites), [items, filters, sites]);
+  const results = useMemo(() => filterCatalog(items, filters, sites, taxonSearch.ids), [items, filters, sites, taxonSearch.ids]);
   const repositoryCounts = useMemo(() => {
     const counts = Object.fromEntries(REPOSITORIES.map(({ value }) => [value, 0]));
-    filterCatalog(items, { ...filters, repository: [] }, sites).forEach((item) => {
+    filterCatalog(items, { ...filters, repository: [] }, sites, taxonSearch.ids).forEach((item) => {
       REPOSITORIES.forEach(({ value }) => {
         if (matchesRepository(item, value)) counts[value] += 1;
       });
     });
     return counts;
-  }, [items, filters, sites]);
+  }, [items, filters, sites, taxonSearch.ids]);
 
   useEffect(() => {
     const term = filters.q.trim().replace(/\s+/g, ' ');
@@ -495,7 +497,7 @@ function Catalog() {
       lastTrackedSearch.current = '';
       return undefined;
     }
-    if (!catalog || lastTrackedSearch.current === term) return undefined;
+    if (!catalog || taxonSearch.loading || lastTrackedSearch.current === term) return undefined;
     const timer = window.setTimeout(() => {
       const event = ['event', 'sample_type_search', {
         search_term: term,
@@ -508,7 +510,7 @@ function Catalog() {
       lastTrackedSearch.current = term;
     }, 1000);
     return () => window.clearTimeout(timer);
-  }, [filters.q, catalog, results.length]);
+  }, [filters.q, catalog, results.length, taxonSearch.loading]);
 
   const visibleLimit = window.IntersectionObserver ? limit : results.length;
   useEffect(() => {
@@ -534,7 +536,7 @@ function Catalog() {
       FACETS.map((key) => {
         const counts = new Map();
         const facetFilters = { ...filters, [key]: [] };
-        const candidates = filterCatalog(items, facetFilters, sites);
+        const candidates = filterCatalog(items, facetFilters, sites, taxonSearch.ids);
         candidates.forEach((item) => {
           const values = mapTypes[key]
             ? matchingSites(item, facetFilters, sites)
@@ -574,7 +576,7 @@ function Catalog() {
         ];
       }),
     ),
-    [items, geography, sites, filters],
+    [items, geography, sites, filters, taxonSearch.ids],
   );
   const siteCount = new Set(
     items.flatMap((item) => item.siteCodes.map((site) => site.siteCode)),
@@ -640,7 +642,7 @@ function Catalog() {
         className="catalog-search-field"
         fullWidth
         size="small"
-        placeholder='Soil, "DNA extracts", etc...'
+        placeholder='Soil, "DNA extracts", "Peromyscus maniculatus"…'
         slotProps={{ htmlInput: {
           'aria-labelledby': 'catalog-search-heading',
           'aria-describedby': 'catalog-search-help',
@@ -652,6 +654,7 @@ function Catalog() {
       <Typography id="catalog-search-help" className="catalog-search-help" sx={{ mt: 1.5 }}>
         Use several terms to match sample types having <em>any</em> term (<em>term OR term</em>).
         {' '}Quote terms to match phrases (e.g. "DNA extracts").
+        {' '}Scientific names match from the beginning of the name (at least 3 characters).
         {' '}<CatalogKeywordBrowser
           items={items}
           query={filters.q}
@@ -800,7 +803,15 @@ function Catalog() {
           {invalidDates && (
             <Alert severity="error">The start month must be on or before the end month.</Alert>
           )}
-          {!results.length && (
+          {taxonSearch.loading && (
+            <Typography role="status" sx={{ mb: 2 }}>Checking scientific names…</Typography>
+          )}
+          {taxonSearch.error && (
+            <Alert severity="warning" action={<Button onClick={taxonSearch.retry}>Retry</Button>}>
+              {taxonSearch.error}
+            </Alert>
+          )}
+          {!results.length && !taxonSearch.loading && !taxonSearch.error && (
             <Alert severity="info">
               No sample types match these filters. Try removing a filter or changing the date
               range.

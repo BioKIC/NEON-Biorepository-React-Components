@@ -107,12 +107,16 @@ function searchScore(item, terms) {
   return priorityMatches && PRIORITY_COLLECTION_IDS.has(Number(item.id))
     ? relevance + (Number(item.id) === 28 ? 2000 : 1000) : relevance;
 }
-export function filterCatalog(items, filters, reference = {}) {
+export function searchTerms(query) {
+  const words = query.toLowerCase().match(/"[^"]+"|\S+/g) || [];
+  return [...new Set(words.map((term) => term.replaceAll('"', '').replace(/\s+/g, ' ').trim()).filter(Boolean))];
+}
+export function filterCatalog(items, filters, reference = {}, taxonCollectionIds = new Set()) {
   if (filters.from && filters.to && filters.from > filters.to) return [];
-  const words = filters.q.toLowerCase().match(/"[^"]+"|\S+/g) || [];
-  const terms = [...new Set(words.map((term) => term.replaceAll('"', '').replace(/\s+/g, ' ').trim()).filter(Boolean))];
+  const terms = searchTerms(filters.q);
   return items
-    .map((item) => ({ item, score: terms.length ? searchScore(item, terms) : 0 }))
+    .map((item) => ({ item, score: terms.length
+      ? Math.max(searchScore(item, terms), taxonCollectionIds.has(item.id) ? 10 : 0) : 0 }))
     .filter(({ item, score }) => {
       if (terms.length && score === 0) return false;
       if (filters.repository?.length && !filters.repository.some((value) => matchesRepository(item, value))) return false;
