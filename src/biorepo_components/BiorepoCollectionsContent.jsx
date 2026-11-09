@@ -783,7 +783,7 @@ function Catalog() {
       {catalog && (
         <>
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, alignItems: 'flex-start', mb: 3 }}>
-            <Box component="section" aria-label="Sample catalog summary" sx={{ flex: '1 1 24rem', minWidth: 0 }}>
+            <Box component="section" aria-label="Sample catalog summary" sx={{ flex: '2 1 20rem', minWidth: 0, boxSizing: 'border-box' }}>
               <Typography className="catalog-summary-title" component="h2" variant="h5">
                 {isFiltered ? 'Filtered Sample Types' : 'All Sample Types'}
               </Typography>
@@ -821,7 +821,7 @@ function Catalog() {
                 Identification records are linked under “Bulk sample identifications” in the catalog.
               </Typography>
             </Box>
-            <Box component="aside" aria-label="Request samples" sx={{ flex: '1 1 20rem', minWidth: 0, bgcolor: '#f5f6f7', border: '1px solid #d5d9db', borderRadius: '0.375rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.22)', p: { xs: 3, md: 4 } }}>
+            <Box component="aside" aria-label="Request samples" sx={{ flex: '1 1 16rem', minWidth: 0, boxSizing: 'border-box', bgcolor: '#f5f6f7', border: '1px solid #d5d9db', borderRadius: '0.375rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.22)', p: { xs: 3, md: 4 } }}>
               <Typography component="h2" className="catalog-request-heading">Interested in using samples?</Typography>
               <Typography className="catalog-request-description" sx={{ mt: 1, mb: 2 }}>
                 Learn how to request samples and specimens for your research.
