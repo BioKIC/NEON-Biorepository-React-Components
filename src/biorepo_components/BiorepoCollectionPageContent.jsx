@@ -41,6 +41,32 @@ function Link({ href, children, button = false, external = false }) {
   );
 }
 
+function SampleTypeNotice({ id, title, lead, message, links }) {
+  return (
+    <aside className={styles.notice} role="note" aria-labelledby={id}>
+      <div className={styles.noticeHeader}>
+        <LocalOfferIcon className={styles.noticeIcon} aria-hidden="true" />
+        <h2 id={id} className={styles.noticeTitle}>{title}</h2>
+        <InfoOutlinedIcon className={styles.noticeInfo} aria-hidden="true" />
+      </div>
+      <div className={styles.noticeBody}>
+        <div className={styles.noticeMessage}>
+          <p className={styles.noticeLead}>{lead}</p>
+          <p>{message}</p>
+        </div>
+        <div className={styles.noticeActions}>
+          {links.map(({ href, label }) => (
+            <Link key={href} button href={href}>
+              {label}
+              <ChevronRightIcon fontSize="small" aria-hidden="true" />
+            </Link>
+          ))}
+        </div>
+      </div>
+    </aside>
+  );
+}
+
 function DataDownloads({ resources, profile, clientRoot }) {
   const rows = [
     {
@@ -488,6 +514,7 @@ export function CollectionProfile({
   const navigationHost = document.getElementById("biorepo-profile-navigation");
   const profileUrl = (id) =>
     `${clientRoot}/collections/misc/neoncollprofiles.php?collid=${id}`;
+  const bulkSampleCollections = profile.bulkSampleCollections || [];
   const relatedSamples = Object.entries(profile.related || {}).sort(
     ([, firstTitle], [, secondTitle]) =>
       firstTitle.localeCompare(secondTitle, "en", { sensitivity: "base" }),
@@ -613,48 +640,25 @@ export function CollectionProfile({
           </div>
         </header>
         {!!profile.identificationCollectionId && (
-          <aside
-            className={styles.notice}
-            role="note"
-            aria-labelledby="identification-notice-title"
-          >
-            <div className={styles.noticeHeader}>
-              <LocalOfferIcon
-                className={styles.noticeIcon}
-                aria-hidden="true"
-              />
-              <h2
-                id="identification-notice-title"
-                className={styles.noticeTitle}
-              >
-                Taxonomic Identifications
-              </h2>
-              <InfoOutlinedIcon
-                className={styles.noticeInfo}
-                aria-hidden="true"
-              />
-            </div>
-            <div className={styles.noticeBody}>
-              <div className={styles.noticeMessage}>
-                <p className={styles.noticeLead}>
-                  Looking for a specific taxon?
-                </p>
-                <p>
-                  Taxonomic identifications derived from these samples are
-                  available through a related sample type.
-                </p>
-              </div>
-              <div className={styles.noticeActions}>
-                <Link
-                  button
-                  href={profileUrl(profile.identificationCollectionId)}
-                >
-                  Browse identifications
-                  <ChevronRightIcon fontSize="small" aria-hidden="true" />
-                </Link>
-              </div>
-            </div>
-          </aside>
+          <SampleTypeNotice
+            id="identification-notice-title"
+            title="Taxonomic Identifications"
+            lead="Looking for a specific taxon?"
+            message="Taxonomic identifications derived from these samples are available through a related sample type."
+            links={[{ href: profileUrl(profile.identificationCollectionId), label: "Browse identifications" }]}
+          />
+        )}
+        {bulkSampleCollections.length > 0 && (
+          <SampleTypeNotice
+            id="bulk-samples-notice-title"
+            title="Bulk Samples"
+            lead="Looking for the bulk samples?"
+            message={`Bulk samples associated with these taxonomic identifications are available through ${bulkSampleCollections.length === 1 ? "a related sample type" : "related sample types"}.`}
+            links={bulkSampleCollections.map((collection) => ({
+              href: profileUrl(collection.id),
+              label: bulkSampleCollections.length === 1 ? "Browse bulk samples" : `Browse ${collection.title}`,
+            }))}
+          />
         )}
         <section
           id="about"

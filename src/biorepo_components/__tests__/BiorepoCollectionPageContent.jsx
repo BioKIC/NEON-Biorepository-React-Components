@@ -181,6 +181,41 @@ test("profile preserves collection IDs, description images, and site availabilit
     screen.getByText("Description").parentElement.querySelector("img"),
   ).toBeNull();
 });
+test("identification profiles link back to bulk samples in a matching notice above About", async () => {
+  render(<CollectionProfile clientRoot="/portal" profile={{
+    ...profile,
+    id: 8,
+    title: "Tick Identifications",
+    identificationCollectionId: 0,
+    bulkSampleCollections: [{ id: 7, title: "Ticks" }],
+  }} />);
+  await waitFor(() => expect(screen.queryByText("Loading documentation…")).toBeNull());
+  const notice = screen.getByRole("note", { name: "Bulk Samples" });
+  const about = screen.getByRole("region", { name: "About" });
+  expect(notice.nextElementSibling).toBe(about);
+  expect(within(about).queryByRole("note")).toBeNull();
+  expect(within(notice).getByText("Looking for the bulk samples?")).toBeTruthy();
+  expect(within(notice).getByRole("link", { name: "Browse bulk samples" }).getAttribute("href"))
+    .toBe("/portal/collections/misc/neoncollprofiles.php?collid=7");
+  expect(screen.queryByRole("note", { name: "Taxonomic Identifications" })).toBeNull();
+});
+test("bulk-sample notices retain every linked parent and omit themselves without a relationship", async () => {
+  const identificationProfile = { ...profile, identificationCollectionId: 0 };
+  const { rerender } = render(<CollectionProfile profile={{
+    ...identificationProfile,
+    bulkSampleCollections: [{ id: 45, title: "Bulk Zooplankton" }, { id: 60, title: "Sorted Zooplankton" }],
+  }} />);
+  await waitFor(() => expect(screen.queryByText("Loading documentation…")).toBeNull());
+  const notice = screen.getByRole("note", { name: "Bulk Samples" });
+  expect(within(notice).getAllByRole("link").map((link) => link.getAttribute("href"))).toEqual([
+    "/collections/misc/neoncollprofiles.php?collid=45",
+    "/collections/misc/neoncollprofiles.php?collid=60",
+  ]);
+  expect(within(notice).getByRole("link", { name: "Browse Bulk Zooplankton" })).toBeTruthy();
+  expect(within(notice).getByRole("link", { name: "Browse Sorted Zooplankton" })).toBeTruthy();
+  rerender(<CollectionProfile profile={identificationProfile} />);
+  expect(screen.queryByRole("note", { name: "Bulk Samples" })).toBeNull();
+});
 test("linked sample type subtitles match collection IDs and omit unavailable codes", async () => {
   render(
     <CollectionProfile
