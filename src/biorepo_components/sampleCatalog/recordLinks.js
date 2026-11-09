@@ -11,7 +11,12 @@ function monthEnd(month) {
 
 /** Both actions share the same criteria; only the destination differs. */
 export function recordLinks({ root, items, results, filters, sites, datasets }) {
-  const unavailable = { browse: '', search: '', error: '' };
+  const taxa = taxonSearchTerms(filters.q, items);
+  const geographyFiltered = filters.sites.length || filters.states.length || filters.domains.length;
+  // Collection-level facets choose sample types; these criteria narrow records
+  // within each sample type and determine whether its actions say "filtered".
+  const filtered = Boolean(geographyFiltered || filters.from || filters.to || taxa.length);
+  const unavailable = { browse: '', search: '', error: '', filtered };
   if (!results.length) return unavailable;
   if ((filters.from && !monthPattern.test(filters.from))
     || (filters.to && !monthPattern.test(filters.to))
@@ -20,7 +25,6 @@ export function recordLinks({ root, items, results, filters, sites, datasets }) 
   if (!ids.length) return unavailable;
   const params = new URLSearchParams({ db: ids.join(',') });
   const coverage = results.flatMap((item) => matchingSites(item, filters, sites));
-  const geographyFiltered = filters.sites.length || filters.states.length || filters.domains.length;
   if (geographyFiltered) {
     const codes = [...new Set(coverage
       .filter((site) => !(filters.from || filters.to) || site.availableMonths.length)
@@ -44,13 +48,13 @@ export function recordLinks({ root, items, results, filters, sites, datasets }) 
   }
   // Catalog words narrow the selected collections. Only scientific-name fallback
   // terms become specimen-level taxonomy filters; do not send "soil" as a taxon.
-  const taxa = taxonSearchTerms(filters.q, items);
   if (taxa.length) params.set('taxa', taxa.join(','));
   const base = root.replace(/\/$/, '');
   return {
     browse: `${base}/collections/list.php?${params}`,
     search: `${base}/neon/search/index.php?${params}`,
     error: '',
+    filtered,
   };
 }
 

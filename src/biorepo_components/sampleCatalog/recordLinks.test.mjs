@@ -59,3 +59,52 @@ test('search form restores selected sites from the same dataset mapping', () => 
   assert.deepEqual(sitesFromRecordQuery('', datasets), new Set());
   assert.deepEqual(sitesFromRecordQuery('?datasetid=999999', datasets), new Set());
 });
+
+test('card actions stay within one sample type and share location, date, and taxon criteria', () => {
+  const result = links({
+    sites: ['ABBY', 'BART'], states: ['WA'], domains: ['D16'],
+    from: '2024-02', to: '2024-02', q: 'Peromyscus',
+  }, [items[0]]);
+  assert.deepEqual(Object.fromEntries(params(result)), {
+    db: '19', datasetid: '34', eventdate1: '2024-02-01', eventdate2: '2024-02-29', taxa: 'peromyscus',
+  });
+  assert.equal(new URL(result.browse, 'https://example.test').search, new URL(result.search, 'https://example.test').search);
+  assert.equal(result.filtered, true);
+});
+
+test('each card resolves sites and open-ended dates from its own coverage', () => {
+  const second = {
+    ...items[1],
+    siteCodes: [{ siteCode: 'BART', availableMonths: ['2023-04', '2025-08'] }],
+  };
+  const filters = { states: ['WA', 'NH'], from: '2023-01' };
+  const firstParams = params(links(filters, [items[0]]));
+  const secondParams = params(links(filters, [second]));
+  assert.equal(firstParams.get('db'), '19');
+  assert.equal(firstParams.get('datasetid'), '33,34');
+  assert.equal(firstParams.get('eventdate2'), '2024-02-29');
+  assert.equal(secondParams.get('db'), '118');
+  assert.equal(secondParams.get('datasetid'), '33');
+  assert.equal(secondParams.get('eventdate2'), '2025-08-31');
+});
+
+test('card labels use filtered only for criteria that narrow records within a sample type', () => {
+  const sampleTypeFilters = { q: 'frozen tissues', taxa: ['Mammals'], preservation: ['Frozen'], protocols: ['MAM'], repository: ['asu'] };
+  const all = links(sampleTypeFilters, [items[0]]);
+  assert.equal(all.filtered, false);
+  assert.deepEqual(Object.fromEntries(params(all)), { db: '19' });
+  for (const filter of [{ sites: ['ABBY'] }, { states: ['NH'] }, { domains: ['D16'] }, { from: '2024-02' }, { to: '2023-11' }, { q: 'Peromyscus' }]) {
+    assert.equal(links(filter, [items[0]]).filtered, true);
+  }
+  const reset = links({}, [items[0]]);
+  assert.equal(reset.filtered, false);
+  assert.deepEqual(Object.fromEntries(params(reset)), { db: '19' });
+});
+
+test('an unavailable card filter never falls back to all records', () => {
+  const result = links({ sites: ['ABBY'] }, [items[1]]);
+  assert.equal(result.filtered, true);
+  assert.equal(result.browse, '');
+  assert.equal(result.search, '');
+  assert(result.error);
+});

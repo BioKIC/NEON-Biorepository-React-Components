@@ -607,9 +607,10 @@ function Catalog() {
   const records = useMemo(() => recordLinks({
     root, items, results, filters, sites, datasets: biorepoDatasets.datasets,
   }), [root, items, results, filters, sites]);
-  const recordLinksDisabled = !catalog || !keywordsReady || taxonSearch.loading
-    || Boolean(taxonSearch.error) || !records.browse
+  const recordLinksPending = !catalog || !keywordsReady || taxonSearch.loading
+    || Boolean(taxonSearch.error)
     || ((filters.states.length > 0 || filters.domains.length > 0) && !geographyReady);
+  const recordLinksDisabled = recordLinksPending || !records.browse;
   const active = FACETS.flatMap((key) => filters[key].map((value) => ({
     key,
     value,
@@ -889,6 +890,10 @@ function Catalog() {
             ].sort();
             const details = `${root}/collections/misc/neoncollprofiles.php?collid=${item.id}`;
             const description = item.shortDescription ?? cardDescription(item.description || '');
+            const cardRecords = recordLinks({
+              root, items, results: [item], filters, sites, datasets: biorepoDatasets.datasets,
+            });
+            const cardRecordsDisabled = recordLinksPending || !cardRecords.browse;
             return (
               <Card
                 key={item.id}
@@ -930,17 +935,19 @@ function Catalog() {
                   <Stack sx={{ gap: 1.5, width: '100%', minWidth: 0 }}>
                     <Button
                       variant="contained"
-                      href={`${root}/neon/search/index.php?db=${item.id}`}
+                      href={cardRecordsDisabled ? undefined : cardRecords.search}
+                      disabled={cardRecordsDisabled}
                       endIcon={<SearchIcon />}
                     >
-                      Search this sample type
+                      {cardRecords.filtered ? 'Search filtered records' : 'Search this sample type'}
                     </Button>
                     <Button
                       variant="contained"
                       endIcon={<FormatListBulletedIcon />}
-                      href={`${root}/collections/list.php?db=${item.id}`}
+                      href={cardRecordsDisabled ? undefined : cardRecords.browse}
+                      disabled={cardRecordsDisabled}
                     >
-                      Browse all records
+                      Browse {cardRecords.filtered ? 'filtered' : 'all'} records
                     </Button>
                     <Button variant="outlined" href={details} endIcon={<InfoOutlinedIcon />}>
                       Sample type details
