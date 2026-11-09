@@ -13,6 +13,7 @@ import CatalogDescription from './sampleCatalog/CatalogDescription';
 import CatalogKeywordBrowser from './sampleCatalog/CatalogKeywordBrowser';
 import { collectionKeywords } from './sampleCatalog/keywords';
 import useTaxonSearch from './sampleCatalog/useTaxonSearch';
+import { applyTaxonAvailability } from './sampleCatalog/taxonSearch';
 import { recordLinks } from './sampleCatalog/recordLinks';
 import biorepoDatasets from '../lib_components/staticJSON/biorepoDatasets.json';
 import SampleTypeChip from './SampleTypeChip';
@@ -433,6 +434,10 @@ function Catalog() {
     keywords: collectionKeywords(keywords?.[item.id]),
   })), [catalog, keywords]);
   const taxonSearch = useTaxonSearch(root, filters.q, catalog && keywordsReady ? items : null);
+  const availableItems = useMemo(
+    () => applyTaxonAvailability(items, filters.q, taxonSearch.siteCodesByCollection),
+    [items, filters.q, taxonSearch.siteCodesByCollection],
+  );
 
   useEffect(() => {
     const syncSidebar = () => setSidebar(document.getElementById('biorepo-catalog-filters'));
@@ -496,16 +501,16 @@ function Catalog() {
       window.history[replace ? 'replaceState' : 'pushState'](null, '', url);
     }
   };
-  const results = useMemo(() => filterCatalog(items, filters, sites, taxonSearch.ids), [items, filters, sites, taxonSearch.ids]);
+  const results = useMemo(() => filterCatalog(availableItems, filters, sites, taxonSearch.ids), [availableItems, filters, sites, taxonSearch.ids]);
   const repositoryCounts = useMemo(() => {
     const counts = Object.fromEntries(REPOSITORIES.map(({ value }) => [value, 0]));
-    filterCatalog(items, { ...filters, repository: [] }, sites, taxonSearch.ids).forEach((item) => {
+    filterCatalog(availableItems, { ...filters, repository: [] }, sites, taxonSearch.ids).forEach((item) => {
       REPOSITORIES.forEach(({ value }) => {
         if (matchesRepository(item, value)) counts[value] += 1;
       });
     });
     return counts;
-  }, [items, filters, sites, taxonSearch.ids]);
+  }, [availableItems, filters, sites, taxonSearch.ids]);
 
   useEffect(() => {
     const term = filters.q.trim().replace(/\s+/g, ' ');
@@ -552,7 +557,7 @@ function Catalog() {
       FACETS.map((key) => {
         const counts = new Map();
         const facetFilters = { ...filters, [key]: [] };
-        const candidates = filterCatalog(items, facetFilters, sites, taxonSearch.ids);
+        const candidates = filterCatalog(availableItems, facetFilters, sites, taxonSearch.ids);
         candidates.forEach((item) => {
           const values = mapTypes[key]
             ? matchingSites(item, facetFilters, sites)
@@ -592,7 +597,7 @@ function Catalog() {
         ];
       }),
     ),
-    [items, geography, sites, filters, taxonSearch.ids],
+    [availableItems, geography, sites, filters, taxonSearch.ids],
   );
   const isFiltered = Boolean(
     filters.q.trim() || filters.from || filters.to || filters.repository.length
