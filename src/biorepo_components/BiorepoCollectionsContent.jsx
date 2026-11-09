@@ -13,6 +13,7 @@ import CatalogDescription from './sampleCatalog/CatalogDescription';
 import CatalogKeywordBrowser from './sampleCatalog/CatalogKeywordBrowser';
 import { collectionKeywords } from './sampleCatalog/keywords';
 import useTaxonSearch from './sampleCatalog/useTaxonSearch';
+import useRecordCounts from './sampleCatalog/useRecordCounts';
 import { applyTaxonAvailability } from './sampleCatalog/taxonSearch';
 import { recordLinks } from './sampleCatalog/recordLinks';
 import biorepoDatasets from '../lib_components/staticJSON/biorepoDatasets.json';
@@ -616,6 +617,10 @@ function Catalog() {
     || Boolean(taxonSearch.error)
     || ((filters.states.length > 0 || filters.domains.length > 0) && !geographyReady);
   const recordLinksDisabled = recordLinksPending || !records.browse;
+  const cardRecordLinks = useMemo(() => new Map(results.slice(0, visibleLimit).map((item) => [item.id, recordLinks({
+    root, items, results: [item], filters, sites, datasets: biorepoDatasets.datasets,
+  })])), [root, items, results, visibleLimit, filters, sites]);
+  const recordCounts = useRecordCounts(root, cardRecordLinks, recordLinksPending);
   const active = FACETS.flatMap((key) => filters[key].map((value) => ({
     key,
     value,
@@ -710,7 +715,7 @@ function Catalog() {
         className="catalog-search-field"
         fullWidth
         size="small"
-        placeholder='Soil, "DNA extracts", Quercus'
+        placeholder='Soil, "DNA extracts", Quercus, etc...'
         slotProps={{ htmlInput: {
           'aria-labelledby': 'catalog-search-heading',
           'aria-describedby': 'catalog-search-help',
@@ -722,7 +727,7 @@ function Catalog() {
       <Typography id="catalog-search-help" className="catalog-search-help" sx={{ mt: 1.5 }}>
         Use several terms to match sample types having <em>any</em> term (<em>term OR term</em>).
         {' '}Quote terms to match phrases (e.g. "DNA extracts").
-        {' '}Scientific names match from the beginning of the name (at least 3 characters).
+        {' '}Scientific names match from the beginning of the name (at least 3 characters); higher taxa also include their descendants.
         {' '}<CatalogKeywordBrowser
           items={items}
           query={filters.q}
@@ -895,10 +900,10 @@ function Catalog() {
             ].sort();
             const details = `${root}/collections/misc/neoncollprofiles.php?collid=${item.id}`;
             const description = item.shortDescription ?? cardDescription(item.description || '');
-            const cardRecords = recordLinks({
-              root, items, results: [item], filters, sites, datasets: biorepoDatasets.datasets,
-            });
+            const cardRecords = cardRecordLinks.get(item.id);
             const cardRecordsDisabled = recordLinksPending || !cardRecords.browse;
+            const matchedCount = recordCounts.counts[item.id];
+            const countPending = recordCounts.loading || (recordLinksPending && !taxonSearch.error);
             return (
               <Card
                 key={item.id}
@@ -1010,11 +1015,16 @@ function Catalog() {
                   sx={{ mt: 2 }}
                   color="text.secondary"
                 >
-                  {Number(item.totalSamples).toLocaleString()}
-                  {' '}
-                  records in this
-                  collection. Coverage reflects collection dates of cataloged records; it does
-                  not guarantee material is available for loan.
+                  {cardRecords.filtered
+                    ? (countPending ? 'Counting matching records…'
+                      : (Number.isSafeInteger(matchedCount)
+                        ? `${matchedCount.toLocaleString()} ${matchedCount === 1 ? 'record matches' : 'records match'} the current filters.`
+                        : 'Matching record count is unavailable.'))
+                    : `${Number(item.totalSamples).toLocaleString()} records in this sample type.`}
+                  {' '}Coverage shows {cardRecords.filtered ? 'matching ' : ''}collection dates; availability for loan is not guaranteed.
+                  {cardRecords.filtered && recordCounts.error && (
+                    <Button size="small" onClick={recordCounts.retry}>Retry count</Button>
+                  )}
                 </Typography>
               </Card>
             );

@@ -39,8 +39,8 @@ export function createTaxonSearch(fetcher, now = Date.now) {
     const key = `${root}:${JSON.stringify(terms)}`;
     const cached = cache.get(key);
     if (cached && cached.expires > now()) return cached.matches;
-    // Version the request so browsers cannot reuse an IDs-only response.
-    const params = new URLSearchParams({ v: '2' });
+    // Version the request so browsers cannot reuse results without descendant taxa.
+    const params = new URLSearchParams({ v: '3' });
     terms.forEach((term) => params.append('terms[]', term));
     const response = await fetcher(`${root}/collections/misc/rpc/sample-taxon-search.php?${params}`, { signal });
     if (!response.ok) throw new Error('Taxon search is temporarily unavailable.');
