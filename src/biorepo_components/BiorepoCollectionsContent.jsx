@@ -944,19 +944,19 @@ function Catalog() {
                   <Stack sx={{ gap: 1.5, width: '100%', minWidth: 0 }}>
                     <Button
                       variant="contained"
-                      href={cardRecordsDisabled ? undefined : cardRecords.search}
-                      disabled={cardRecordsDisabled}
-                      endIcon={<SearchIcon />}
-                    >
-                      {cardRecords.filtered ? 'Search filtered records' : 'Search this sample type'}
-                    </Button>
-                    <Button
-                      variant="contained"
                       endIcon={<FormatListBulletedIcon />}
                       href={cardRecordsDisabled ? undefined : cardRecords.browse}
                       disabled={cardRecordsDisabled}
                     >
                       Browse {cardRecords.filtered ? 'filtered' : 'all'} records
+                    </Button>
+                    <Button
+                      variant="contained"
+                      href={cardRecordsDisabled ? undefined : cardRecords.search}
+                      disabled={cardRecordsDisabled}
+                      endIcon={<SearchIcon />}
+                    >
+                      {cardRecords.filtered ? 'Search filtered records' : 'Search this sample type'}
                     </Button>
                     <Button variant="outlined" href={details} endIcon={<InfoOutlinedIcon />}>
                       Sample type details
