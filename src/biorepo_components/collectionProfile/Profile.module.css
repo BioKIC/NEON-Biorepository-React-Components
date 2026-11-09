@@ -231,19 +231,14 @@
     align-items: stretch;
   }
   .headerControls .actions {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
     margin-left: 0;
-    width: 100%;
-  }
-  .headerControls .actions :global(.MuiButton-root) {
-    min-width: 0;
-    width: 100%;
+    justify-content: flex-start;
   }
 }
 @container profile-header (max-width: 480px) {
   .headerControls .actions {
-    grid-template-columns: minmax(0, 1fr);
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
 .profile .button {
