@@ -848,3 +848,98 @@
   font-weight: 600;
   text-transform: uppercase;
 }
+
+.mobileSidebarToggle,
+.mobileCurrentSection {
+  display: none;
+}
+@media (max-width: 959.95px) {
+  .sidebar {
+    margin: 0;
+  }
+  .sidebar > .sidebarTitle,
+  .sidebar > .code.code,
+  .sidebar .sidebarItems {
+    display: none;
+  }
+  .sidebar .mobileSidebarToggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    margin: 0;
+    padding: 8px 0 16px;
+    border: 0;
+    border-bottom: 1px solid #d5d7d8;
+    border-radius: 0;
+    background: transparent;
+    color: #1a1a1a;
+    font: 600 16px/1.4 "Inter", Helvetica, Arial, sans-serif;
+    text-align: left;
+    cursor: pointer;
+  }
+  .mobileSidebarIdentity {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .mobileSidebarIdentity strong {
+    font: inherit;
+    font-weight: 700;
+  }
+  .mobileSidebarCode {
+    color: #a2a4a3;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .mobileSidebarToggle svg {
+    flex-shrink: 0;
+    color: #0073cf;
+    transition: transform 180ms ease;
+  }
+  .mobileSidebarToggle .chevronOpen {
+    transform: rotate(180deg);
+  }
+  .sidebar .sidebarNav {
+    margin: 0;
+    padding: 16px 0 0;
+    border: 0;
+  }
+  .sidebar .mobileCurrentSection {
+    display: block;
+    color: #565a5c;
+    font: 700 14px/1.5 "Inter", Helvetica, Arial, sans-serif;
+    text-decoration: none;
+  }
+  .sidebar .sidebarItemsOpen {
+    display: block;
+    max-height: 40vh;
+    overflow-y: auto;
+  }
+  .sidebar .sidebarContact {
+    padding-top: 12px;
+    font-size: 12px;
+  }
+  .sidebar .sidebarContact .sidebarContactText {
+    display: inline;
+    margin: 0 8px 0 0;
+    font-size: 12px;
+  }
+  .sidebar .mobileSidebarToggle:focus-visible,
+  .sidebar .mobileCurrentSection:focus-visible {
+    outline: 2px solid #0073cf;
+    outline-offset: 2px;
+  }
+  .profile .main > section {
+    scroll-margin-top: 180px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mobileSidebarToggle svg {
+    transition: none;
+  }
+}

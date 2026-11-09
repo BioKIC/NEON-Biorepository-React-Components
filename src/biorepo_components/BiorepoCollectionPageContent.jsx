@@ -13,6 +13,7 @@ import DownloadIcon from "@mui/icons-material/SaveAlt";
 import SearchIcon from "@mui/icons-material/Search";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import LinkIcon from "@mui/icons-material/Link";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
@@ -584,6 +585,7 @@ export function CollectionProfile({
       ? [["externally-hosted-data", "Externally Hosted Data"]]
       : []),
   ];
+  const [navigationOpen, setNavigationOpen] = useState(false);
   const [activeSection, setActiveSection] = useState(() => {
     const hash = window.location.hash.slice(1);
     return sections.some(([id]) => id === hash) ? hash : "about";
@@ -600,19 +602,76 @@ export function CollectionProfile({
     target?.scrollIntoView?.();
     return () => window.removeEventListener("hashchange", syncSection);
   }, [sectionIds]);
+  // Track the section at the reading edge, including layout changes after loading.
+  useEffect(() => {
+    const targets = sectionIds.split(",")
+      .map((id) => document.getElementById(id))
+      .filter(Boolean);
+    if (!targets.length) return undefined;
+    let frame = null;
+    const update = () => {
+      frame = null;
+      const compact = window.matchMedia("(max-width: 959.95px)").matches;
+      const bar = document.querySelector(".profile-sidebar");
+      const readingEdge = compact ? (bar?.offsetHeight || 64) + 16 : 40;
+      let current = targets[0].id;
+      targets.forEach((target) => {
+        if (target.getBoundingClientRect().top <= readingEdge) current = target.id;
+      });
+      // Short final sections may never reach the top of the viewport.
+      if (window.scrollY > 0 &&
+          window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2) {
+        current = targets[targets.length - 1].id;
+      }
+      setActiveSection(current);
+    };
+    const schedule = () => {
+      if (frame === null) frame = window.requestAnimationFrame(update);
+    };
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(schedule) : null;
+    targets.forEach((target) => observer?.observe(target));
+    schedule();
+    return () => {
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+      observer?.disconnect();
+      if (frame !== null) window.cancelAnimationFrame(frame);
+    };
+  }, [sectionIds]);
   const navigation = (
     <aside className={styles.sidebar}>
+      <button
+        type="button"
+        className={styles.mobileSidebarToggle}
+        aria-label="Show sample type sections"
+        aria-expanded={navigationOpen}
+        aria-controls="profile-section-links"
+        onClick={() => setNavigationOpen((value) => !value)}
+      >
+        <span className={styles.mobileSidebarIdentity}>
+          <strong>{profile.title}</strong>
+          {profile.code && <span className={styles.mobileSidebarCode}>{profile.code}</span>}
+        </span>
+        <ExpandMoreIcon className={navigationOpen ? styles.chevronOpen : undefined} />
+      </button>
       <strong className={styles.sidebarTitle}>{profile.title}</strong>
       {profile.code && <p className={styles.code}>{profile.code}</p>}
       <nav className={styles.sidebarNav} aria-label="Sample type sections">
-        <ul className={styles.sidebarItems}>
+        {!navigationOpen && (
+          <a className={styles.mobileCurrentSection} href={`#${activeSection}`} aria-current="location">
+            {sections.find(([id]) => id === activeSection)?.[1]}
+          </a>
+        )}
+        <ul id="profile-section-links" className={`${styles.sidebarItems} ${navigationOpen ? styles.sidebarItemsOpen : ""}`}>
           {sections.map(([id, label]) => (
             <li key={id}>
               <a
                 className={styles.sidebarLink}
                 href={`#${id}`}
                 aria-current={activeSection === id ? "location" : undefined}
-                onClick={() => setActiveSection(id)}
+                onClick={() => { setActiveSection(id); setNavigationOpen(false); }}
               >
                 {label}
               </a>

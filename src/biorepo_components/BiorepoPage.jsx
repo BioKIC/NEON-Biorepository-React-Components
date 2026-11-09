@@ -146,7 +146,12 @@ export default function BiorepoPage() {
             '.profile-sidebar + [data-selenium="neon-page.content"]': {
               '--profile-content-gutter': theme.spacing(5),
             },
-            '.profile-sidebar': { position: 'relative', top: 'auto' },
+            '.profile-sidebar': {
+              position: 'sticky',
+              top: 0,
+              padding: '12px 16px',
+              zIndex: 10,
+            },
             '.profile-sidebar > #biorepo-profile-navigation': {
               position: 'static',
               maxHeight: 'none',
