@@ -578,8 +578,14 @@ function Catalog() {
     ),
     [items, geography, sites, filters, taxonSearch.ids],
   );
+  const isFiltered = Boolean(
+    filters.q.trim() || filters.from || filters.to || filters.repository.length
+    || FACETS.some((key) => filters[key].length),
+  );
   const siteCount = new Set(
-    items.flatMap((item) => item.siteCodes.map((site) => site.siteCode)),
+    results.flatMap((item) => matchingSites(item, filters, sites)
+      .filter((site) => !(filters.from || filters.to) || site.availableMonths.length)
+      .map((site) => site.siteCode)),
   ).size;
   const invalidDates = Boolean(filters.from && filters.to && filters.from > filters.to);
   const active = FACETS.flatMap((key) => filters[key].map((value) => ({
@@ -723,7 +729,7 @@ function Catalog() {
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, alignItems: 'flex-start', mb: 3 }}>
             <Box component="section" aria-label="Sample catalog summary" sx={{ flex: '1 1 24rem', minWidth: 0 }}>
               <Typography className="catalog-summary-title" component="h2" variant="h5">
-                All Sample Types
+                {isFiltered ? 'Filtered Sample Types' : 'All Sample Types'}
               </Typography>
               <Stack
                 direction="row"
@@ -735,8 +741,8 @@ function Catalog() {
                   aria-hidden="true"
                   sx={{ fontSize: '0.75rem', color: '#595d60' }}
                 />
-                <Typography className="catalog-summary-count">
-                  {`${items.length} sample types (including identification records) from ${siteCount} sites`}
+                <Typography className="catalog-summary-count" aria-live="polite" aria-busy={taxonSearch.loading}>
+                  {`${results.length} sample ${results.length === 1 ? 'type' : 'types'} (including identification records) from ${siteCount} ${siteCount === 1 ? 'site' : 'sites'}`}
                 </Typography>
               </Stack>
               <Stack direction="row" sx={{ alignItems: 'center', flexWrap: 'wrap', gap: 0.5 }}>
