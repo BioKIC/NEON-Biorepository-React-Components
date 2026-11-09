@@ -95,6 +95,9 @@ const compactCatalogStyles = {
       letterSpacing: '0.04em', lineHeight: 1.25, minHeight: '2rem',
       whiteSpace: 'nowrap', backgroundColor: '#0073cf', color: '#fff',
       '&:hover': { backgroundColor: '#005da8' },
+      '&.Mui-disabled': {
+        backgroundColor: '#e3e6e8', color: '#9fa4a6', boxShadow: 'none',
+      },
       '& .MuiSvgIcon-root': { fontSize: '1rem' },
     },
     '& .catalog-record-button.MuiButton-root': {
@@ -652,6 +655,7 @@ function Catalog() {
         fullWidth
         variant="contained"
         startIcon={<CloseIcon />}
+        disabled={!isFiltered}
         onClick={() => update(emptyFilters())}
       >
         Reset all filters
