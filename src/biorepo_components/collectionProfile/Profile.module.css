@@ -24,7 +24,13 @@
   outline: 3px solid #0073a9;
   outline-offset: 4px;
 }
+.sidebar,
+.sidebar * {
+  box-sizing: border-box;
+}
 .sidebar {
+  width: 100%;
+  overflow-wrap: anywhere;
   flex: 0 0 240px;
   min-width: 0;
   padding: 0;
@@ -849,8 +855,8 @@
   text-transform: uppercase;
 }
 
-.mobileSidebarToggle,
-.mobileCurrentSection {
+.sidebar .mobileSidebarToggle:global(.MuiButtonBase-root),
+.sidebar .mobileCurrentSection {
   display: none;
 }
 @media (max-width: 959.95px) {
@@ -862,7 +868,7 @@
   .sidebar .sidebarItems {
     display: none;
   }
-  .sidebar .mobileSidebarToggle {
+  .sidebar .mobileSidebarToggle:global(.MuiButtonBase-root) {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -874,6 +880,10 @@
     border-bottom: 1px solid #d5d7d8;
     border-radius: 0;
     background: transparent;
+    box-shadow: none;
+    text-transform: none;
+    letter-spacing: normal;
+    white-space: normal;
     color: #1a1a1a;
     font: 600 16px/1.4 "Inter", Helvetica, Arial, sans-serif;
     text-align: left;
@@ -906,10 +916,12 @@
   }
   .sidebar .sidebarNav {
     margin: 0;
-    padding: 16px 0 0;
+    padding: 16px 0;
     border: 0;
+    border-bottom: 1px solid #d5d7d8;
   }
-  .sidebar .mobileCurrentSection {
+  .sidebar .sidebarNav a.mobileCurrentSection[aria-current="location"],
+  .sidebar .sidebarNav a.mobileCurrentSection[aria-current="location"]:hover {
     display: block;
     color: #565a5c;
     font: 700 14px/1.5 "Inter", Helvetica, Arial, sans-serif;
@@ -919,6 +931,7 @@
     display: block;
     max-height: 40vh;
     overflow-y: auto;
+    overflow-x: hidden;
   }
   .sidebar .sidebarContact {
     padding-top: 12px;

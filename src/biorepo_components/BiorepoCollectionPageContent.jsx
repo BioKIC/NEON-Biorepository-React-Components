@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import parse from "html-react-parser";
 import { createPortal } from "react-dom";
 import Button from "@mui/material/Button";
+import ButtonBase from "@mui/material/ButtonBase";
 import Collapse from "@mui/material/Collapse";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import AddIcon from "@mui/icons-material/Add";
@@ -642,7 +643,8 @@ export function CollectionProfile({
   }, [sectionIds]);
   const navigation = (
     <aside className={styles.sidebar}>
-      <button
+      <ButtonBase
+        disableRipple
         type="button"
         className={styles.mobileSidebarToggle}
         aria-label="Show sample type sections"
@@ -655,7 +657,7 @@ export function CollectionProfile({
           {profile.code && <span className={styles.mobileSidebarCode}>{profile.code}</span>}
         </span>
         <ExpandMoreIcon className={navigationOpen ? styles.chevronOpen : undefined} />
-      </button>
+      </ButtonBase>
       <strong className={styles.sidebarTitle}>{profile.title}</strong>
       {profile.code && <p className={styles.code}>{profile.code}</p>}
       <nav className={styles.sidebarNav} aria-label="Sample type sections">

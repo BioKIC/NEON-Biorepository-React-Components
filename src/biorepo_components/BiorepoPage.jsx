@@ -141,6 +141,9 @@ export default function BiorepoPage() {
             top: '24px',
             maxHeight: 'calc(100vh - 48px)',
             overflowY: 'auto',
+            overflowX: 'hidden',
+            width: '100%',
+            boxSizing: 'border-box',
           },
           '@media (max-width: 959.95px)': {
             '.profile-sidebar + [data-selenium="neon-page.content"]': {
