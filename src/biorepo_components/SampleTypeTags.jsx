@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Box, Chip, ClickAwayListener, IconButton, Link, Tooltip } from '@mui/material';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 
 const chipStyles = {
   fontFamily: '"Inter", Helvetica, Arial, sans-serif',
@@ -26,9 +27,9 @@ function ChipHelp({ label, children, color }) {
             size="small"
             onClick={() => setOpen((value) => !value)}
             onKeyDown={(event) => { if (event.key === 'Escape') setOpen(false); }}
-            sx={{ p: 0, color, bgcolor: 'transparent', '&:hover': { bgcolor: 'transparent' } }}
+            sx={{ p: 0, m: 0, width: '0.75rem', height: '0.75rem', minWidth: 0, lineHeight: 1, color, bgcolor: 'transparent', '&:hover': { bgcolor: 'transparent' } }}
           >
-            <Box component="span" className="catalog-chip-help-glyph" aria-hidden="true" sx={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '0.625rem', height: '0.625rem', border: '1px solid currentColor', borderRadius: '50%', fontSize: '0.45rem !important', lineHeight: 1, fontWeight: 500 }}>?</Box>
+            <HelpOutlineIcon aria-hidden="true" sx={{ display: 'block', width: '0.75rem', height: '0.75rem', fontSize: '0.75rem !important', flexShrink: 0 }} />
           </IconButton>
         </Tooltip>
       </span>
