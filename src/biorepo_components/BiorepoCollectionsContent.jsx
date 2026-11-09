@@ -603,8 +603,10 @@ function Catalog() {
     setExportError('');
     setDownloading(format);
     try {
+      const params = new URLSearchParams({ format });
+      if (isFiltered) params.set('collids', results.map((item) => item.id).join(','));
       const response = await fetch(
-        `${root}/collections/download/downloadsampletypes.php?format=${format}`,
+        `${root}/collections/download/downloadsampletypes.php?${params}`,
       );
       if (!response.ok) {
         const failure = await response.json().catch(() => ({}));
@@ -751,15 +753,15 @@ function Catalog() {
                 </Typography>
               </Stack>
               <Stack direction="row" sx={{ alignItems: 'center', flexWrap: 'wrap', gap: 0.5 }}>
-                <Typography className="catalog-download-label">Download Full Catalog:</Typography>
+                <Typography className="catalog-download-label">{isFiltered ? 'Download Filtered Catalog:' : 'Download Full Catalog:'}</Typography>
                 <Stack direction="row">
                   {['csv', 'json', 'pdf'].map((format) => (
                     <Button
                       className="catalog-download-button"
                       key={format}
                       onClick={() => download(format)}
-                      disabled={Boolean(downloading)}
-                      aria-label={`Download full catalog ${format.toUpperCase()}`}
+                      disabled={Boolean(downloading) || (isFiltered && (taxonSearch.loading || !results.length))}
+                      aria-label={`Download ${isFiltered ? 'filtered' : 'full'} catalog ${format.toUpperCase()}`}
                     >
                       {downloading === format ? 'Downloading…' : format.toUpperCase()}
                     </Button>
@@ -767,7 +769,7 @@ function Catalog() {
                 </Stack>
               </Stack>
               <Typography className="catalog-download-note" sx={{ mt: 1 }}>
-                Identification records are linked under “Bulk sample identifications” in the full catalog.
+                Identification records are linked under “Bulk sample identifications” in the catalog.
               </Typography>
             </Box>
             <Box component="aside" aria-label="Request samples" sx={{ flex: '1 1 20rem', minWidth: 0, bgcolor: '#f5f6f7', border: '1px solid #d5d9db', borderRadius: '0.375rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.22)', p: { xs: 3, md: 4 } }}>
