@@ -194,7 +194,7 @@ test("identification profiles link back to bulk samples in a matching notice abo
   const about = screen.getByRole("region", { name: "About" });
   expect(notice.nextElementSibling).toBe(about);
   expect(within(about).queryByRole("note")).toBeNull();
-  expect(within(notice).getByText("Looking for the bulk samples?")).toBeTruthy();
+  expect(within(notice).getByText("Looking for bulk samples?")).toBeTruthy();
   expect(within(notice).getByRole("link", { name: "View related sample type" }).getAttribute("href"))
     .toBe("/portal/collections/misc/neoncollprofiles.php?collid=7");
   expect(screen.queryByRole("note", { name: "Taxonomic Identifications" })).toBeNull();

@@ -162,6 +162,7 @@
 }
 .header {
   padding-bottom: 28px;
+  container: profile-header / inline-size;
 }
 .profile.profile .header h1 {
   margin-bottom: 12px;
@@ -222,6 +223,28 @@
   font-size: 1rem;
   width: 1em;
   height: 1em;
+}
+/* Respond to the content width, including space taken by the page sidebar. */
+@container profile-header (max-width: 960px) {
+  .headerControls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .headerControls .actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-left: 0;
+    width: 100%;
+  }
+  .headerControls .actions :global(.MuiButton-root) {
+    min-width: 0;
+    width: 100%;
+  }
+}
+@container profile-header (max-width: 480px) {
+  .headerControls .actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 .profile .button {
   display: inline-flex;

@@ -652,7 +652,7 @@ export function CollectionProfile({
           <SampleTypeNotice
             id="bulk-samples-notice-title"
             title="Bulk Samples"
-            lead="Looking for the bulk samples?"
+            lead="Looking for bulk samples?"
             message={`Bulk samples associated with these taxonomic identifications are available through ${bulkSampleCollections.length === 1 ? "a related sample type" : "related sample types"}.`}
             links={bulkSampleCollections.map((collection) => ({
               href: profileUrl(collection.id),
