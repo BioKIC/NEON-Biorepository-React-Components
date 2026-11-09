@@ -14,7 +14,7 @@ export function createTaxonSearch(fetcher, now = Date.now) {
     if (cached && cached.expires > now()) return cached.ids;
     const params = new URLSearchParams();
     terms.forEach((term) => params.append('terms[]', term));
-    const response = await fetcher(`${root}/neon-react/biorepo_lib/sample-taxon-search.php?${params}`, { signal });
+    const response = await fetcher(`${root}/collections/misc/rpc/sample-taxon-search.php?${params}`, { signal });
     if (!response.ok) throw new Error('Taxon search is temporarily unavailable.');
     const data = await response.json();
     if (!Array.isArray(data.collectionIds)
