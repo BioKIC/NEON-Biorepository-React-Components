@@ -926,7 +926,7 @@ function Catalog() {
                       href={`${root}/neon/search/index.php?db=${item.id}`}
                       endIcon={<SearchIcon />}
                     >
-                      Search for Samples
+                      Search this sample type
                     </Button>
                     <Button
                       variant="contained"
