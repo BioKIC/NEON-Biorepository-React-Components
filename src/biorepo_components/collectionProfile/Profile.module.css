@@ -205,9 +205,13 @@
   overflow: hidden;
   background: #555;
   color: #fff;
-  font: 400 14px/24px Verdana, Geneva, sans-serif;
+  /* Match Bionomia: 11px text in a 20px SVG, displayed at 24px high. */
+  font: 400 13.2px/24px "DejaVu Sans", Verdana, Geneva, sans-serif;
   text-decoration: none;
   white-space: nowrap;
+}
+.profile .badges a.gbifBadge > span {
+  font: inherit;
 }
 .gbifBadgeIcon {
   display: flex;
