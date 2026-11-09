@@ -243,10 +243,12 @@ export default function CollectionTypeSummary() {
 
   const sampleTypes = React.useMemo(() => {
     const data = window.biorepoCollectionTypeSummary || [];
-    return [...data].sort((a, b) => b.total - a.total);
+    return [...data].sort((a, b) => b.total - a.total
+      || (b.identificationTotal || 0) - (a.identificationTotal || 0));
   }, []);
 
   const totalRecords = window.biorepoCollectionTypeSummaryTotal || 0;
+  const totalIdentifications = window.biorepoCollectionTypeSummaryIdentificationTotal || 0;
 
   useEffect(() => {
     const fetchProtocols = async () => {
@@ -430,7 +432,9 @@ export default function CollectionTypeSummary() {
                       variant="body1"
                       className={classes.totalLabel}
                     >
-                      {`${formatNumber(family.total)} Samples (${family.percent}%)`}
+                      {family.total > 0
+                        ? `${formatNumber(family.total)} Samples (${family.percent}%)`
+                        : `${formatNumber(family.identificationTotal)} Identifications`}
                     </Typography>
                   </div>
 
@@ -634,7 +638,8 @@ export default function CollectionTypeSummary() {
 
               <AccordionDetails className={classes.accordionDetails}>
                 {family.subtypes?.map((subtype) => {
-                  const isIdentification = subtype.name.includes('Identifications');
+                  const isIdentification = subtype.isIdentification ?? subtype.name.includes('Identifications');
+                  const hasParentSample = isIdentification && subtype.hasParentSample !== false;
                   const currentUrl = new URL(window.location.href);
 
                   currentUrl.searchParams.set('db', subtype.collid);
@@ -647,11 +652,11 @@ export default function CollectionTypeSummary() {
                       key={subtype.name}
                       className={classes.subtypeRow}
                       style={{
-                        paddingLeft: isIdentification ? 24 : 0,
+                        paddingLeft: hasParentSample ? 24 : 0,
                       }}
                     >
                       <div className={classes.subtypeLabel}>
-                        {isIdentification ? (
+                        {hasParentSample ? (
                           <SubdirectoryArrowRightIcon
                             style={{
                               fontSize: 18,
@@ -718,7 +723,10 @@ export default function CollectionTypeSummary() {
             </div>
           )}
           <div className={classes.footerTotal}>
-            {`${formatNumber(totalRecords)} total samples`}
+            {[
+              totalRecords > 0 || !totalIdentifications ? `${formatNumber(totalRecords)} total samples` : '',
+              totalIdentifications > 0 ? `${formatNumber(totalIdentifications)} identifications` : '',
+            ].filter(Boolean).join(' · ')}
           </div>
         </Typography>
       </Card>
