@@ -1,7 +1,11 @@
-import { searchTerms } from './catalog.js';
+import { hasCatalogTextMatch, searchTerms } from './catalog.js';
 
-export function taxonSearchTerms(query) {
-  return searchTerms(query).filter((term) => Array.from(term).length >= 3);
+export function taxonSearchTerms(query, items = null) {
+  // Wait for the searchable catalog and optional keywords to finish loading.
+  if (!items) return [];
+  return searchTerms(query).filter((term) => (
+    Array.from(term).length >= 3 && !hasCatalogTextMatch(items, term)
+  ));
 }
 
 // Cache only small query results, never the taxon list. Evict old entries and

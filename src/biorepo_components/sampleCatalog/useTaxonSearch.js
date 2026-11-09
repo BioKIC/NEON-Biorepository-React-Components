@@ -3,8 +3,9 @@ import { createTaxonSearch, taxonSearchTerms } from './taxonSearch';
 
 const EMPTY_IDS = new Set();
 
-export default function useTaxonSearch(root, query) {
-  const key = JSON.stringify(taxonSearchTerms(query));
+export default function useTaxonSearch(root, query, items) {
+  const terms = useMemo(() => taxonSearchTerms(query, items), [query, items]);
+  const key = JSON.stringify(terms);
   const enabled = key !== '[]';
   const [attempt, setAttempt] = useState(0);
   const [result, setResult] = useState({ key: '', root: '', ids: [], error: '', loading: false });

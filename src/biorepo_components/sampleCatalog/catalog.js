@@ -107,6 +107,10 @@ function searchScore(item, terms) {
   return priorityMatches && PRIORITY_COLLECTION_IDS.has(Number(item.id))
     ? relevance + (Number(item.id) === 28 ? 2000 : 1000) : relevance;
 }
+// Use the same matching rules as local search, before applying any facets.
+export function hasCatalogTextMatch(items, term) {
+  return items.some((item) => searchScore(item, [term]) > 0);
+}
 export function searchTerms(query) {
   const words = query.toLowerCase().match(/"[^"]+"|\S+/g) || [];
   return [...new Set(words.map((term) => term.replaceAll('"', '').replace(/\s+/g, ' ').trim()).filter(Boolean))];

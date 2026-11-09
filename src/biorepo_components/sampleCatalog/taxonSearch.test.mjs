@@ -12,8 +12,8 @@ test('scientific-name matches combine with text matches and retain facet filters
   assert.equal(filterCatalog(items, { ...filters, q: '' }, {}, new Set([1])).length, 3);
 });
 test('quoted names remain phrases; short terms stay local', () => {
-  assert.deepEqual(taxonSearchTerms('"Peromyscus maniculatus" soil SOIL ab'), ['peromyscus maniculatus', 'soil']);
-  assert.deepEqual(taxonSearchTerms('a ab ""'), []);
+  assert.deepEqual(taxonSearchTerms('"Peromyscus maniculatus" soil SOIL ab', []), ['peromyscus maniculatus', 'soil']);
+  assert.deepEqual(taxonSearchTerms('a ab ""', []), []);
 });
 test('small result cache expires and respects endpoint root and query', async () => {
   let calls = 0; let clock = 0;
@@ -47,4 +47,22 @@ test('failed, malformed and aborted results are not cached as successful empty m
     return { ok: true, json: async () => ({ collectionIds: [19] }) };
   });
   await assert.rejects(search('', ['taxon'], controller.signal), { name: 'AbortError' });
+});
+
+test('only locally unmatched terms trigger taxon lookup, independent of facets', () => {
+  const items = [{
+    ...item(1, 'Small Mammal Tissues'),
+    description: 'Cryopreserved liver samples',
+    keywords: ['soil structure'],
+  }];
+  assert.deepEqual(taxonSearchTerms('tissue cryopreserved "soil structure" mammals MAM frozen Peromyscus', items), ['peromyscus']);
+  assert.deepEqual(taxonSearchTerms('tissues', items), []);
+  assert.deepEqual(taxonSearchTerms('"Mammal Tissues" "Peromyscus maniculatus"', items), ['peromyscus maniculatus']);
+  // No local results after applying a facet must not reclassify a known term as a taxon.
+  assert.equal(filterCatalog(items, { ...emptyFilters(), q: 'tissues', preservation: ['Dry'] }).length, 0);
+  assert.deepEqual(taxonSearchTerms('tissues', items), []);
+});
+test('taxon lookup waits for catalog text rather than querying during loading', () => {
+  assert.deepEqual(taxonSearchTerms('Peromyscus', null), []);
+  assert.deepEqual(taxonSearchTerms('Peromyscus', []), ['peromyscus']);
 });

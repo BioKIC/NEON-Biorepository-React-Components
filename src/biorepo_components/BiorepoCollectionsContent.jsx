@@ -404,10 +404,10 @@ function Catalog() {
   const { data: geography, isFinal: geographyReady, hasError: geographyError } = context;
   const [catalog, setCatalog] = useState(null);
   const [keywords, setKeywords] = useState({});
+  const [keywordsReady, setKeywordsReady] = useState(false);
   const [error, setError] = useState('');
   const [attempt, setAttempt] = useState(0);
   const [filters, setFilters] = useState(() => readFilters(window.location.search));
-  const taxonSearch = useTaxonSearch(root, filters.q);
   const [limit, setLimit] = useState(10);
   const loadMoreRef = useRef(null);
   const lastTrackedSearch = useRef('');
@@ -421,6 +421,7 @@ function Catalog() {
     ...item,
     keywords: collectionKeywords(keywords?.[item.id]),
   })), [catalog, keywords]);
+  const taxonSearch = useTaxonSearch(root, filters.q, catalog && keywordsReady ? items : null);
 
   useEffect(() => {
     const syncSidebar = () => setSidebar(document.getElementById('biorepo-catalog-filters'));
@@ -452,6 +453,7 @@ function Catalog() {
       });
     // Read the same editable terms as the profile without rebuilding the catalog snapshot.
     setKeywords({});
+    setKeywordsReady(false);
     fetch(`${root}/neon-react/biorepo_lib/keywords.json`, {
       signal: controller.signal, cache: 'no-store',
     })
@@ -464,6 +466,9 @@ function Catalog() {
       })
       .catch(() => {
         // Optional keywords must not prevent browsing or searching the other catalog fields.
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setKeywordsReady(true);
       });
     return () => controller.abort();
   }, [root, attempt]);
@@ -648,7 +653,7 @@ function Catalog() {
         className="catalog-search-field"
         fullWidth
         size="small"
-        placeholder='Soil, "DNA extracts", "Peromyscus maniculatus"…'
+        placeholder="Search sample types…"
         slotProps={{ htmlInput: {
           'aria-labelledby': 'catalog-search-heading',
           'aria-describedby': 'catalog-search-help',
@@ -658,8 +663,9 @@ function Catalog() {
         onChange={(event) => update({ q: event.target.value }, true)}
       />
       <Typography id="catalog-search-help" className="catalog-search-help" sx={{ mt: 1.5 }}>
-        Use several terms to match sample types having <em>any</em> term (<em>term OR term</em>).
-        {' '}Quote terms to match phrases (e.g. "DNA extracts").
+        Examples: soil, "DNA extracts", "Peromyscus maniculatus".
+        {' '}Use several terms to match sample types having <em>any</em> term (<em>term OR term</em>).
+        {' '}Quote terms to match phrases.
         {' '}Scientific names match from the beginning of the name (at least 3 characters).
         {' '}<CatalogKeywordBrowser
           items={items}
