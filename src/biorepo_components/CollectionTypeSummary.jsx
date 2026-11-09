@@ -691,11 +691,13 @@ export default function CollectionTypeSummary() {
                         variant="body2"
                         className={classes.subtypeCount}
                       >
-                        {isIdentification
+                        {/* neon edit */}
+                        {subtype.isParentContext ? 'Parent sample type' : (isIdentification
                           ? `${formatNumber(subtype.total)} Identifications`
                           : `${formatNumber(
                             subtype.total,
-                          )} Samples (${subtype.percent}%)`}
+                          )} Samples (${subtype.percent}%)`)}
+                        {/* end neon edit */}
                       </Typography>
                     </div>
                   );
