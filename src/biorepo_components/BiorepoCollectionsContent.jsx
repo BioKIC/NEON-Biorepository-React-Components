@@ -71,7 +71,7 @@ const compactCatalogStyles = {
     '& .catalog-request-heading.MuiTypography-root': { fontSize: '0.875rem !important', fontWeight: 500 },
     '& .catalog-request-description.MuiTypography-root': { fontSize: '0.6875rem !important', lineHeight: 1.5, color: '#595d60' },
     '& .catalog-request-button.MuiButton-root': {
-      fontSize: '0.625rem !important', fontWeight: 500, whiteSpace: 'nowrap',
+      fontSize: '0.625rem !important', fontWeight: 500, whiteSpace: 'normal',
       padding: '0.5rem 1rem', backgroundColor: '#0073cf', color: '#fff',
       '&:hover': { backgroundColor: '#005da8' },
     },
@@ -717,8 +717,8 @@ function Catalog() {
       )}
       {catalog && (
         <>
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 30rem) minmax(15rem, 20rem)' }, gap: 3, alignItems: 'start', mb: 3 }}>
-            <Box component="section" aria-label="Sample catalog summary">
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, alignItems: 'flex-start', mb: 3 }}>
+            <Box component="section" aria-label="Sample catalog summary" sx={{ flex: '1 1 24rem', minWidth: 0 }}>
               <Typography className="catalog-summary-title" component="h2" variant="h5">
                 All Sample Types
               </Typography>
@@ -756,7 +756,7 @@ function Catalog() {
                 Identification records are linked under “Bulk sample identifications” in the full catalog.
               </Typography>
             </Box>
-            <Box component="aside" aria-label="Request samples" sx={{ mt: { xs: 0, md: '-3rem' }, bgcolor: '#f5f6f7', border: '1px solid #d5d9db', borderRadius: '0.375rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.22)', p: { xs: 3, md: 4 } }}>
+            <Box component="aside" aria-label="Request samples" sx={{ flex: '1 1 20rem', minWidth: 0, bgcolor: '#f5f6f7', border: '1px solid #d5d9db', borderRadius: '0.375rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.22)', p: { xs: 3, md: 4 } }}>
               <Typography component="h2" className="catalog-request-heading">Interested in using samples?</Typography>
               <Typography className="catalog-request-description" sx={{ mt: 1, mb: 2 }}>
                 Learn how to request samples and specimens for your research.
