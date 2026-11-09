@@ -13,6 +13,8 @@ import CatalogDescription from './sampleCatalog/CatalogDescription';
 import CatalogKeywordBrowser from './sampleCatalog/CatalogKeywordBrowser';
 import { collectionKeywords } from './sampleCatalog/keywords';
 import useTaxonSearch from './sampleCatalog/useTaxonSearch';
+import { recordLinks } from './sampleCatalog/recordLinks';
+import biorepoDatasets from '../lib_components/staticJSON/biorepoDatasets.json';
 import SampleTypeChip from './SampleTypeChip';
 import SampleTypeTags from './SampleTypeTags';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
@@ -94,6 +96,12 @@ const compactCatalogStyles = {
       whiteSpace: 'nowrap', backgroundColor: '#0073cf', color: '#fff',
       '&:hover': { backgroundColor: '#005da8' },
       '& .MuiSvgIcon-root': { fontSize: '1rem' },
+    },
+    '& .catalog-record-button.MuiButton-root': {
+      fontSize: '0.5625rem !important', fontWeight: '600 !important',
+      lineHeight: 1.25, minHeight: '1.75rem', padding: '0.4rem 0.5rem',
+      letterSpacing: '0.04em', whiteSpace: 'normal',
+      '& .MuiSvgIcon-root': { fontSize: '0.875rem !important' },
     },
     '& .catalog-date-heading.MuiTypography-root': {
       fontSize: '1.125rem !important', fontWeight: 500, whiteSpace: 'nowrap',
@@ -593,6 +601,12 @@ function Catalog() {
       .map((site) => site.siteCode)),
   ).size;
   const invalidDates = Boolean(filters.from && filters.to && filters.from > filters.to);
+  const records = useMemo(() => recordLinks({
+    root, items, results, filters, sites, datasets: biorepoDatasets.datasets,
+  }), [root, items, results, filters, sites]);
+  const recordLinksDisabled = !catalog || !keywordsReady || taxonSearch.loading
+    || Boolean(taxonSearch.error) || !records.browse
+    || ((filters.states.length > 0 || filters.domains.length > 0) && !geographyReady);
   const active = FACETS.flatMap((key) => filters[key].map((value) => ({
     key,
     value,
@@ -642,6 +656,33 @@ function Catalog() {
       >
         Reset all filters
       </Button>
+      <Stack sx={{ gap: 1, mt: 1 }}>
+        <Button
+          className="catalog-record-button"
+          fullWidth
+          variant="contained"
+          href={recordLinksDisabled ? undefined : records.browse}
+          disabled={recordLinksDisabled}
+          endIcon={<FormatListBulletedIcon />}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Browse {isFiltered ? 'filtered' : 'all'} records
+        </Button>
+        <Button
+          className="catalog-record-button"
+          fullWidth
+          variant="contained"
+          href={recordLinksDisabled ? undefined : records.search}
+          disabled={recordLinksDisabled}
+          endIcon={<SearchIcon />}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Search {isFiltered ? 'filtered' : 'all'} records
+        </Button>
+      </Stack>
+      {records.error && <Typography role="status" sx={{ mt: 1 }}>{records.error}</Typography>}
       <Divider sx={{ mt: 3 }} />
       <Typography
         id="catalog-search-heading"
