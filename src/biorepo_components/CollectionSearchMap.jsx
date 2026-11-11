@@ -3,11 +3,12 @@ import React, { useEffect, useState } from 'react';
 import SiteMap from '../lib_components/components/SiteMap/SiteMap';
 
 import biorepoDatasets from '../lib_components/staticJSON/biorepoDatasets.json';
+import { sitesFromRecordQuery } from './sampleCatalog/recordLinks';
 
 /* global updateChip */
 
 export default function BiorepoSearchMap() {
-  const [selectedSites, setSelectedSites] = useState(new Set());
+  const [selectedSites, setSelectedSites] = useState(() => sitesFromRecordQuery(window.location.search, biorepoDatasets.datasets));
   const [isMapVisible, setIsMapVisible] = useState(false);
 
   const datasetLookup = Object.fromEntries(
@@ -16,6 +17,11 @@ export default function BiorepoSearchMap() {
       dataset.datasetID,
     ]),
   );
+
+  useEffect(() => {
+    // Map checkboxes may mount after the legacy form's URL-prefill handler runs.
+    if (typeof updateChip === 'function' && document.getElementById('chips')) updateChip();
+  }, [selectedSites]);
 
   useEffect(() => {
     const modal = document.getElementById('domains-sites-modal');
@@ -65,9 +71,6 @@ export default function BiorepoSearchMap() {
           onSelectionChange={(selectionState) => {
             setSelectedSites(new Set(selectionState.set));
 
-            setTimeout(() => {
-              updateChip();
-            }, 0);
           }}
         />
       )}

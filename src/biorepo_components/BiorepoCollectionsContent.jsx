@@ -10,6 +10,15 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import CatalogDateFilter from './sampleCatalog/CatalogDateFilter';
 import CatalogDescription from './sampleCatalog/CatalogDescription';
+import CatalogKeywordBrowser from './sampleCatalog/CatalogKeywordBrowser';
+import { collectionKeywords } from './sampleCatalog/keywords';
+import useTaxonSearch from './sampleCatalog/useTaxonSearch';
+import useRecordCounts from './sampleCatalog/useRecordCounts';
+import { applyTaxonAvailability } from './sampleCatalog/taxonSearch';
+import { recordLinks } from './sampleCatalog/recordLinks';
+import biorepoDatasets from '../lib_components/staticJSON/biorepoDatasets.json';
+import SampleTypeChip from './SampleTypeChip';
+import SampleTypeTags from './SampleTypeTags';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import { createTheme, ThemeProvider, useTheme } from '@mui/material/styles';
@@ -24,9 +33,6 @@ import {
   Divider,
   FormControlLabel,
   GlobalStyles,
-  IconButton,
-  Tooltip,
-  ClickAwayListener,
   Link,
   Stack,
   TextField,
@@ -70,7 +76,7 @@ const compactCatalogStyles = {
     '& .catalog-request-heading.MuiTypography-root': { fontSize: '0.875rem !important', fontWeight: 500 },
     '& .catalog-request-description.MuiTypography-root': { fontSize: '0.6875rem !important', lineHeight: 1.5, color: '#595d60' },
     '& .catalog-request-button.MuiButton-root': {
-      fontSize: '0.625rem !important', fontWeight: 500, whiteSpace: 'nowrap',
+      fontSize: '0.625rem !important', fontWeight: 500, whiteSpace: 'normal',
       padding: '0.5rem 1rem', backgroundColor: '#0073cf', color: '#fff',
       '&:hover': { backgroundColor: '#005da8' },
     },
@@ -91,7 +97,16 @@ const compactCatalogStyles = {
       letterSpacing: '0.04em', lineHeight: 1.25, minHeight: '2rem',
       whiteSpace: 'nowrap', backgroundColor: '#0073cf', color: '#fff',
       '&:hover': { backgroundColor: '#005da8' },
+      '&.Mui-disabled': {
+        backgroundColor: '#e3e6e8', color: '#9fa4a6', boxShadow: 'none',
+      },
       '& .MuiSvgIcon-root': { fontSize: '1rem' },
+    },
+    '& .catalog-record-button.MuiButton-root': {
+      fontSize: '0.5625rem !important', fontWeight: '600 !important',
+      lineHeight: 1.25, minHeight: '1.75rem', padding: '0.4rem 0.5rem',
+      letterSpacing: '0.04em', whiteSpace: 'normal',
+      '& .MuiSvgIcon-root': { fontSize: '0.875rem !important' },
     },
     '& .catalog-date-heading.MuiTypography-root': {
       fontSize: '1.125rem !important', fontWeight: 500, whiteSpace: 'nowrap',
@@ -132,6 +147,10 @@ const compactCatalogStyles = {
     },
     '& .catalog-search-help.MuiTypography-root': {
       fontSize: '0.625rem !important', color: '#808080', lineHeight: 1.5,
+    },
+    '& .catalog-search-help .MuiLink-root': {
+      fontSize: 'inherit !important', lineHeight: 'inherit',
+      display: 'inline', verticalAlign: 'baseline',
     },
     '& .catalog-selection-count.MuiTypography-root': {
       fontSize: '0.625rem !important', color: '#808080',
@@ -229,33 +248,6 @@ const EMPTY_ITEMS = [];
 const EMPTY_SITES = {};
 const mapTypes = { sites: 'SITES', states: 'STATES', domains: 'DOMAINS' };
 
-function ChipHelp({ label, children, color }) {
-  const [open, setOpen] = useState(false);
-  return (
-    <ClickAwayListener onClickAway={() => setOpen(false)}>
-      <span style={{ position: 'relative', top: '-0.25rem', display: 'inline-flex', flexShrink: 0 }}>
-        <Tooltip
-          title={children}
-          open={open}
-          onOpen={() => setOpen(true)}
-          onClose={() => setOpen(false)}
-          describeChild
-          slotProps={{ tooltip: { sx: { fontSize: '0.625rem !important', lineHeight: 1.5, maxWidth: 280 } } }}
-        >
-          <IconButton
-            aria-label={label}
-            size="small"
-            onClick={() => setOpen((value) => !value)}
-            onKeyDown={(event) => { if (event.key === 'Escape') setOpen(false); }}
-            sx={{ p: 0, color, bgcolor: 'transparent', '&:hover': { bgcolor: 'transparent' } }}
-          >
-            <Box component="span" className="catalog-chip-help-glyph" aria-hidden="true" sx={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '0.625rem', height: '0.625rem', border: '1px solid currentColor', borderRadius: '50%', fontSize: '0.45rem !important', lineHeight: 1 }}>?</Box>
-          </IconButton>
-        </Tooltip>
-      </span>
-    </ClickAwayListener>
-  );
-}
 
 function Facet({
   name, options, selected, onChange, mapReady,
@@ -424,6 +416,8 @@ function Catalog() {
   const [context] = NeonContext.useNeonContextState();
   const { data: geography, isFinal: geographyReady, hasError: geographyError } = context;
   const [catalog, setCatalog] = useState(null);
+  const [keywords, setKeywords] = useState({});
+  const [keywordsReady, setKeywordsReady] = useState(false);
   const [error, setError] = useState('');
   const [attempt, setAttempt] = useState(0);
   const [filters, setFilters] = useState(() => readFilters(window.location.search));
@@ -436,7 +430,15 @@ function Catalog() {
   const [exportError, setExportError] = useState('');
   const [downloading, setDownloading] = useState('');
   const sites = geography.sites || EMPTY_SITES;
-  const items = catalog?.items || EMPTY_ITEMS;
+  const items = useMemo(() => (catalog?.items || EMPTY_ITEMS).map((item) => ({
+    ...item,
+    keywords: collectionKeywords(keywords?.[item.id]),
+  })), [catalog, keywords]);
+  const taxonSearch = useTaxonSearch(root, filters.q, catalog && keywordsReady ? items : null);
+  const availableItems = useMemo(
+    () => applyTaxonAvailability(items, filters.q, taxonSearch.siteCodesByCollection),
+    [items, filters.q, taxonSearch.siteCodesByCollection],
+  );
 
   useEffect(() => {
     const syncSidebar = () => setSidebar(document.getElementById('biorepo-catalog-filters'));
@@ -466,6 +468,25 @@ function Catalog() {
       .catch((reason) => {
         if (reason.name !== 'AbortError') setError(reason.message);
       });
+    // Read the same editable terms as the profile without rebuilding the catalog snapshot.
+    setKeywords({});
+    setKeywordsReady(false);
+    fetch(`${root}/neon-react/biorepo_lib/keywords.json`, {
+      signal: controller.signal, cache: 'no-store',
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error('Unable to load sample keywords.');
+        return response.json();
+      })
+      .then((data) => {
+        if (!controller.signal.aborted) setKeywords(data);
+      })
+      .catch(() => {
+        // Optional keywords must not prevent browsing or searching the other catalog fields.
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setKeywordsReady(true);
+      });
     return () => controller.abort();
   }, [root, attempt]);
 
@@ -481,16 +502,16 @@ function Catalog() {
       window.history[replace ? 'replaceState' : 'pushState'](null, '', url);
     }
   };
-  const results = useMemo(() => filterCatalog(items, filters, sites), [items, filters, sites]);
+  const results = useMemo(() => filterCatalog(availableItems, filters, sites, taxonSearch.ids), [availableItems, filters, sites, taxonSearch.ids]);
   const repositoryCounts = useMemo(() => {
     const counts = Object.fromEntries(REPOSITORIES.map(({ value }) => [value, 0]));
-    filterCatalog(items, { ...filters, repository: [] }, sites).forEach((item) => {
+    filterCatalog(availableItems, { ...filters, repository: [] }, sites, taxonSearch.ids).forEach((item) => {
       REPOSITORIES.forEach(({ value }) => {
         if (matchesRepository(item, value)) counts[value] += 1;
       });
     });
     return counts;
-  }, [items, filters, sites]);
+  }, [availableItems, filters, sites, taxonSearch.ids]);
 
   useEffect(() => {
     const term = filters.q.trim().replace(/\s+/g, ' ');
@@ -498,7 +519,7 @@ function Catalog() {
       lastTrackedSearch.current = '';
       return undefined;
     }
-    if (!catalog || lastTrackedSearch.current === term) return undefined;
+    if (!catalog || taxonSearch.loading || lastTrackedSearch.current === term) return undefined;
     const timer = window.setTimeout(() => {
       const event = ['event', 'sample_type_search', {
         search_term: term,
@@ -511,7 +532,7 @@ function Catalog() {
       lastTrackedSearch.current = term;
     }, 1000);
     return () => window.clearTimeout(timer);
-  }, [filters.q, catalog, results.length]);
+  }, [filters.q, catalog, results.length, taxonSearch.loading]);
 
   const visibleLimit = window.IntersectionObserver ? limit : results.length;
   useEffect(() => {
@@ -537,7 +558,7 @@ function Catalog() {
       FACETS.map((key) => {
         const counts = new Map();
         const facetFilters = { ...filters, [key]: [] };
-        const candidates = filterCatalog(items, facetFilters, sites);
+        const candidates = filterCatalog(availableItems, facetFilters, sites, taxonSearch.ids);
         candidates.forEach((item) => {
           const values = mapTypes[key]
             ? matchingSites(item, facetFilters, sites)
@@ -577,12 +598,29 @@ function Catalog() {
         ];
       }),
     ),
-    [items, geography, sites, filters],
+    [availableItems, geography, sites, filters, taxonSearch.ids],
+  );
+  const isFiltered = Boolean(
+    filters.q.trim() || filters.from || filters.to || filters.repository.length
+    || FACETS.some((key) => filters[key].length),
   );
   const siteCount = new Set(
-    items.flatMap((item) => item.siteCodes.map((site) => site.siteCode)),
+    results.flatMap((item) => matchingSites(item, filters, sites)
+      .filter((site) => !(filters.from || filters.to) || site.availableMonths.length)
+      .map((site) => site.siteCode)),
   ).size;
   const invalidDates = Boolean(filters.from && filters.to && filters.from > filters.to);
+  const records = useMemo(() => recordLinks({
+    root, items, results, filters, sites, datasets: biorepoDatasets.datasets,
+  }), [root, items, results, filters, sites]);
+  const recordLinksPending = !catalog || !keywordsReady || taxonSearch.loading
+    || Boolean(taxonSearch.error)
+    || ((filters.states.length > 0 || filters.domains.length > 0) && !geographyReady);
+  const recordLinksDisabled = recordLinksPending || !records.browse;
+  const cardRecordLinks = useMemo(() => new Map(results.slice(0, visibleLimit).map((item) => [item.id, recordLinks({
+    root, items, results: [item], filters, sites, datasets: biorepoDatasets.datasets,
+  })])), [root, items, results, visibleLimit, filters, sites]);
+  const recordCounts = useRecordCounts(root, cardRecordLinks, recordLinksPending);
   const active = FACETS.flatMap((key) => filters[key].map((value) => ({
     key,
     value,
@@ -593,8 +631,10 @@ function Catalog() {
     setExportError('');
     setDownloading(format);
     try {
+      const params = new URLSearchParams({ format });
+      if (isFiltered) params.set('collids', results.map((item) => item.id).join(','));
       const response = await fetch(
-        `${root}/collections/download/downloadsampletypes.php?format=${format}`,
+        `${root}/collections/download/downloadsampletypes.php?${params}`,
       );
       if (!response.ok) {
         const failure = await response.json().catch(() => ({}));
@@ -626,10 +666,42 @@ function Catalog() {
         fullWidth
         variant="contained"
         startIcon={<CloseIcon />}
+        disabled={!isFiltered}
         onClick={() => update(emptyFilters())}
       >
         Reset all filters
       </Button>
+      <Divider sx={{ my: 2 }} />
+      <Typography component="h2" className="catalog-date-heading" sx={{ mb: 1.5 }}>
+        Explore Records
+      </Typography>
+      <Stack sx={{ gap: 1 }}>
+        <Button
+          className="catalog-record-button"
+          fullWidth
+          variant="contained"
+          href={recordLinksDisabled ? undefined : records.browse}
+          disabled={recordLinksDisabled}
+          endIcon={<FormatListBulletedIcon />}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Browse {isFiltered ? 'filtered' : 'all'} records
+        </Button>
+        <Button
+          className="catalog-record-button"
+          fullWidth
+          variant="contained"
+          href={recordLinksDisabled ? undefined : records.search}
+          disabled={recordLinksDisabled}
+          endIcon={<SearchIcon />}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Search {isFiltered ? 'filtered' : 'all'} records
+        </Button>
+      </Stack>
+      {records.error && <Typography role="status" sx={{ mt: 1 }}>{records.error}</Typography>}
       <Divider sx={{ mt: 3 }} />
       <Typography
         id="catalog-search-heading"
@@ -643,7 +715,7 @@ function Catalog() {
         className="catalog-search-field"
         fullWidth
         size="small"
-        placeholder='Soil, "DNA extracts", etc...'
+        placeholder='Soil, "DNA extracts", Quercus, etc...'
         slotProps={{ htmlInput: {
           'aria-labelledby': 'catalog-search-heading',
           'aria-describedby': 'catalog-search-help',
@@ -653,8 +725,14 @@ function Catalog() {
         onChange={(event) => update({ q: event.target.value }, true)}
       />
       <Typography id="catalog-search-help" className="catalog-search-help" sx={{ mt: 1.5 }}>
-        Use several terms to match products having <em>any</em> term (<em>term OR term</em>).
+        Use several terms to match sample types having <em>any</em> term (<em>term OR term</em>).
         {' '}Quote terms to match phrases (e.g. "DNA extracts").
+        {' '}<CatalogKeywordBrowser
+          items={items}
+          query={filters.q}
+          onChange={(q) => update({ q }, true)}
+          resultCount={results.length}
+        />
       </Typography>
       <CatalogDateFilter items={items} from={filters.from} through={filters.to} onChange={update} />
       <Divider />
@@ -714,10 +792,10 @@ function Catalog() {
       )}
       {catalog && (
         <>
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 30rem) minmax(15rem, 20rem)' }, gap: 3, alignItems: 'start', mb: 3 }}>
-            <Box component="section" aria-label="Sample catalog summary">
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, alignItems: 'flex-start', mb: 3 }}>
+            <Box component="section" aria-label="Sample catalog summary" sx={{ flex: '2 1 20rem', minWidth: 0, boxSizing: 'border-box' }}>
               <Typography className="catalog-summary-title" component="h2" variant="h5">
-                All Sample Types
+                {isFiltered ? 'Filtered Sample Types' : 'All Sample Types'}
               </Typography>
               <Stack
                 direction="row"
@@ -729,20 +807,20 @@ function Catalog() {
                   aria-hidden="true"
                   sx={{ fontSize: '0.75rem', color: '#595d60' }}
                 />
-                <Typography className="catalog-summary-count">
-                  {`${items.length} sample types (including identification records) from ${siteCount} sites`}
+                <Typography className="catalog-summary-count" aria-live="polite" aria-busy={taxonSearch.loading}>
+                  {`${results.length} sample ${results.length === 1 ? 'type' : 'types'} (including identification records) from ${siteCount} ${siteCount === 1 ? 'site' : 'sites'}`}
                 </Typography>
               </Stack>
               <Stack direction="row" sx={{ alignItems: 'center', flexWrap: 'wrap', gap: 0.5 }}>
-                <Typography className="catalog-download-label">Download Full Catalog:</Typography>
+                <Typography className="catalog-download-label">{isFiltered ? 'Download Filtered Catalog:' : 'Download Full Catalog:'}</Typography>
                 <Stack direction="row">
                   {['csv', 'json', 'pdf'].map((format) => (
                     <Button
                       className="catalog-download-button"
                       key={format}
                       onClick={() => download(format)}
-                      disabled={Boolean(downloading)}
-                      aria-label={`Download full catalog ${format.toUpperCase()}`}
+                      disabled={Boolean(downloading) || (isFiltered && (taxonSearch.loading || !results.length))}
+                      aria-label={`Download ${isFiltered ? 'filtered' : 'full'} catalog ${format.toUpperCase()}`}
                     >
                       {downloading === format ? 'Downloading…' : format.toUpperCase()}
                     </Button>
@@ -750,10 +828,10 @@ function Catalog() {
                 </Stack>
               </Stack>
               <Typography className="catalog-download-note" sx={{ mt: 1 }}>
-                Identification records are linked under “Bulk sample identifications” in the full catalog.
+                Identification records are linked under “Bulk sample identifications” in the catalog.
               </Typography>
             </Box>
-            <Box component="aside" aria-label="Request samples" sx={{ mt: { xs: 0, md: '-3rem' }, bgcolor: '#f5f6f7', border: '1px solid #d5d9db', borderRadius: '0.375rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.22)', p: { xs: 3, md: 4 } }}>
+            <Box component="aside" aria-label="Request samples" sx={{ flex: '1 1 16rem', minWidth: 0, boxSizing: 'border-box', bgcolor: '#f5f6f7', border: '1px solid #d5d9db', borderRadius: '0.375rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.22)', p: { xs: 3, md: 4 } }}>
               <Typography component="h2" className="catalog-request-heading">Interested in using samples?</Typography>
               <Typography className="catalog-request-description" sx={{ mt: 1, mb: 2 }}>
                 Learn how to request samples and specimens for your research.
@@ -797,7 +875,15 @@ function Catalog() {
           {invalidDates && (
             <Alert severity="error">The start month must be on or before the end month.</Alert>
           )}
-          {!results.length && (
+          {taxonSearch.loading && (
+            <Typography role="status" sx={{ mb: 2 }}>Checking scientific names…</Typography>
+          )}
+          {taxonSearch.error && (
+            <Alert severity="warning" action={<Button onClick={taxonSearch.retry}>Retry</Button>}>
+              {taxonSearch.error}
+            </Alert>
+          )}
+          {!results.length && !taxonSearch.loading && !taxonSearch.error && (
             <Alert severity="info">
               No sample types match these filters. Try removing a filter or changing the date
               range.
@@ -813,6 +899,10 @@ function Catalog() {
             ].sort();
             const details = `${root}/collections/misc/neoncollprofiles.php?collid=${item.id}`;
             const description = item.shortDescription ?? cardDescription(item.description || '');
+            const cardRecords = cardRecordLinks.get(item.id);
+            const cardRecordsDisabled = recordLinksPending || !cardRecords.browse;
+            const matchedCount = recordCounts.counts[item.id];
+            const countPending = recordCounts.loading || (recordLinksPending && !taxonSearch.error);
             return (
               <Card
                 key={item.id}
@@ -837,40 +927,13 @@ function Catalog() {
                     </Typography>
                     <Stack direction="row" sx={{ mt: 1, gap: 1, flexWrap: 'wrap' }}>
                       {item.collectionCode && (
-                        <Chip
+                        <SampleTypeChip
                           className="catalog-code"
                           label={item.collectionCode}
-                          size="small"
-                          sx={{ bgcolor: '#e4e7e7', color: '#737d81', border: '1px solid #92999b' }}
+                          variant="outlined"
                         />
                       )}
-                      {item.outsideRepository && (
-                        <Box sx={{ display: 'inline-flex', alignItems: 'flex-start', gap: '0.125rem' }}>
-                          <Chip
-                            className="catalog-code"
-                            label="Outside Repository"
-                            size="small"
-                            sx={{ bgcolor: '#e8f5e9', color: '#1b5e20', border: '1px solid #388e3c' }}
-                          />
-                          <ChipHelp label="About outside repositories" color="#1b5e20">
-                            Samples and specimens held at repositories outside the NEON Biorepository at Arizona State University.{' '}
-                            <Link href="https://www.neonscience.org/samples/sample-repositories" target="_blank" rel="noopener noreferrer" color="inherit" underline="always">Learn about NEON sample repositories</Link>
-                          </ChipHelp>
-                        </Box>
-                      )}
-                      {/\bidentifications?\b/i.test(item.sampleTypeName || item.name || '') && (
-                        <Box sx={{ display: 'inline-flex', alignItems: 'flex-start', gap: '0.125rem' }}>
-                          <Chip
-                            className="catalog-code"
-                            label="Identification Records"
-                            size="small"
-                            sx={{ bgcolor: '#f5b23b', color: '#4b2d0b', border: '1px solid #a4681b' }}
-                          />
-                          <ChipHelp label="About identification records" color="#a4681b">
-                            Taxonomic identification records describe organisms identified within a bulk sample rather than individually archived specimens.
-                          </ChipHelp>
-                        </Box>
-                      )}
+                      <SampleTypeTags item={item} />
                     </Stack>
                     {description && (
                       <Typography sx={{ mt: 2 }}>
@@ -881,17 +944,19 @@ function Catalog() {
                   <Stack sx={{ gap: 1.5, width: '100%', minWidth: 0 }}>
                     <Button
                       variant="contained"
-                      href={`${root}/neon/search/index.php?db=${item.id}`}
-                      endIcon={<SearchIcon />}
+                      endIcon={<FormatListBulletedIcon />}
+                      href={cardRecordsDisabled ? undefined : cardRecords.browse}
+                      disabled={cardRecordsDisabled}
                     >
-                      Search for Samples
+                      Browse {cardRecords.filtered ? 'filtered' : 'all'} records
                     </Button>
                     <Button
                       variant="contained"
-                      endIcon={<FormatListBulletedIcon />}
-                      href={`${root}/collections/list.php?db=${item.id}`}
+                      href={cardRecordsDisabled ? undefined : cardRecords.search}
+                      disabled={cardRecordsDisabled}
+                      endIcon={<SearchIcon />}
                     >
-                      Browse all records
+                      {cardRecords.filtered ? 'Search filtered records' : 'Search this sample type'}
                     </Button>
                     <Button variant="outlined" href={details} endIcon={<InfoOutlinedIcon />}>
                       Sample type details
@@ -949,11 +1014,16 @@ function Catalog() {
                   sx={{ mt: 2 }}
                   color="text.secondary"
                 >
-                  {Number(item.totalSamples).toLocaleString()}
-                  {' '}
-                  records in this
-                  collection. Coverage reflects collection dates of cataloged records; it does
-                  not guarantee material is available for loan.
+                  {cardRecords.filtered
+                    ? (countPending ? 'Counting matching records…'
+                      : (Number.isSafeInteger(matchedCount)
+                        ? `${matchedCount.toLocaleString()} ${matchedCount === 1 ? 'record matches' : 'records match'} the current filters.`
+                        : 'Matching record count is unavailable.'))
+                    : `${Number(item.totalSamples).toLocaleString()} records in this sample type.`}
+                  {' '}Coverage shows {cardRecords.filtered ? 'matching ' : ''}collection dates; availability for loan is not guaranteed.
+                  {cardRecords.filtered && recordCounts.error && (
+                    <Button size="small" onClick={recordCounts.retry}>Retry count</Button>
+                  )}
                 </Typography>
               </Card>
             );

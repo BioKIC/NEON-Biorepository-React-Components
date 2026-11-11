@@ -1,0 +1,987 @@
+.profile {
+  --profile-blue: #0073a9;
+  --profile-font-family: "Inter", Helvetica, Arial, sans-serif;
+  color: #292d30;
+  font: 14px/1.5 var(--profile-font-family);
+  display: flex;
+  align-items: flex-start;
+  gap: 44px;
+  margin: 0 0 48px;
+}
+.profile * {
+  box-sizing: border-box;
+}
+.profile a {
+  color: var(--profile-blue);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.profile a:hover {
+  color: #004b70;
+}
+.profile a:focus-visible,
+.actions button:focus-visible {
+  outline: 3px solid #0073a9;
+  outline-offset: 4px;
+}
+.sidebar,
+.sidebar * {
+  box-sizing: border-box;
+}
+.sidebar {
+  width: 100%;
+  overflow-wrap: anywhere;
+  flex: 0 0 240px;
+  min-width: 0;
+  padding: 0;
+  position: static;
+  color: #1a1a1a;
+  font-family: "Inter", Helvetica, Arial, sans-serif;
+  line-height: 1.43;
+}
+.sidebar .sidebarTitle {
+  display: block;
+  margin: 0;
+  color: #1a1a1a;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+/* Outrank the portal's p:not([class^="Mui"]):not(...) legacy rule. */
+.sidebar .code.code {
+  margin: 8px 0 0;
+  color: #a2a4a3;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.sidebar .sidebarNav {
+  display: block;
+  border-top: 1px solid #d5d7d8;
+  border-bottom: 1px solid #d5d7d8;
+  margin-top: 24px;
+  padding: 24px 0;
+}
+.sidebar .sidebarItems {
+  display: block;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.sidebar .sidebarItems > li {
+  display: block;
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+}
+.sidebar .sidebarItems > li:last-child {
+  margin-bottom: 0;
+}
+.sidebar .sidebarItems a.sidebarLink {
+  display: block;
+  color: #0073cf;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  overflow-wrap: anywhere;
+}
+.sidebar .sidebarItems a.sidebarLink:hover {
+  color: #005a9f;
+}
+.sidebar .sidebarItems a.sidebarLink[aria-current="location"] {
+  color: #565a5c;
+  font-weight: 700;
+  text-decoration: none;
+}
+.sidebar .sidebarItems a.sidebarLink:focus-visible {
+  outline: 3px solid #0073cf;
+  outline-offset: 4px;
+}
+.sidebar .sidebarContact {
+  padding-top: 24px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.sidebar .sidebarContact .sidebarContactText {
+  color: #565a5c;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+  margin: 0 0 12px;
+}
+.sidebar .sidebarContact a {
+  color: #0073cf;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.sidebar .sidebarContact a:hover {
+  color: #005a9f;
+}
+.sidebar .sidebarContact a:focus-visible {
+  outline: 3px solid #0073cf;
+  outline-offset: 4px;
+}
+.main {
+  flex: 1;
+  min-width: 0;
+}
+/* Outrank legacy non-MUI typography without changing other portal pages. */
+.profile h1,
+.profile.profile .main :where(h1) {
+  font-size: clamp(32px, 3vw, 42px);
+  font-weight: 400;
+  line-height: 1.2;
+  margin: 0 0 24px;
+}
+.profile h2,
+.profile.profile .main :where(h2) {
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1.3;
+  margin: 0 0 22px;
+}
+.profile h3,
+.profile.profile .main :where(h3) {
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.4;
+  margin: 0 0 4px;
+}
+.profile p,
+.profile.profile .main p {
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0 0 16px;
+}
+.profile.profile .main :is(ul, ol) > li {
+  font-size: 14px;
+  line-height: 1.5;
+}
+.main > section {
+  border-top: 1px solid #d9dfe3;
+  padding: 32px 0;
+  scroll-margin-top: 24px;
+}
+.header {
+  padding-bottom: 28px;
+  container: profile-header / inline-size;
+}
+.profile.profile .header h1 {
+  margin-bottom: 12px;
+}
+.headerControls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.actions,
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+.badges > a {
+  display: flex;
+}
+.badges img {
+  display: block;
+  width: auto;
+  height: 24px;
+}
+.profile .badges a.gbifBadge {
+  display: inline-flex;
+  align-items: stretch;
+  flex-shrink: 0;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #555;
+  color: #fff;
+  /* Match Bionomia: 11px text in a 20px SVG, displayed at 24px high. */
+  font: 400 13.2px/24px "DejaVu Sans", Verdana, Geneva, sans-serif;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.profile .badges a.gbifBadge > span {
+  font: inherit;
+}
+.gbifBadgeIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  background: #3b6f37;
+}
+.gbifBadgeIcon svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+.gbifBadgeLabel,
+.gbifBadgeCount {
+  padding: 0 8px;
+}
+.gbifBadgeCount {
+  min-width: 32px;
+  background: #2da844;
+  text-align: center;
+}
+.actions {
+  margin-left: auto;
+  justify-content: flex-end;
+}
+/* Match the contained action buttons in the sample explorer cards. */
+.profile .actions :global(.MuiButton-root) {
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.625rem !important;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  line-height: 1.25;
+  min-height: 2rem;
+  padding: 0.375rem 0.75rem;
+}
+.actions :global(.MuiButton-endIcon) {
+  margin-left: 0.375rem;
+  margin-right: 0;
+}
+.actions :global(.MuiButton-endIcon) svg {
+  font-size: 1rem;
+  width: 1em;
+  height: 1em;
+}
+/* Respond to the content width, including space taken by the page sidebar. */
+@container profile-header (max-width: 850px) {
+  .headerControls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .headerControls .actions {
+    margin-left: 0;
+    justify-content: flex-start;
+  }
+}
+@container profile-header (max-width: 480px) {
+  .headerControls .actions {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+.profile .button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 15px;
+  border: 1px solid var(--profile-blue);
+  border-radius: 2px;
+  color: var(--profile-blue);
+  background: white;
+  font:
+    600 13px/1.5 "Inter",
+    Helvetica,
+    Arial,
+    sans-serif;
+  text-decoration: none;
+  cursor: pointer;
+}
+.profile .button:hover {
+  background: #edf6fa;
+}
+.notice {
+  border: 1px solid #b7dafa;
+  border-radius: 4px;
+  background: #f2f8fd;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+.noticeHeader {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 18px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #d9dfe3;
+}
+.profile.profile .notice .noticeTitle {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  color: #000;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+.notice .noticeIcon {
+  flex-shrink: 0;
+  color: #1a1a1a;
+  font-size: 20px;
+}
+.notice .noticeInfo {
+  flex-shrink: 0;
+  color: #8fc6f2;
+  font-size: 30px;
+}
+.profile.profile .notice .noticeLead {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 600;
+}
+.noticeBody {
+  display: flex;
+  align-items: flex-end;
+  gap: 24px;
+}
+.noticeMessage {
+  flex: 1;
+  min-width: 0;
+}
+.profile.profile .notice p {
+  color: #000;
+}
+.profile.profile .noticeMessage > p:last-child {
+  margin-bottom: 0;
+}
+.noticeActions {
+  display: flex;
+  flex-shrink: 0;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  max-width: 50%;
+  justify-content: flex-end;
+}
+.profile .notice .button {
+  max-width: 100%;
+  gap: 6px;
+  color: #0073cf;
+  border-color: #0073cf;
+  text-align: center;
+  text-transform: uppercase;
+}
+.description {
+  overflow-wrap: anywhere;
+}
+.description table {
+  max-width: 100%;
+}
+.profile.profile .main .citationInstructions {
+  color: #1a1a1a;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+.profile .citationInstructions a {
+  color: #0073cf;
+}
+.citation {
+  background: #fff;
+  padding: 24px;
+  border: 1px solid #d7d9d9;
+  border-radius: 4px;
+  overflow-wrap: anywhere;
+}
+.profile.profile .citation .citationText {
+  color: #1a1a1a;
+  font-family: monospace;
+  font-size: 0.75rem;
+  margin: 0;
+}
+.citationTooltip:global(.MuiTooltip-tooltip) {
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+.citationActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 8px;
+  margin-top: 24px;
+}
+.citationActions :global(.MuiButton-root) {
+  padding: 5px 10px;
+  background-color: #fff;
+  white-space: nowrap;
+}
+.citationActions :global(.MuiButton-startIcon) {
+  margin-right: 8px;
+}
+.profile.profile .citation .status {
+  margin: 12px 0 0;
+  font-size: 14px;
+}
+.profile.profile .citation .status:empty {
+  margin: 0;
+}
+.profile .relatedList {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.profile .relatedItem {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 20px;
+  min-height: 72px;
+  margin: 0;
+  padding: 16px 20px;
+  background: #fff;
+  list-style: none;
+}
+.profile .relatedItem:nth-child(even),
+.profile .documentationItem:nth-child(even) {
+  background: #f5f6f7;
+}
+.relatedItem .relatedIcon {
+  color: #7c7f80;
+  width: 24px;
+  height: 24px;
+}
+.relatedLabel {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.profile.profile .relatedItem h3 {
+  min-width: 0;
+  margin: 0;
+  color: #1a1a1a;
+  font-size: 16px;
+  overflow-wrap: anywhere;
+}
+.profile.profile .relatedLabel .relatedCode {
+  margin: 4px 0 0;
+  color: #7c7f80;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+.profile .relatedItem .relatedAction {
+  justify-self: end;
+  color: #0073cf;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.resourceSeparator {
+  margin: 0 12px;
+  color: #b5b9bb;
+}
+.externalDivider {
+  border: 0;
+  border-top: 1px solid #d9dfe3;
+  margin: 0 0 20px;
+}
+.profile.profile .externalData .externalLead {
+  color: #1a1a1a;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 20px;
+}
+.profile .externalLinks {
+  padding-left: 24px;
+  margin: 0;
+  color: #1a1a1a;
+}
+.profile .externalLinks li {
+  margin: 4px 0;
+}
+.profile .externalLinks a {
+  color: #0073cf;
+  overflow-wrap: anywhere;
+}
+.profile .documentationItem {
+  margin: 0;
+  padding: 16px 20px;
+  background: #fff;
+  list-style: none;
+}
+.profile .documentationItem :global(.MuiListItem-root) {
+  padding: 0;
+  min-height: 40px;
+}
+.profile .documentationItem :global(.MuiListItemIcon-root) {
+  min-width: 24px;
+  margin-right: 20px;
+  color: #7c7f80;
+}
+.profile .documentationItem :global(.MuiListItemText-root) {
+  min-width: 0;
+  margin: 0;
+  padding: 0 20px 0 0;
+}
+.profile .documentationItem :global(.MuiListItemText-primary) {
+  color: #1a1a1a;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.4;
+}
+.profile.profile .documentationItem :global(.MuiListItemText-secondary) {
+  color: #7c7f80;
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 4px 0 0;
+}
+.resource {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 0;
+  border-bottom: 1px solid #e3e7ea;
+}
+.resource > div {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.resource > a {
+  flex-shrink: 0;
+}
+.resource p {
+  color: #626a70;
+  font-size: 14px;
+  margin: 0;
+}
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+@media (max-width: 1000px) {
+  .profile {
+    gap: 24px;
+  }
+  .sidebar {
+    flex-basis: 200px;
+  }
+}
+@media (max-width: 700px) {
+  .profile {
+    display: block;
+  }
+  .sidebar {
+    position: static;
+    margin-bottom: 28px;
+  }
+  .profile .relatedItem {
+    grid-template-columns: 24px minmax(0, 1fr);
+    gap: 12px;
+    padding: 16px;
+  }
+  .profile .relatedItem .relatedAction {
+    grid-column: 2;
+  }
+  .profile .documentationItem {
+    padding: 16px;
+  }
+  .profile .documentationItem :global(.MuiListItemIcon-root) {
+    margin-right: 12px;
+  }
+  .resource {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .citation {
+    padding: 16px;
+  }
+  .notice {
+    padding: 16px;
+  }
+  .noticeBody {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+  .noticeActions {
+    max-width: 100%;
+  }
+  .main > section {
+    padding: 24px 0;
+  }
+}
+
+.directory {
+  display: block;
+}
+
+.aboutTags {
+  margin-bottom: 20px;
+}
+.aboutLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 32px;
+  align-items: start;
+}
+.main > .about {
+  border-top: 1px solid #d9dfe3;
+}
+.aboutDescription {
+  min-width: 0;
+  color: #565a5c;
+}
+.profile.profile .aboutDescription .description :is(h1, h2, h3, h4, h5, h6) {
+  margin: 24px 0 10px;
+}
+.profile.profile .aboutDescription .description p {
+  margin: 0 0 12px;
+}
+.profile.profile .aboutDescription .description :is(ul, ol) {
+  padding-left: 22px;
+  margin: 0 0 16px;
+}
+.profile.profile .aboutDescription .description :is(ul, ol) :is(ul, ol) {
+  margin: 0;
+}
+.profile.profile .aboutDescription .description li {
+  margin: 2px 0;
+  padding: 0;
+}
+.profile.profile .aboutDescription .description > :last-child {
+  margin-bottom: 0;
+}
+.details {
+  min-width: 0;
+  font-family: "Inter", Helvetica, Arial, sans-serif;
+}
+.details .detail {
+  margin: 0 0 20px;
+}
+.details .detail:last-child {
+  margin-bottom: 0;
+}
+.details .imageGallery {
+  display: grid;
+  gap: 16px;
+  max-width: 320px;
+  justify-items: start;
+}
+.details .imageFigure {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+}
+.details .imageFigure a {
+  display: inline-block;
+  max-width: 100%;
+}
+.details .imageFigure img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 240px;
+  object-fit: contain;
+  object-position: left center;
+  margin: 0;
+}
+.details .imageCaption {
+  margin-top: 8px;
+  color: #565a5c;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.profile.profile .details .keywordHeading {
+  margin: 0 0 10px;
+  color: #1a1a1a;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.4;
+}
+.profile.profile .details .detailValue,
+.detailsBand .detail dd {
+  margin: 0;
+  color: #292d30;
+  font-size: 14px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.profile.profile .detailsBand .detailsStatus {
+  font-size: 14px;
+  margin: 0 0 16px;
+}
+.details .keywords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.profile .details .keywords li.keyword {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* The component measures from the About column to the viewport edge.
+   Matching padding keeps the details aligned with the rest of the profile. */
+.detailsBand {
+  --details-background: #f4f5f6;
+  --details-right-bleed: var(--profile-content-gutter, 0px);
+  position: relative;
+  width: auto;
+  max-width: none;
+  background: var(--details-background);
+  margin: 34px calc(-1 * var(--profile-content-gutter, 0px)) 32px;
+  margin-right: calc(-1 * var(--details-right-bleed));
+  padding: 22px var(--profile-content-gutter, 0px);
+  padding-right: var(--details-right-bleed);
+}
+.detailsBand::before,
+.detailsBand::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='6' viewBox='0 0 240 6'%3E%3Cpath fill='%23f4f5f6' d='M0 3 4 2 7 4 11 3 14 1 18 2 22 4 25 3 29 4 32 2 37 3 40 1 44 2 48 1 52 3 55 2 59 4 63 2 67 3 70 1 73 3 78 2 82 4 86 3 89 1 94 2 98 1 102 3 106 2 110 4 114 2 117 3 121 1 125 2 129 4 133 3 137 4 141 2 145 3 148 1 152 3 156 2 160 4 164 3 169 1 172 2 176 1 180 3 184 2 188 4 191 2 195 3 199 1 203 2 207 4 211 3 215 1 219 2 223 4 227 2 231 3 235 1 240 3V6H0Z'/%3E%3C/svg%3E")
+    repeat-x left top;
+}
+.detailsBand::before {
+  top: -6px;
+}
+.detailsBand::after {
+  bottom: -6px;
+  transform: rotate(180deg);
+}
+.detailsBand .detailsList {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr 1.65fr 1fr;
+  gap: 24px;
+  margin: 0;
+  padding: 0;
+}
+.detailsBand .detail {
+  min-width: 0;
+  margin: 0;
+}
+.detailsBand .detail dt {
+  margin: 0 0 8px;
+  color: #1a1a1a;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+.storageValue {
+  display: block;
+}
+.storageValue + .storageValue {
+  margin-top: 6px;
+}
+.statistics {
+  scroll-margin-top: 24px;
+}
+.profile.profile .statistics > h3 {
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1.3;
+  margin: 0 0 16px;
+}
+.statGroups {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 32px;
+}
+.statGroup {
+  min-width: 0;
+}
+.profile.profile .statGroup h4 {
+  color: #1a1a1a;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.4;
+  margin: 0 0 10px;
+}
+.statGroup dl {
+  margin: 0;
+  border-top: 1px solid #d9dfe3;
+}
+.statRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #d9dfe3;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.statRow dt {
+  min-width: 0;
+  font-weight: 400;
+  overflow-wrap: anywhere;
+}
+.statRow dt small {
+  display: block;
+  font-size: 12px;
+  font-style: italic;
+  color: #565a5c;
+}
+.profile.profile .statRow dd {
+  flex-shrink: 0;
+  margin: 0;
+  color: #292d30;
+  font-family: var(--profile-font-family);
+  font-size: 16px;
+  font-weight: 600;
+  text-align: right;
+}
+@media (max-width: 1199px) {
+  .aboutLayout {
+    grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+    gap: 24px;
+  }
+  .detailsBand .detailsList,
+  .statGroups {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+  }
+}
+@media (max-width: 700px) {
+  .aboutLayout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+  .statGroups {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 500px) {
+  .detailsBand .detailsList {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+}
+
+.profile .viewAllButton:global(.MuiButton-root) {
+  margin-top: 16px;
+  padding: 5px 12px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.sidebar .mobileSidebarToggle:global(.MuiButtonBase-root),
+.sidebar .mobileCurrentSection {
+  display: none;
+}
+@media (max-width: 959.95px) {
+  .sidebar {
+    margin: 0;
+  }
+  .sidebar > .sidebarTitle,
+  .sidebar > .code.code,
+  .sidebar .sidebarItems {
+    display: none;
+  }
+  .sidebar .mobileSidebarToggle:global(.MuiButtonBase-root) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    margin: 0;
+    padding: 8px 0 16px;
+    border: 0;
+    border-bottom: 1px solid #d5d7d8;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    text-transform: none;
+    letter-spacing: normal;
+    white-space: normal;
+    color: #1a1a1a;
+    font: 600 16px/1.4 "Inter", Helvetica, Arial, sans-serif;
+    text-align: left;
+    cursor: pointer;
+  }
+  .mobileSidebarIdentity {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .mobileSidebarIdentity strong {
+    font: inherit;
+    font-weight: 700;
+  }
+  .mobileSidebarCode {
+    color: #a2a4a3;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .mobileSidebarToggle svg {
+    flex-shrink: 0;
+    color: #0073cf;
+    transition: transform 180ms ease;
+  }
+  .mobileSidebarToggle .chevronOpen {
+    transform: rotate(180deg);
+  }
+  .sidebar .sidebarNav {
+    margin: 0;
+    padding: 16px 0;
+    border: 0;
+    border-bottom: 1px solid #d5d7d8;
+  }
+  .sidebar .sidebarNav a.mobileCurrentSection[aria-current="location"],
+  .sidebar .sidebarNav a.mobileCurrentSection[aria-current="location"]:hover {
+    display: block;
+    color: #565a5c;
+    font: 700 14px/1.5 "Inter", Helvetica, Arial, sans-serif;
+    text-decoration: none;
+  }
+  .sidebar .sidebarItemsOpen {
+    display: block;
+    max-height: 40vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  .sidebar .sidebarContact {
+    padding-top: 12px;
+    font-size: 12px;
+  }
+  .sidebar .sidebarContact .sidebarContactText {
+    display: inline;
+    margin: 0 8px 0 0;
+    font-size: 12px;
+  }
+  .sidebar .mobileSidebarToggle:focus-visible,
+  .sidebar .mobileCurrentSection:focus-visible {
+    outline: 2px solid #0073cf;
+    outline-offset: 2px;
+  }
+  .profile .main > section {
+    scroll-margin-top: 180px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mobileSidebarToggle svg {
+    transition: none;
+  }
+}

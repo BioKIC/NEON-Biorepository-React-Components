@@ -76,6 +76,7 @@ function searchScore(item, terms) {
     { weight: 100, priority: true, values: [item.name, item.sampleTypeName, item.collectionName] },
     { weight: 60, values: [(item.shortDescription ?? cardDescription(description)).split(/\s+/).slice(0, 5).join(' ')] },
     { weight: 30, values: [item.shortDescription ?? cardDescription(description)] },
+    { weight: 20, priority: true, values: item.keywords || [] },
     { weight: 10, priority: true, values: item.taxa },
     { weight: 10, values: [...item.protocols, ...item.preservation, item.dataProducts] },
     { weight: 1, values: [item.shortDescription != null ? description : (samplingIndex < 0 ? '' : description.slice(samplingIndex))] },
@@ -102,16 +103,24 @@ function searchScore(item, terms) {
     }
     return score + best;
   }, 0);
-  // Boost topical name or taxonomic matches, not incidental description or protocol mentions.
+  // Boost topical name, keyword, or taxonomic matches, not incidental protocol mentions.
   return priorityMatches && PRIORITY_COLLECTION_IDS.has(Number(item.id))
     ? relevance + (Number(item.id) === 28 ? 2000 : 1000) : relevance;
 }
-export function filterCatalog(items, filters, reference = {}) {
+// Use the same matching rules as local search, before applying any facets.
+export function hasCatalogTextMatch(items, term) {
+  return items.some((item) => searchScore(item, [term]) > 0);
+}
+export function searchTerms(query) {
+  const words = query.toLowerCase().match(/"[^"]+"|\S+/g) || [];
+  return [...new Set(words.map((term) => term.replaceAll('"', '').replace(/\s+/g, ' ').trim()).filter(Boolean))];
+}
+export function filterCatalog(items, filters, reference = {}, taxonCollectionIds = new Set()) {
   if (filters.from && filters.to && filters.from > filters.to) return [];
-  const words = filters.q.toLowerCase().match(/"[^"]+"|\S+/g) || [];
-  const terms = [...new Set(words.map((term) => term.replaceAll('"', '').replace(/\s+/g, ' ').trim()).filter(Boolean))];
+  const terms = searchTerms(filters.q);
   return items
-    .map((item) => ({ item, score: terms.length ? searchScore(item, terms) : 0 }))
+    .map((item) => ({ item, score: terms.length
+      ? Math.max(searchScore(item, terms), taxonCollectionIds.has(item.id) ? 10 : 0) : 0 }))
     .filter(({ item, score }) => {
       if (terms.length && score === 0) return false;
       if (filters.repository?.length && !filters.repository.some((value) => matchesRepository(item, value))) return false;

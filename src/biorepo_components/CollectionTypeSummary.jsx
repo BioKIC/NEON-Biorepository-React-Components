@@ -234,6 +234,7 @@ const useStyles = makeStyles()((theme) => ({
   },
 }));
 
+// #neon edit
 export default function CollectionTypeSummary() {
   const { classes } = useStyles();
 
@@ -725,3 +726,4 @@ export default function CollectionTypeSummary() {
     </ThemeProvider>
   );
 }
+// #end neon edit

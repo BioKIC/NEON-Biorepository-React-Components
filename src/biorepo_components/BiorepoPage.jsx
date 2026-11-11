@@ -12,6 +12,8 @@ import StyleSeeds from './StyleSeeds';
 export default function BiorepoPage() {
   const isSampleCatalog = window.location.pathname
     .endsWith('/collections/misc/browsecollprofiles.php');
+  const isCollectionProfile = window.location.pathname.endsWith('/collections/misc/neoncollprofiles.php');
+  const hasCustomSidebar = isSampleCatalog || isCollectionProfile;
   const [config, setConfig] = useState(null);
   const [layoutReady, setLayoutReady] = useState(false);
 
@@ -115,20 +117,51 @@ export default function BiorepoPage() {
     <NeonPage
       breadcrumbs={breadcrumbs}
       breadcrumbHomeHref="https://www.neonscience.org/"
-      sidebarLinks={isSampleCatalog ? [] : sidebarLinks}
-      sidebarContent={isSampleCatalog ? <div id="biorepo-catalog-filters" /> : null}
+      sidebarLinks={hasCustomSidebar ? [] : sidebarLinks}
+      sidebarContent={isSampleCatalog ? <div id="biorepo-catalog-filters" /> : isCollectionProfile ? <div id="biorepo-profile-navigation" /> : null}
       sidebarContentResponsive={isSampleCatalog}
-      sidebarDisableMaxHeight={isSampleCatalog}
+      sidebarDisableMaxHeight={hasCustomSidebar}
       sidebarUnsticky={isSampleCatalog}
       sidebarWidth={isSampleCatalog ? 340 : 300}
-      sidebarTitle={isSampleCatalog ? 'Filter' : sidebarTitle}
-      sidebarContainerClassName={isSampleCatalog ? 'catalog-sidebar' : undefined}
+      sidebarTitle={isSampleCatalog ? 'Filter' : isCollectionProfile ? '' : sidebarTitle}
+      sidebarContainerClassName={isSampleCatalog ? 'catalog-sidebar' : isCollectionProfile ? 'profile-sidebar' : undefined}
     >
-      {isSampleCatalog && (
-        <GlobalStyles styles={{
+      {hasCustomSidebar && (
+        <GlobalStyles styles={(theme) => ({
           '#header': { position: 'relative !important', top: 'auto !important' },
           '.catalog-sidebar > div > .MuiDivider-root': { display: 'none' },
-        }} />
+          '.profile-sidebar': { paddingTop: '24px' },
+          '.profile-sidebar + [data-selenium="neon-page.content"]': {
+            paddingTop: '16px',
+            '--profile-content-gutter': theme.spacing(8),
+          },
+          // The host must stick inside the full-height sidebar, not inside its own short wrapper.
+          '.profile-sidebar > #biorepo-profile-navigation': {
+            position: 'sticky',
+            top: '24px',
+            maxHeight: 'calc(100vh - 48px)',
+            overflowY: 'auto',
+            overflowX: 'hidden',
+            width: '100%',
+            boxSizing: 'border-box',
+          },
+          '@media (max-width: 959.95px)': {
+            '.profile-sidebar + [data-selenium="neon-page.content"]': {
+              '--profile-content-gutter': theme.spacing(5),
+            },
+            '.profile-sidebar': {
+              position: 'sticky',
+              top: 0,
+              padding: '12px 16px',
+              zIndex: 10,
+            },
+            '.profile-sidebar > #biorepo-profile-navigation': {
+              position: 'static',
+              maxHeight: 'none',
+              overflowY: 'visible',
+            },
+          },
+        })} />
       )}
       <StyleSeeds />
     </NeonPage>
