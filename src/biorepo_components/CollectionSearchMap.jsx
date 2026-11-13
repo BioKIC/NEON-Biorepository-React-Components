@@ -8,11 +8,18 @@ import { sitesFromRecordQuery } from './sampleCatalog/recordLinks';
 /* global updateChip */
 
 export default function BiorepoSearchMap() {
-  const [selectedSites, setSelectedSites] = useState(() => sitesFromRecordQuery(window.location.search, biorepoDatasets.datasets));
+  const datasets = window.NEON_SEARCH_PARAMETERS?.datasetid
+    ?.filter((entry) => entry.view === 'site')
+    .map((entry) => ({ name: entry.token, datasetID: entry.ids[0] }))
+    ?? biorepoDatasets.datasets;
+  const [selectedSites, setSelectedSites] = useState(() => sitesFromRecordQuery(
+    window.NEON_SEARCH_PARAMETERS?.query ?? window.location.search,
+    datasets,
+  ));
   const [isMapVisible, setIsMapVisible] = useState(false);
 
   const datasetLookup = Object.fromEntries(
-    biorepoDatasets.datasets.map((dataset) => [
+    datasets.map((dataset) => [
       dataset.name,
       dataset.datasetID,
     ]),
