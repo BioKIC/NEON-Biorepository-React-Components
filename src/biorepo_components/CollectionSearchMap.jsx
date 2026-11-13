@@ -18,6 +18,15 @@ export default function BiorepoSearchMap() {
     ]),
   );
 
+  // #neon edit
+  // Keep React's selection in sync when the legacy form removes the Sites chip or resets.
+  useEffect(() => {
+    const clearSites = () => setSelectedSites(new Set());
+    window.addEventListener('neon:clear-sites', clearSites);
+    return () => window.removeEventListener('neon:clear-sites', clearSites);
+  }, []);
+  // #end neon edit
+
   useEffect(() => {
     // Map checkboxes may mount after the legacy form's URL-prefill handler runs.
     if (typeof updateChip === 'function' && document.getElementById('chips')) updateChip();
