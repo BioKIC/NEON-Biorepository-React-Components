@@ -17,5 +17,5 @@ export default function BiorepoSearchSidebar() {
     };
   }, []);
 
-  return <Box id="biorepo-search-controls" ref={controlsRef} sx={{ pt: 2, bgcolor: '#f5f6f7' }} />;
+  return <Box id="biorepo-search-controls" ref={controlsRef} sx={{ width: '100%', minWidth: 0, bgcolor: '#f5f6f7' }} />;
 }

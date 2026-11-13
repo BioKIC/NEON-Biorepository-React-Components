@@ -127,13 +127,40 @@ export default function BiorepoPage() {
       sidebarContentResponsive={isSampleCatalog || isRecordSearch}
       sidebarContentKeepMounted={isRecordSearch}
       sidebarDisableMaxHeight={hasCustomSidebar}
-      sidebarUnsticky={isSampleCatalog || isRecordSearch}
+      sidebarUnsticky={isSampleCatalog}
       sidebarWidth={isSampleCatalog || isRecordSearch ? 340 : 300}
-      sidebarTitle={isSampleCatalog ? 'Filter' : isRecordSearch ? 'Search Criteria' : isCollectionProfile ? '' : sidebarTitle}
+      sidebarTitle={isSampleCatalog || isRecordSearch ? 'Filter' : isCollectionProfile ? '' : sidebarTitle}
       sidebarContainerClassName={isRecordSearch ? 'search-sidebar' : isSampleCatalog ? 'catalog-sidebar' : isCollectionProfile ? 'profile-sidebar' : undefined}
     >
       <GlobalStyles styles={{
-        '.search-sidebar .MuiCollapse-wrapperInner > .MuiDivider-root': { display: 'none' },
+        '.search-sidebar > .neon__sidebar-sticky': {
+          position: 'sticky',
+          top: '24px',
+          maxHeight: 'calc(100vh - 48px)',
+          overflowY: 'auto',
+          overflowX: 'hidden',
+          width: '100%',
+          boxSizing: 'border-box',
+        },
+        '.search-sidebar .MuiTypography-h5': {
+          margin: 0,
+          fontFamily: 'Inter, Helvetica, Arial, sans-serif',
+          fontSize: '28px',
+          fontWeight: 700,
+          lineHeight: '34px',
+          letterSpacing: 'normal',
+          color: '#000',
+        },
+        '.search-sidebar .MuiCollapse-root, .search-sidebar .MuiCollapse-wrapper, .search-sidebar .MuiCollapse-wrapperInner': {
+          width: '100%',
+          minWidth: 0,
+        },
+        '.search-sidebar .MuiCollapse-wrapperInner > .MuiDivider-root': {
+          display: 'block',
+          width: '100% !important',
+          margin: '16px 0',
+          borderColor: '#d5d7d8',
+        },
       }} />
       {(isSampleCatalog || isCollectionProfile) && (
         <GlobalStyles styles={(theme) => ({
