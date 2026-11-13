@@ -32,16 +32,23 @@ export default function BiorepoSearchMap() {
     if (typeof updateChip === 'function' && document.getElementById('chips')) updateChip();
   }, [selectedSites]);
 
+  // #neon edit
   useEffect(() => {
     const modal = document.getElementById('domains-sites-modal');
 
     if (!modal) return undefined;
 
     const isVisible = () => window.getComputedStyle(modal).display !== 'none';
+    let visible;
+    let renderTimer;
 
     const handleModalVisibility = () => {
-      if (isVisible()) {
-        setTimeout(() => {
+      const nextVisible = isVisible();
+      if (nextVisible === visible) return;
+      visible = nextVisible;
+      clearTimeout(renderTimer);
+      if (visible) {
+        renderTimer = setTimeout(() => {
           setIsMapVisible(true);
         }, 300);
       } else {
@@ -60,8 +67,10 @@ export default function BiorepoSearchMap() {
 
     return () => {
       observer.disconnect();
+      clearTimeout(renderTimer);
     };
   }, []);
+  // #end neon edit
 
   return (
     <div style={{ width: '100%' }}>
@@ -73,8 +82,10 @@ export default function BiorepoSearchMap() {
         `}
       </style>
 
+      {/* #neon edit */}
       {isMapVisible && (
         <SiteMap
+          fullscreen
           selection="SITES"
           selectedItems={selectedSites}
           onSelectionChange={(selectionState) => {
@@ -83,6 +94,7 @@ export default function BiorepoSearchMap() {
           }}
         />
       )}
+      {/* #end neon edit */}
 
       {Array.from(selectedSites).map((siteCode) => {
         const datasetId = datasetLookup[siteCode];
