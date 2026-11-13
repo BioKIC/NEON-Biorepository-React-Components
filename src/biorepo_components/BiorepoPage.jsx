@@ -16,7 +16,9 @@ export default function BiorepoPage() {
     .endsWith('/collections/misc/browsecollprofiles.php');
   const isCollectionProfile = window.location.pathname.endsWith('/collections/misc/neoncollprofiles.php');
   const isRecordSearch = window.location.pathname.endsWith('/neon/search/index.php');
-  const hasCustomSidebar = isSampleCatalog || isCollectionProfile || isRecordSearch;
+  const isRecordResults = window.location.pathname.endsWith('/collections/list.php');
+  const hasSearchSidebar = isRecordSearch || isRecordResults;
+  const hasCustomSidebar = isSampleCatalog || isCollectionProfile || hasSearchSidebar;
   const [config, setConfig] = useState(null);
   const [layoutReady, setLayoutReady] = useState(false);
 
@@ -123,14 +125,14 @@ export default function BiorepoPage() {
       breadcrumbHomeHref="https://www.neonscience.org/"
       sidebarLinks={hasCustomSidebar ? [] : sidebarLinks}
       sidebarFooter={isCollectionProfile ? null : sidebarContact}
-      sidebarContent={isRecordSearch ? <BiorepoSearchSidebar /> : isSampleCatalog ? <div id="biorepo-catalog-filters" /> : isCollectionProfile ? <div id="biorepo-profile-navigation" /> : null}
-      sidebarContentResponsive={isSampleCatalog || isRecordSearch}
-      sidebarContentKeepMounted={isRecordSearch}
+      sidebarContent={hasSearchSidebar ? <BiorepoSearchSidebar /> : isSampleCatalog ? <div id="biorepo-catalog-filters" /> : isCollectionProfile ? <div id="biorepo-profile-navigation" /> : null}
+      sidebarContentResponsive={isSampleCatalog || hasSearchSidebar}
+      sidebarContentKeepMounted={hasSearchSidebar}
       sidebarDisableMaxHeight={hasCustomSidebar}
       sidebarUnsticky={isSampleCatalog}
-      sidebarWidth={isSampleCatalog || isRecordSearch ? 340 : 300}
-      sidebarTitle={isSampleCatalog ? 'Filter' : isRecordSearch ? 'Search' : isCollectionProfile ? '' : sidebarTitle}
-      sidebarContainerClassName={isRecordSearch ? 'search-sidebar' : isSampleCatalog ? 'catalog-sidebar' : isCollectionProfile ? 'profile-sidebar' : undefined}
+      sidebarWidth={isSampleCatalog || hasSearchSidebar ? 340 : 300}
+      sidebarTitle={isSampleCatalog ? 'Filter' : isRecordResults ? 'Search Results' : isRecordSearch ? 'Search' : isCollectionProfile ? '' : sidebarTitle}
+      sidebarContainerClassName={hasSearchSidebar ? 'search-sidebar' : isSampleCatalog ? 'catalog-sidebar' : isCollectionProfile ? 'profile-sidebar' : undefined}
     >
       <GlobalStyles styles={(theme) => ({
         '.search-sidebar > .neon__sidebar-sticky': {
