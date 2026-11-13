@@ -135,8 +135,8 @@ export default function BiorepoPage() {
       <GlobalStyles styles={(theme) => ({
         '.search-sidebar > .neon__sidebar-sticky': {
           position: 'sticky',
-          top: '24px',
-          maxHeight: 'calc(100vh - 48px)',
+          top: 'calc(var(--search-header-offset, 0px) + var(--search-sidebar-inset, 40px))',
+          maxHeight: 'calc(100dvh - var(--search-header-offset, 0px) - var(--search-sidebar-inset, 40px) - 24px)',
           overflowY: 'auto',
           overflowX: 'hidden',
           width: '100%',
@@ -156,6 +156,13 @@ export default function BiorepoPage() {
         },
         '.search-sidebar .MuiCollapse-wrapperInner': { paddingTop: '16px' },
         '.search-sidebar .MuiCollapse-wrapperInner > .MuiDivider-root': { display: 'none' },
+        [theme.breakpoints.down('md')]: {
+          '.search-sidebar:has(#biorepo-search-controls)': {
+            top: 'var(--search-header-offset, 0px)',
+            maxHeight: 'calc(100dvh - var(--search-header-offset, 0px))',
+            overflowY: 'auto',
+          },
+        },
       })} />
       {(isSampleCatalog || isCollectionProfile) && (
         <GlobalStyles styles={(theme) => ({
