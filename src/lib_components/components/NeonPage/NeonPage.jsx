@@ -18,6 +18,9 @@ import Backdrop from '@mui/material/Backdrop';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
+// #neon edit
+import Collapse from '@mui/material/Collapse';
+// #end neon edit
 import Container from '@mui/material/Container';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
@@ -301,6 +304,9 @@ const defaultProps = {
   sidebarFooter: null,
   // #end neon edit
   sidebarContentResponsive: false,
+  // #neon edit
+  sidebarContentKeepMounted: false,
+  // #end neon edit
   sidebarContainerClassName: null,
   sidebarLinks: null,
   sidebarLinksAdditionalContent: null,
@@ -341,6 +347,9 @@ const NeonPage = (inProps) => {
     sidebarFooter,
     // #end neon edit
     sidebarContentResponsive,
+    // #neon edit
+    sidebarContentKeepMounted,
+    // #end neon edit
     sidebarContainerClassName: sidebarContainerClassNameProp,
     sidebarLinks,
     sidebarLinksAdditionalContent,
@@ -382,6 +391,9 @@ const NeonPage = (inProps) => {
   const sidebarRef = useRef(null);
   const sidebarLinksContainerRef = useRef(null);
   const belowMd = useMediaQuery(theme.breakpoints.down('md'));
+  // #neon edit
+  const reduceMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
+  // #end neon edit
   const [overlayDismissed, setOverlayDismissed] = useState(false);
   const isNetworkAvailable = useNetworkAvailability();
 
@@ -752,7 +764,14 @@ const NeonPage = (inProps) => {
                 </IconButton>
               )}
             </div>
-            {(!belowMd || sidebarExpanded) ? (
+            {/* #neon edit */}
+            {sidebarContentKeepMounted ? (
+              <Collapse in={!belowMd || sidebarExpanded} timeout={reduceMotion ? 0 : 'auto'} unmountOnExit={false}>
+                <Divider className={classes.sidebarDivider} style={{ ...dividerStyle }} />
+                {sidebarContent}
+                {sidebarFooter}
+              </Collapse>
+            ) : (!belowMd || sidebarExpanded) ? (
               <>
                 <Divider className={classes.sidebarDivider} style={{ ...dividerStyle }} />
                 {sidebarContent}
@@ -761,6 +780,7 @@ const NeonPage = (inProps) => {
                 {/* #end neon edit */}
               </>
             ) : null}
+            {/* #end neon edit */}
           </div>
         </div>
       );
@@ -1020,6 +1040,9 @@ NeonPage.propTypes = {
   sidebarFooter: children,
   // #end neon edit
   sidebarContentResponsive: PropTypes.bool,
+  // #neon edit
+  sidebarContentKeepMounted: PropTypes.bool,
+  // #end neon edit
   sidebarContainerClassName: PropTypes.string,
   sidebarLinks: PropTypes.arrayOf(
     PropTypes.shape({

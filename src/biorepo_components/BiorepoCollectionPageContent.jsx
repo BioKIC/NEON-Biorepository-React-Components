@@ -32,6 +32,7 @@ import { archiveFilename, partitionResources } from "./collectionProfile/resourc
 import styles from "./collectionProfile/Profile.module.css";
 import CollectionDetails from "./collectionProfile/CollectionDetails";
 import CollectionStatistics from "./collectionProfile/CollectionStatistics";
+import BiorepoSidebarContact from "./BiorepoSidebarContact";
 
 function Link({ href, children, button = false, external = false }) {
   const url = safeUrl(href);
@@ -726,17 +727,7 @@ export function CollectionProfile({
           ))}
         </ul>
       </nav>
-      <div className={styles.sidebarContact}>
-        <p className={styles.sidebarContactText}>
-          Have questions about samples?
-        </p>
-        <Link
-          external
-          href="https://www.neonscience.org/about/contact-neon-biorepository"
-        >
-          Contact the Biorepository
-        </Link>
-      </div>
+      <BiorepoSidebarContact />
     </aside>
   );
   if (!profile.id)
