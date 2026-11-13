@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 import SiteMap from '../lib_components/components/SiteMap/SiteMap';
 
@@ -8,15 +8,16 @@ import { sitesFromRecordQuery } from './sampleCatalog/recordLinks';
 /* global updateChip */
 
 export default function BiorepoSearchMap() {
-  const datasets = window.NEON_SEARCH_PARAMETERS?.datasetid
+  const datasets = useMemo(() => window.NEON_SEARCH_PARAMETERS?.datasetid
     ?.filter((entry) => entry.view === 'site')
     .map((entry) => ({ name: entry.token, datasetID: entry.ids[0] }))
-    ?? biorepoDatasets.datasets;
+    ?? biorepoDatasets.datasets, []);
   const [selectedSites, setSelectedSites] = useState(() => sitesFromRecordQuery(
     window.NEON_SEARCH_PARAMETERS?.query ?? window.location.search,
     datasets,
   ));
   const [isMapVisible, setIsMapVisible] = useState(false);
+  const restoreTarget = useRef(selectedSites);
 
   const datasetLookup = Object.fromEntries(
     datasets.map((dataset) => [
@@ -24,17 +25,39 @@ export default function BiorepoSearchMap() {
       dataset.datasetID,
     ]),
   );
-  // Keep React's selection in sync when the legacy form removes the Sites chip or resets.
+  // Restore the map along with the form when navigating Back or Forward.
   useEffect(() => {
-    const clearSites = () => setSelectedSites(new Set());
+    const clearSites = () => {
+      restoreTarget.current = null;
+      setSelectedSites(new Set());
+    };
+    const restoreSites = (event) => {
+      const query = event.detail?.query;
+      if (typeof query !== 'string') return;
+      const sites = sitesFromRecordQuery(query, datasets);
+      restoreTarget.current = sites;
+      setSelectedSites(sites);
+    };
     window.addEventListener('neon:clear-sites', clearSites);
-    return () => window.removeEventListener('neon:clear-sites', clearSites);
-  }, []);
+    window.addEventListener('neon:restore-search', restoreSites);
+    return () => {
+      window.removeEventListener('neon:clear-sites', clearSites);
+      window.removeEventListener('neon:restore-search', restoreSites);
+    };
+  }, [datasets]);
 
   useEffect(() => {
+    const target = restoreTarget.current;
+    if (target && target.size === selectedSites.size
+      && [...target].every((site) => selectedSites.has(site))) {
+      restoreTarget.current = null;
+      window.dispatchEvent(new CustomEvent('neon:sites-restored', {
+        detail: { datasetIds: datasets.filter((dataset) => selectedSites.has(dataset.name)).map((dataset) => dataset.datasetID) },
+      }));
+    }
     // Map checkboxes may mount after the legacy form's URL-prefill handler runs.
     if (typeof updateChip === 'function' && document.getElementById('chips')) updateChip();
-  }, [selectedSites]);
+  }, [selectedSites, datasets]);
   useEffect(() => {
     const modal = document.getElementById('domains-sites-modal');
 
@@ -88,6 +111,7 @@ export default function BiorepoSearchMap() {
           selection="SITES"
           selectedItems={selectedSites}
           onSelectionChange={(selectionState) => {
+            restoreTarget.current = null;
             setSelectedSites(new Set(selectionState.set));
 
           }}
