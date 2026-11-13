@@ -154,12 +154,8 @@ export default function BiorepoPage() {
           width: '100%',
           minWidth: 0,
         },
-        '.search-sidebar .MuiCollapse-wrapperInner > .MuiDivider-root': {
-          display: 'block',
-          width: '100% !important',
-          margin: '16px 0',
-          borderColor: '#d5d7d8',
-        },
+        '.search-sidebar .MuiCollapse-wrapperInner': { paddingTop: '16px' },
+        '.search-sidebar .MuiCollapse-wrapperInner > .MuiDivider-root': { display: 'none' },
       })} />
       {(isSampleCatalog || isCollectionProfile) && (
         <GlobalStyles styles={(theme) => ({
