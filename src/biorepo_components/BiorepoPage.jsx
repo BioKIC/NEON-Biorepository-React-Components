@@ -8,18 +8,14 @@ import GlobalStyles from '@mui/material/GlobalStyles';
 
 import NeonPage from '../lib_components/components/NeonPage/NeonPage';
 import StyleSeeds from './StyleSeeds';
-// #neon edit
 import BiorepoSearchSidebar from './BiorepoSearchSidebar';
-// #end neon edit
 
 export default function BiorepoPage() {
   const isSampleCatalog = window.location.pathname
     .endsWith('/collections/misc/browsecollprofiles.php');
   const isCollectionProfile = window.location.pathname.endsWith('/collections/misc/neoncollprofiles.php');
-  // #neon edit
   const isRecordSearch = window.location.pathname.endsWith('/neon/search/index.php');
   const hasCustomSidebar = isSampleCatalog || isCollectionProfile || isRecordSearch;
-  // #end neon edit
   const [config, setConfig] = useState(null);
   const [layoutReady, setLayoutReady] = useState(false);
 
@@ -118,8 +114,6 @@ export default function BiorepoPage() {
       );
     }
   }, [layoutReady]);
-
-  // #neon edit
   const sidebarContact = (
     <div className="biorepo-sidebar-contact">
       <p>Have questions about samples?</p>
@@ -128,27 +122,21 @@ export default function BiorepoPage() {
       </a>
     </div>
   );
-  // #end neon edit
 
   return (
     <NeonPage
       breadcrumbs={breadcrumbs}
       breadcrumbHomeHref="https://www.neonscience.org/"
       sidebarLinks={hasCustomSidebar ? [] : sidebarLinks}
-      /* #neon edit */
       sidebarFooter={isCollectionProfile || isRecordSearch ? null : sidebarContact}
       sidebarContent={isRecordSearch ? <BiorepoSearchSidebar footer={sidebarContact} /> : isSampleCatalog ? <div id="biorepo-catalog-filters" /> : isCollectionProfile ? <div id="biorepo-profile-navigation" /> : null}
-      /* #end neon edit */
       sidebarContentResponsive={isSampleCatalog}
       sidebarDisableMaxHeight={hasCustomSidebar}
       sidebarUnsticky={isSampleCatalog}
       sidebarWidth={isSampleCatalog ? 340 : 300}
       sidebarTitle={isSampleCatalog ? 'Filter' : isCollectionProfile ? '' : sidebarTitle}
-      /* #neon edit */
       sidebarContainerClassName={isRecordSearch ? 'search-sidebar' : isSampleCatalog ? 'catalog-sidebar' : isCollectionProfile ? 'profile-sidebar' : undefined}
-      /* #end neon edit */
     >
-      {/* #neon edit */}
       <GlobalStyles styles={{
         '.search-sidebar': { paddingTop: '24px' },
         '@media (max-width: 959.95px)': {
@@ -180,10 +168,7 @@ export default function BiorepoPage() {
           outlineOffset: '4px',
         },
       }} />
-      {/* #end neon edit */}
-      {/* #neon edit */}
       {(isSampleCatalog || isCollectionProfile) && (
-      /* #end neon edit */
         <GlobalStyles styles={(theme) => ({
           '#header': { position: 'relative !important', top: 'auto !important' },
           '.catalog-sidebar > div > .MuiDivider-root': { display: 'none' },

@@ -1,4 +1,3 @@
-// #neon edit
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import Box from '@mui/material/Box';
@@ -66,4 +65,3 @@ export default function BiorepoSearchSidebar({ footer }) {
 }
 
 BiorepoSearchSidebar.propTypes = { footer: PropTypes.node };
-// #end neon edit

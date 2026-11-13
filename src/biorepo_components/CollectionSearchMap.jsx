@@ -17,22 +17,17 @@ export default function BiorepoSearchMap() {
       dataset.datasetID,
     ]),
   );
-
-  // #neon edit
   // Keep React's selection in sync when the legacy form removes the Sites chip or resets.
   useEffect(() => {
     const clearSites = () => setSelectedSites(new Set());
     window.addEventListener('neon:clear-sites', clearSites);
     return () => window.removeEventListener('neon:clear-sites', clearSites);
   }, []);
-  // #end neon edit
 
   useEffect(() => {
     // Map checkboxes may mount after the legacy form's URL-prefill handler runs.
     if (typeof updateChip === 'function' && document.getElementById('chips')) updateChip();
   }, [selectedSites]);
-
-  // #neon edit
   useEffect(() => {
     const modal = document.getElementById('domains-sites-modal');
 
@@ -70,7 +65,6 @@ export default function BiorepoSearchMap() {
       clearTimeout(renderTimer);
     };
   }, []);
-  // #end neon edit
 
   return (
     <div style={{ width: '100%' }}>
@@ -81,8 +75,6 @@ export default function BiorepoSearchMap() {
           }
         `}
       </style>
-
-      {/* #neon edit */}
       {isMapVisible && (
         <SiteMap
           fullscreen
@@ -94,7 +86,6 @@ export default function BiorepoSearchMap() {
           }}
         />
       )}
-      {/* #end neon edit */}
 
       {Array.from(selectedSites).map((siteCode) => {
         const datasetId = datasetLookup[siteCode];
