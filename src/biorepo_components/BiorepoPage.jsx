@@ -118,6 +118,16 @@ export default function BiorepoPage() {
       breadcrumbs={breadcrumbs}
       breadcrumbHomeHref="https://www.neonscience.org/"
       sidebarLinks={hasCustomSidebar ? [] : sidebarLinks}
+      /* #neon edit */
+      sidebarFooter={isCollectionProfile ? null : (
+        <div className="biorepo-sidebar-contact">
+          <p>Have questions about samples?</p>
+          <a href="https://www.neonscience.org/about/contact-neon-biorepository" target="_blank" rel="noopener noreferrer">
+            Contact the Biorepository
+          </a>
+        </div>
+      )}
+      /* #end neon edit */
       sidebarContent={isSampleCatalog ? <div id="biorepo-catalog-filters" /> : isCollectionProfile ? <div id="biorepo-profile-navigation" /> : null}
       sidebarContentResponsive={isSampleCatalog}
       sidebarDisableMaxHeight={hasCustomSidebar}
@@ -126,6 +136,35 @@ export default function BiorepoPage() {
       sidebarTitle={isSampleCatalog ? 'Filter' : isCollectionProfile ? '' : sidebarTitle}
       sidebarContainerClassName={isSampleCatalog ? 'catalog-sidebar' : isCollectionProfile ? 'profile-sidebar' : undefined}
     >
+      {/* #neon edit */}
+      <GlobalStyles styles={{
+        '.biorepo-sidebar-contact': {
+          borderTop: '1px solid #d5d7d8',
+          marginTop: '24px',
+          paddingTop: '24px',
+          fontFamily: 'Inter, Helvetica, Arial, sans-serif',
+          fontSize: '14px',
+          lineHeight: 1.5,
+        },
+        '.biorepo-sidebar-contact p': {
+          color: '#565a5c',
+          fontSize: '14px',
+          fontWeight: 400,
+          lineHeight: 1.5,
+          margin: '0 0 12px',
+        },
+        '.biorepo-sidebar-contact a': {
+          color: '#0073cf',
+          textDecoration: 'underline',
+          textUnderlineOffset: '2px',
+        },
+        '.biorepo-sidebar-contact a:hover': { color: '#005a9f' },
+        '.biorepo-sidebar-contact a:focus-visible': {
+          outline: '3px solid #0073cf',
+          outlineOffset: '4px',
+        },
+      }} />
+      {/* #end neon edit */}
       {hasCustomSidebar && (
         <GlobalStyles styles={(theme) => ({
           '#header': { position: 'relative !important', top: 'auto !important' },

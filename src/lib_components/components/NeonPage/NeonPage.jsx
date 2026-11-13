@@ -297,6 +297,9 @@ const defaultProps = {
   progress: null,
   resetStateAfterRuntimeError: () => { },
   sidebarContent: null,
+  // #neon edit
+  sidebarFooter: null,
+  // #end neon edit
   sidebarContentResponsive: false,
   sidebarContainerClassName: null,
   sidebarLinks: null,
@@ -334,6 +337,9 @@ const NeonPage = (inProps) => {
     progress,
     resetStateAfterRuntimeError,
     sidebarContent,
+    // #neon edit
+    sidebarFooter,
+    // #end neon edit
     sidebarContentResponsive,
     sidebarContainerClassName: sidebarContainerClassNameProp,
     sidebarLinks,
@@ -692,6 +698,9 @@ const NeonPage = (inProps) => {
       return (
         <div ref={sidebarRef} className={sidebarClassName} style={sidebarContainerStyle}>
           {sidebarContent}
+          {/* #neon edit */}
+          {sidebarFooter}
+          {/* #end neon edit */}
         </div>
       );
     }
@@ -747,6 +756,9 @@ const NeonPage = (inProps) => {
               <>
                 <Divider className={classes.sidebarDivider} style={{ ...dividerStyle }} />
                 {sidebarContent}
+                {/* #neon edit */}
+                {sidebarFooter}
+                {/* #end neon edit */}
               </>
             ) : null}
           </div>
@@ -798,12 +810,14 @@ const NeonPage = (inProps) => {
         >
           {sidebarLinks.map((link) => renderLink(link))}
         </div>
-        {belowMd ? null : (
+        {/* #neon edit */}
+        {belowMd || sidebarFooter ? null : (
           <Divider
             className={classes.sidebarDivider}
             style={{ marginBottom: '0px', ...dividerStyle }}
           />
         )}
+        {/* #end neon edit */}
       </>
     );
     const currentLinkOnly = (
@@ -838,6 +852,9 @@ const NeonPage = (inProps) => {
             </>
           ) : null}
           {belowMd && !sidebarExpanded ? currentLinkOnly : fullLinks}
+          {/* #neon edit */}
+          {(!belowMd || sidebarExpanded) && sidebarFooter}
+          {/* #end neon edit */}
         </div>
       </div>
     );
@@ -999,6 +1016,9 @@ NeonPage.propTypes = {
   progress: PropTypes.number,
   resetStateAfterRuntimeError: PropTypes.func,
   sidebarContent: children,
+  // #neon edit
+  sidebarFooter: children,
+  // #end neon edit
   sidebarContentResponsive: PropTypes.bool,
   sidebarContainerClassName: PropTypes.string,
   sidebarLinks: PropTypes.arrayOf(
