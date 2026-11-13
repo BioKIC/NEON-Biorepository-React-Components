@@ -182,7 +182,9 @@ export const TIME = {
     moment.utc(`${month}-15T00:00:00Z`).subtract(1, 'month').format('YYYY-MM')
   ),
   CURRENT_MONTH: moment().format('YYYY-MM'),
-  START_YEAR: 2010,
+  // #neon edit
+  START_YEAR: 2008,
+  // #end neon edit
   END_YEAR: ((new Date().getFullYear()) + 1),
 };
 TIME.MIN_YEAR_MONTH = `${TIME.START_YEAR}-01`;
