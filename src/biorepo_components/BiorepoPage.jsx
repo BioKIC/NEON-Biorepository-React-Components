@@ -129,10 +129,10 @@ export default function BiorepoPage() {
       sidebarDisableMaxHeight={hasCustomSidebar}
       sidebarUnsticky={isSampleCatalog}
       sidebarWidth={isSampleCatalog || isRecordSearch ? 340 : 300}
-      sidebarTitle={isSampleCatalog || isRecordSearch ? 'Filter' : isCollectionProfile ? '' : sidebarTitle}
+      sidebarTitle={isSampleCatalog ? 'Filter' : isRecordSearch ? 'Search' : isCollectionProfile ? '' : sidebarTitle}
       sidebarContainerClassName={isRecordSearch ? 'search-sidebar' : isSampleCatalog ? 'catalog-sidebar' : isCollectionProfile ? 'profile-sidebar' : undefined}
     >
-      <GlobalStyles styles={{
+      <GlobalStyles styles={(theme) => ({
         '.search-sidebar > .neon__sidebar-sticky': {
           position: 'sticky',
           top: '24px',
@@ -143,13 +143,12 @@ export default function BiorepoPage() {
           boxSizing: 'border-box',
         },
         '.search-sidebar .MuiTypography-h5': {
-          margin: 0,
-          fontFamily: 'Inter, Helvetica, Arial, sans-serif',
-          fontSize: '28px',
-          fontWeight: 700,
-          lineHeight: '34px',
-          letterSpacing: 'normal',
-          color: '#000',
+          fontSize: `${theme.typography.h5.fontSize} !important`,
+          ...Object.fromEntries(
+            Object.entries(theme.typography.h5)
+              .filter(([key]) => key.startsWith('@media'))
+              .map(([key, value]) => [key, { fontSize: `${value.fontSize} !important` }]),
+          ),
         },
         '.search-sidebar .MuiCollapse-root, .search-sidebar .MuiCollapse-wrapper, .search-sidebar .MuiCollapse-wrapperInner': {
           width: '100%',
@@ -161,7 +160,7 @@ export default function BiorepoPage() {
           margin: '16px 0',
           borderColor: '#d5d7d8',
         },
-      }} />
+      })} />
       {(isSampleCatalog || isCollectionProfile) && (
         <GlobalStyles styles={(theme) => ({
           '#header': { position: 'relative !important', top: 'auto !important' },
