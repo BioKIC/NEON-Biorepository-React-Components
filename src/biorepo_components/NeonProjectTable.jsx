@@ -7,8 +7,11 @@ import { makeStyles } from '../lib_components/components/Theme/makeStyles';
 import Box from '@mui/material/Box';
 import Alert from '@mui/material/Alert';
 import Autocomplete from '@mui/material/Autocomplete';
+import Grow from '@mui/material/Grow';
 import LinearProgress from '@mui/material/LinearProgress';
+import Popper from '@mui/material/Popper';
 import TablePagination from '@mui/material/TablePagination';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import Button from '@mui/material/Button';
 import Collapse from '@mui/material/Collapse';
 import Table from '@mui/material/Table';
@@ -100,6 +103,7 @@ const useStyles = makeStyles()((theme) => ({
   detailContent: {
     display: 'flex',
     flexDirection: 'column',
+    gap: theme.spacing(3),
   },
 
   description: {
@@ -304,7 +308,7 @@ function ProjectOverview({ endpoint }) {
         ))}
       </dl>
       <div className="overview-footer">
-        <p className="overview-note">Across all public projects. Totals refresh every 15 minutes.</p>
+        <p className="overview-note">Across all public projects.</p>
         {failed && <Button size="small" onClick={() => setRetry(value => value + 1)}>Retry totals</Button>}
       </div>
     </section>
@@ -312,6 +316,26 @@ function ProjectOverview({ endpoint }) {
 }
 
 ProjectOverview.propTypes = { endpoint: PropTypes.string.isRequired };
+
+const FilterPopper = React.forwardRef(function FilterPopper({ children, ...props }, ref) {
+  const reduceMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
+  delete props.ownerState;
+  return (
+    <Popper {...props} ref={ref} transition>
+      {({ TransitionProps, placement }) => (
+        <Grow
+          {...TransitionProps}
+          timeout={reduceMotion ? 0 : { enter: 180, exit: 120 }}
+          style={{ transformOrigin: placement.startsWith('top') ? 'bottom left' : 'top left' }}
+        >
+          <div>{children}</div>
+        </Grow>
+      )}
+    </Popper>
+  );
+});
+
+FilterPopper.propTypes = { children: PropTypes.node, ownerState: PropTypes.object };
 
 function NeonTableContent() {
   const { classes } = useStyles();
@@ -377,7 +401,7 @@ function NeonTableContent() {
   const toggleDetails = React.useCallback((datasetid) => {
     setExpanded(current => ({ ...current, [datasetid]: !current[datasetid] }));
   }, []);
-  const hasFilters = search || filters.db.length || filters.datasetid.length || filters.site.length;
+  const hasFilters = search || filters.db.length || filters.site.length;
 
   return (
     <Box className={classes.tableContainer}>
@@ -408,19 +432,20 @@ function NeonTableContent() {
             Clear Filters
           </Button>
         </Box>
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, minmax(0, 1fr))' }, gap: 2 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, minmax(0, 1fr))' }, gap: 2 }}>
           {[
-            ['db', 'Sample types'], ['datasetid', 'Datasets'], ['site', 'Sites'],
+            ['db', 'Sample types'], ['site', 'Sites and domains'],
           ].map(([key, label]) => {
             const options = (config.options?.[key] || []).map(option => ({
               ...option,
-              label: `${option.label}${key === 'db' && option.code ? ` (${option.code})` : ''}${key === 'datasetid' ? ` (#${option.value})` : ''}`,
+              label: `${option.label}${key === 'db' && option.code ? ` (${option.code})` : ''}`,
             }));
             const selected = filters[key].map(value => options.find(option => option.value === value)
               || { value, label: value });
             return (
               <Autocomplete
                 key={key}
+                slots={{ popper: FilterPopper }}
                 multiple
                 disableCloseOnSelect
                 limitTags={2}
@@ -430,6 +455,7 @@ function NeonTableContent() {
                 value={selected}
                 getOptionLabel={option => option.label}
                 getOptionKey={option => option.value}
+                groupBy={key === 'site' ? option => option.group : undefined}
                 isOptionEqualToValue={(option, value) => option.value === value.value}
                 onChange={(_event, values) => navigate({ ...filters, [key]: values.map(option => option.value), page: 1 })}
                 renderInput={params => <TextField {...params} label={label} />}

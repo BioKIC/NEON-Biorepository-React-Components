@@ -1,7 +1,7 @@
 const FILTER_KEYS = ['db', 'collid', 'datasetid', 'site', 'sitename', 'q', 'search', 'page', 'pagesize'];
 
 export const emptyProjectFilters = () => ({
-  db: [], datasetid: [], site: [], q: '', page: 1, pageSize: 25,
+  db: [], site: [], q: '', page: 1, pageSize: 25,
 });
 
 export function readProjectFilters(search) {
@@ -14,7 +14,7 @@ export function readProjectFilters(search) {
   const tokens = (...names) => [...new Set(values(...names).flatMap(value => value.split(',')).map(value => value.trim()).filter(Boolean))];
   const pageSize = Number(values('pagesize')[0]);
   return {
-    db: tokens('db', 'collid'), datasetid: tokens('datasetid'), site: tokens('site', 'sitename'),
+    db: tokens('db', 'collid'), site: tokens('site', 'sitename'),
     q: values('q', 'search')[0] || '',
     page: Math.max(1, Math.min(1000000, Number.parseInt(values('page')[0], 10) || 1)),
     pageSize: [10, 25, 50, 100].includes(pageSize) ? pageSize : 25,
@@ -26,7 +26,7 @@ export function projectSearchUrl(url, filters) {
   [...next.searchParams.keys()].forEach(key => {
     if (FILTER_KEYS.includes(key.toLowerCase().replace(/\[\]$/, ''))) next.searchParams.delete(key);
   });
-  ['db', 'datasetid', 'site'].forEach(key => {
+  ['db', 'site'].forEach(key => {
     if (filters[key].length) next.searchParams.set(key, filters[key].join(','));
   });
   if (filters.q.trim()) next.searchParams.set('q', filters.q.trim());
