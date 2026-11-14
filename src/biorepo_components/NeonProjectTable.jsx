@@ -5,6 +5,10 @@ import { ThemeProvider } from '@mui/material/styles';
 import { makeStyles } from '../lib_components/components/Theme/makeStyles';
 
 import Box from '@mui/material/Box';
+import Alert from '@mui/material/Alert';
+import Autocomplete from '@mui/material/Autocomplete';
+import LinearProgress from '@mui/material/LinearProgress';
+import TablePagination from '@mui/material/TablePagination';
 import Button from '@mui/material/Button';
 import Collapse from '@mui/material/Collapse';
 import Table from '@mui/material/Table';
@@ -22,6 +26,10 @@ import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import SearchIcon from '@mui/icons-material/Search';
+import ClearIcon from '@mui/icons-material/Clear';
+import {
+  emptyProjectFilters, readProjectFilters, projectSearchUrl, writeProjectHistory,
+} from './projectSearch';
 
 
 import Theme from '../lib_components/components/Theme/Theme';
@@ -264,41 +272,180 @@ ProjectRow.propTypes = {
   index: PropTypes.number.isRequired,
 };
 
+function ProjectOverview({ endpoint }) {
+  const [overview, setOverview] = React.useState(null);
+  const [failed, setFailed] = React.useState(false);
+  const [retry, setRetry] = React.useState(0);
+  React.useEffect(() => {
+    const controller = new AbortController();
+    const url = new URL(endpoint, window.location.href);
+    url.searchParams.set('action', 'overview');
+    setFailed(false);
+    fetch(url, { signal: controller.signal, credentials: 'same-origin' })
+      .then(response => {
+        if (!response.ok) throw new Error('Overview unavailable');
+        return response.json();
+      })
+      .then(data => { if (!controller.signal.aborted) setOverview(data); })
+      .catch(() => { if (!controller.signal.aborted) setFailed(true); });
+    return () => controller.abort();
+  }, [endpoint, retry]);
+  return (
+    <section id="project-overview" aria-label="Public research project overview" aria-busy={!overview && !failed}>
+      <dl className="overview-metrics">
+        {[
+          ['specimens', 'Specimens'], ['projects', 'Research projects'],
+          ['institutions', 'Institutions'], ['sampleTypes', 'Sample types'],
+        ].map(([key, label]) => (
+          <div className="overview-metric" key={key}>
+            <dt>{label}</dt>
+            <dd>{overview ? Number(overview[key]).toLocaleString('en-US') : '—'}</dd>
+          </div>
+        ))}
+      </dl>
+      <div className="overview-footer">
+        <p className="overview-note">Across all public projects. Totals refresh every 15 minutes.</p>
+        {failed && <Button size="small" onClick={() => setRetry(value => value + 1)}>Retry totals</Button>}
+      </div>
+    </section>
+  );
+}
+
+ProjectOverview.propTypes = { endpoint: PropTypes.string.isRequired };
+
 function NeonTableContent() {
   const { classes } = useStyles();
-  const data = React.useMemo(() => window.tableData || [], []);
+  const config = React.useMemo(() => window.NEON_PROJECT_SEARCH || {}, []);
+  const [filters, setFilters] = React.useState(() => config.filters || emptyProjectFilters());
+  const [search, setSearch] = React.useState(filters.q);
   const [expanded, setExpanded] = React.useState({});
-  const [search, setSearch] = React.useState('');
+  const [result, setResult] = React.useState({ rows: [], total: 0, page: filters.page });
+  const [loading, setLoading] = React.useState(!config.error);
+  const [error, setError] = React.useState(config.error || '');
+  const [retry, setRetry] = React.useState(0);
 
-  const toggleDetails = React.useCallback((datasetid) => {
-    setExpanded((current) => ({ ...current, [datasetid]: !current[datasetid] }));
+  const navigate = React.useCallback((next, replace = false) => {
+    writeProjectHistory(next, replace);
+    setFilters(next);
   }, []);
 
-  const visibleRows = React.useMemo(() => {
-    const term = search.trim().toLowerCase();
-    const stripHtml = (value) => String(value ?? '').replace(/<[^>]*>/g, '');
-    return data.filter((row) => !term || ['name', 'researcherName'].some(
-      (field) => stripHtml(row[field]).toLowerCase().includes(term),
-    ));
-  }, [data, search]);
+  React.useEffect(() => {
+    if (!config.error) writeProjectHistory(config.filters || emptyProjectFilters(), true);
+    const restore = () => {
+      const restored = readProjectFilters(window.location.search);
+      setSearch(restored.q);
+      setFilters(restored);
+    };
+    window.addEventListener('popstate', restore);
+    return () => window.removeEventListener('popstate', restore);
+  }, [config]);
+
+  React.useEffect(() => {
+    if (search === filters.q) return undefined;
+    const timer = setTimeout(() => navigate({ ...filters, q: search, page: 1 }, true), 300);
+    return () => clearTimeout(timer);
+  }, [search, filters, navigate]);
+
+  React.useEffect(() => {
+    if (config.error || !config.endpoint) return undefined;
+    const controller = new AbortController();
+    const url = projectSearchUrl(new URL(config.endpoint, window.location.href), filters);
+    setLoading(true);
+    setError('');
+    setExpanded({});
+    setResult({ rows: [], total: 0, page: filters.page });
+    fetch(url, { signal: controller.signal, credentials: 'same-origin' })
+      .then(async response => {
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Unable to load projects. Please try again.');
+        return data;
+      })
+      .then(data => {
+        if (controller.signal.aborted) return;
+        setResult(data);
+        setLoading(false);
+        if (data.page !== filters.page) navigate({ ...filters, page: data.page }, true);
+      })
+      .catch(reason => {
+        if (controller.signal.aborted) return;
+        setError(reason.message || 'Unable to load projects. Please try again.');
+        setLoading(false);
+      });
+    return () => controller.abort();
+  }, [config, filters, navigate, retry]);
+
+  const toggleDetails = React.useCallback((datasetid) => {
+    setExpanded(current => ({ ...current, [datasetid]: !current[datasetid] }));
+  }, []);
+  const hasFilters = search || filters.db.length || filters.datasetid.length || filters.site.length;
 
   return (
     <Box className={classes.tableContainer}>
-      <Box sx={{ display: 'flex', justifyContent: 'flex-start', p: 2 }}>
-        <TextField
-          size="small"
-          placeholder="Search"
-          aria-label="Search projects"
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          sx={{ width: 450, maxWidth: '100%' }}
-          slotProps={{ input: { startAdornment: (
-            <InputAdornment position="start"><SearchIcon /></InputAdornment>
-          ) } }}
-        />
+      {config.endpoint && !config.error && <ProjectOverview endpoint={config.endpoint} />}
+      <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 2 }}>
+          <TextField
+            size="small"
+            label="Search projects"
+            placeholder="Title, description, PI, or institution"
+            value={search}
+            disabled={!!config.error}
+            onChange={event => setSearch(event.target.value)}
+            sx={{ flex: '1 1 350px' }}
+            slotProps={{ input: { startAdornment: (
+              <InputAdornment position="start"><SearchIcon /></InputAdornment>
+            ) } }}
+          />
+          <Button
+            variant="outlined"
+            startIcon={<ClearIcon />}
+            disabled={!hasFilters || !!config.error}
+            onClick={() => {
+              setSearch('');
+              navigate({ ...emptyProjectFilters(), pageSize: filters.pageSize });
+            }}
+          >
+            Clear Filters
+          </Button>
+        </Box>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, minmax(0, 1fr))' }, gap: 2 }}>
+          {[
+            ['db', 'Sample types'], ['datasetid', 'Datasets'], ['site', 'Sites'],
+          ].map(([key, label]) => {
+            const options = (config.options?.[key] || []).map(option => ({
+              ...option,
+              label: `${option.label}${key === 'db' && option.code ? ` (${option.code})` : ''}${key === 'datasetid' ? ` (#${option.value})` : ''}`,
+            }));
+            const selected = filters[key].map(value => options.find(option => option.value === value)
+              || { value, label: value });
+            return (
+              <Autocomplete
+                key={key}
+                multiple
+                disableCloseOnSelect
+                limitTags={2}
+                size="small"
+                disabled={!!config.error}
+                options={options}
+                value={selected}
+                getOptionLabel={option => option.label}
+                getOptionKey={option => option.value}
+                isOptionEqualToValue={(option, value) => option.value === value.value}
+                onChange={(_event, values) => navigate({ ...filters, [key]: values.map(option => option.value), page: 1 })}
+                renderInput={params => <TextField {...params} label={label} />}
+              />
+            );
+          })}
+        </Box>
       </Box>
-      <Box sx={{ overflowX: 'auto' }}>
-        <Table>
+      {error && (
+        <Alert severity="error" sx={{ m: 2 }} action={!config.error && (
+          <Button color="inherit" size="small" onClick={() => setRetry(value => value + 1)}>Retry</Button>
+        )}>{error}</Alert>
+      )}
+      <Box sx={{ height: 4 }}>{loading && <LinearProgress aria-label="Loading projects" />}</Box>
+      <Box sx={{ overflowX: 'auto' }} aria-busy={loading}>
+        <Table aria-label="Research projects">
           <TableHead>
             <TableRow>
               <TableCell>Title</TableCell>
@@ -307,9 +454,13 @@ function NeonTableContent() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {visibleRows.length === 0 ? (
-              <TableRow><TableCell colSpan={3} align="center">No projects available.</TableCell></TableRow>
-            ) : visibleRows.map((row, index) => (
+            {result.rows.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={3} align="center" role="status">
+                  {loading ? 'Loading projects…' : error ? 'Projects could not be loaded.' : 'No projects match these filters.'}
+                </TableCell>
+              </TableRow>
+            ) : result.rows.map((row, index) => (
               <ProjectRow
                 key={row.datasetid}
                 data={row}
@@ -321,6 +472,18 @@ function NeonTableContent() {
           </TableBody>
         </Table>
       </Box>
+      <TablePagination
+        component="div"
+        count={loading || error ? -1 : result.total}
+        page={Math.max(0, result.page - 1)}
+        rowsPerPage={filters.pageSize}
+        rowsPerPageOptions={[10, 25, 50, 100]}
+        labelRowsPerPage="Projects per page:"
+        labelDisplayedRows={({ from, to, count }) => (loading ? 'Loading…' : error ? '' : `${from}–${to} of ${count}`)}
+        disabled={loading || !!error}
+        onPageChange={(_event, page) => navigate({ ...filters, page: page + 1 })}
+        onRowsPerPageChange={event => navigate({ ...filters, pageSize: Number(event.target.value), page: 1 })}
+      />
     </Box>
   );
 }
