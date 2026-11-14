@@ -10,7 +10,7 @@ function monthEnd(month) {
 }
 
 /** Both actions share the same criteria; only the destination differs. */
-export function recordLinks({ root, items, results, filters, sites, datasets }) {
+export function recordLinks({ root, items, results, filters, sites, datasets, allCollections = false }) {
   const taxa = taxonSearchTerms(filters.q, items);
   const geographyFiltered = filters.sites.length || filters.states.length || filters.domains.length;
   // Collection-level facets choose sample types; these criteria narrow records
@@ -23,7 +23,7 @@ export function recordLinks({ root, items, results, filters, sites, datasets }) 
     || (filters.from && filters.to && filters.from > filters.to)) return unavailable;
   const ids = [...new Set(results.map((item) => item.id))].filter((id) => Number.isInteger(id) && id > 0).sort((a, b) => a - b);
   if (!ids.length) return unavailable;
-  const params = new URLSearchParams({ db: ids.join(',') });
+  const params = new URLSearchParams({ db: allCollections ? 'all,all-others' : ids.join(',') });
   const coverage = results.flatMap((item) => matchingSites(item, filters, sites));
   if (geographyFiltered) {
     const codes = [...new Set(coverage

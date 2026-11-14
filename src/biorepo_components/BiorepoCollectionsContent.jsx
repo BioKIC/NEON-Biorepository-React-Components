@@ -611,8 +611,8 @@ function Catalog() {
   ).size;
   const invalidDates = Boolean(filters.from && filters.to && filters.from > filters.to);
   const records = useMemo(() => recordLinks({
-    root, items, results, filters, sites, datasets: biorepoDatasets.datasets,
-  }), [root, items, results, filters, sites]);
+    root, items, results, filters, sites, datasets: biorepoDatasets.datasets, allCollections: !isFiltered,
+  }), [root, items, results, filters, sites, isFiltered]);
   const recordLinksPending = !catalog || !keywordsReady || taxonSearch.loading
     || Boolean(taxonSearch.error)
     || ((filters.states.length > 0 || filters.domains.length > 0) && !geographyReady);
